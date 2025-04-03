@@ -1,0 +1,41 @@
+{
+    "categories": [
+      {
+        "id": 1,
+        "name": "Electronics",
+        "subcategories": [
+          {
+            "id": 1,
+            "name": "Mobile Phones",
+            "subsubcategories": [
+              { "id": 1, "name": "Smartphones" },
+              { "id": 2, "name": "Feature Phones" }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "Laptops",
+            "subsubcategories": [
+              { "id": 1, "name": "Gaming Laptops" },
+              { "id": 2, "name": "Business Laptops" }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Furniture",
+        "subcategories": [
+          {
+            "id": 1,
+            "name": "Living Room",
+            "subsubcategories": [
+              { "id": 1, "name": "Sofas" },
+              { "id": 2, "name": "Coffee Tables" }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
