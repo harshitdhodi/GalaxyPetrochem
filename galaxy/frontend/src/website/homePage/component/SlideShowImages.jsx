@@ -23,7 +23,7 @@ const SlideshowImages = ({
 
   return (
     <div
-      className="relative w-full h-[35vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden"
+      className="relative w-full h-[35vh] sm:h-[50vh] md:h-[60vh] lg:h-[80vh] overflow-hidden"
       style={{
         contain: "layout size",
         containIntrinsicSize: "1200px 800px",

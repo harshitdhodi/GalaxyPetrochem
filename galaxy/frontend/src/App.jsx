@@ -4,11 +4,10 @@ import Navbar from "./website/navbar/Navbar";
 import ContactPage from "./website/contactUs/ContactUs";
 import PetrochemicalAboutUs from "./website/aboutUs/AboutUs";
 import BlogPage from "./website/blog/Blog";
+import Footer from "./website/navbar/componets/home/Footer";
 
 // Lazy load pages
 const HomePage = lazy(() => import("./website/homePage/HomePage"));
-// const AboutPage = lazy(() => import("./website/about/AboutPage"));
-// const NotFound = lazy(() => import("./website/NotFound"));
 
 const App = () => {
   return (
@@ -22,6 +21,7 @@ const App = () => {
           <Route path="/blogs" element={<BlogPage />} />
         </Routes>
       </Suspense>
+      <Footer/>
     </>
   );
 };

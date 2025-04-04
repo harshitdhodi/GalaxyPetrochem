@@ -9,17 +9,17 @@ export default function ContactSection({ contactInfo, navigate }) {
       {contactInfo ? (
         <div className="space-y-6 text-sm">
           <div className="flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+            <MapPin className="w-5 h-5 text-[#e84c20] flex-shrink-0" />
             <p>{contactInfo.address}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-primary flex-shrink-0" />
+            <Mail className="w-5 h-5 text-[#e84c20] flex-shrink-0" />
             <Link to={`mailto:${contactInfo.email}`} className="hover:text-gray-200">
               {contactInfo.emails}
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <Phone className="w-5 h-5 text-primary flex-shrink-0" />
+            <Phone className="w-5 h-5 text-[#e84c20] flex-shrink-0" />
             <p>
               {contactInfo.mobiles && contactInfo.mobiles.length > 0 ? (
                 <>

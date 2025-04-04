@@ -64,11 +64,11 @@ export default function SearchBar() {
     }
   };
 
-  return (
+  return ( 
     <div className="relative w-full">
       {/* Search Icon for Mobile */}
       <button 
-        className="md:hidden p-2 bg-primary  text-white rounded-full fixed top-5 right-20 z-50"
+        className="md:hidden p-2 bg-[#e84c20]  text-white rounded-full fixed top-5 right-20 z-50"
         onClick={() => setShowSearchModal(true)}
       >
         <svg
@@ -89,7 +89,7 @@ export default function SearchBar() {
 
       {/* Desktop Search Bar */}
       <div className="hidden md:block w-full max-w-[35rem] mx-auto">
-        <div className="flex rounded-full border-2 border-primary">
+        <div className="flex rounded-full border-2 border-[#e84c20]">
           <input
             type="text"
             value={searchTerm}
@@ -102,7 +102,7 @@ export default function SearchBar() {
           />
           <button 
             onClick={handleSearch}
-            className="px-4 bg-primary text-white rounded-r-full"
+            className="px-4 bg-[#e84c20] text-white rounded-r-full"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -153,7 +153,7 @@ export default function SearchBar() {
             </div>
 
             {/* Mobile Search Input */}
-            <div className="flex rounded-full border-2 border-primary">
+            <div className="flex rounded-full border-2 border-[#e84c20]">
               <input
                 type="text"
                 value={searchTerm}
@@ -166,7 +166,7 @@ export default function SearchBar() {
               />
               <button 
                 onClick={handleSearch}
-                className="px-4 bg-primary text-white rounded-r-full"
+                className="px-4 bg-[#e84c20] text-white rounded-r-full"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

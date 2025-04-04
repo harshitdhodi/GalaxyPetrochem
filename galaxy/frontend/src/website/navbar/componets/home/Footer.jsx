@@ -77,7 +77,7 @@ export default function Footer() {
         }}
       >
         {/* Dark Blue Overlay */}
-        <div className="absolute inset-0 bg-main/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-l from-[#9e5d94] to-[#2860da] text-white"></div>
         
         {/* Content Container */}
         <div className="relative w-full max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">

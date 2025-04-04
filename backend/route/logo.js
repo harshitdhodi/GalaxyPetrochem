@@ -10,23 +10,27 @@ router.get('/download/:filename', (req, res) => {
 
   // Check if the file exists in the logos directory
   if (fs.existsSync(logoPath)) {
-    res.download(logoPath, (err) => {
-      if (err) {
+    return res.download(logoPath, (err) => {
+      if (err && !res.headersSent) {
         console.error(err);
-        res.status(500).json({ message: 'File download failed' });
+        return res.status(500).json({ message: 'File download failed' });
       }
     });
-  } else if (fs.existsSync(tempPath)) {
-    // Check if the file exists in the temp directory
-    res.download(tempPath, (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ message: 'File download failed' });
-      }
-    });
-  } else {
-    res.status(404).json({ message: 'File not found' });
   }
+
+  // Check if the file exists in the temp directory
+  if (fs.existsSync(tempPath)) {
+    return res.download(tempPath, (err) => {
+      if (err && !res.headersSent) {
+        console.error(err);
+        return res.status(500).json({ message: 'File download failed' });
+      }
+    });
+  }
+
+  // If file not found in either location
+  return res.status(404).json({ message: 'File not found' });
 });
+
 
 module.exports = router;

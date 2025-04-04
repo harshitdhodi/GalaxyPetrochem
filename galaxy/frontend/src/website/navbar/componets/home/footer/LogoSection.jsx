@@ -22,7 +22,7 @@ export default function LogoSection({ navigate }) {
         <div className="mt-4">
           <Link 
             to="/contact-us" 
-            className="inline-block px-4 py-2 bg-primary hover:bg-secondary text-white font-medium rounded transition duration-300"
+            className="inline-block px-4 py-2 bg-[#e84c20] hover:bg-secondary text-white font-medium rounded-md transition duration-300"
           >
             Make an Inquiry
           </Link>

@@ -17,7 +17,7 @@ export default defineConfig({
       brotliSize: true,
       sourcemap: true,
       title: "Bundle Analysis",
-      moduleOnly: true,  // Shows module names instead of full file paths
+      moduleOnly: true,
     }),
     tailwindcss(),
     svgr({ svgrOptions: { icon: true, ref: true } }),
@@ -25,16 +25,22 @@ export default defineConfig({
   ],
 
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: { 
+      "@": path.resolve(__dirname, "./src"),
+    },
+    // Use simpler dedupe approach
+    dedupe: ['react', 'react-dom', 'react-router-dom']
   },
 
   build: {
     rollupOptions: {
       input: { main: "./index.html" },
       output: {
+        // Simpler chunking strategy to avoid initialization order issues
         manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          utils: ["axios"], 
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-router': ['react-router-dom'],
+          'vendor-utils': ['axios'],
         },
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",

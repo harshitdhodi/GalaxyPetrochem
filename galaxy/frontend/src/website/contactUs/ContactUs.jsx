@@ -1,14 +1,33 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
 
 import LeftSection from './components/LeftSection';
 import RightSection from './components/RightSection';
-import { useGetBannerByPageSlugQuery } from '@/slice/banner/banner';
 import { Banner } from './components/Banner';
 
 const ContactPage = () => {
   const location = useLocation();
-  const path = location.pathname.replace(/^\//, '') || 'contact';
-  const { data: banners, isLoading: isBannerLoading } = useGetBannerByPageSlugQuery(path);
+  const path = location.pathname.replace(/^\//, '') || 'contact-us';
+
+  const [banners, setBanners] = useState([]);
+  const [isBannerLoading, setIsBannerLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${path}`);
+     
+        setBanners(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch banner:', error);
+      } finally {
+        setIsBannerLoading(false);
+      }
+    };
+
+    fetchBanner();
+  }, [path]);
 
   return (
     <>
@@ -16,7 +35,7 @@ const ContactPage = () => {
         {isBannerLoading ? (
           <div>Loading banner...</div>
         ) : (
-          <Banner imageUrl={banners && banners.length > 0 ? `/api/image/download/${banners[0].image}` : "img"} />
+          <Banner imageUrl={banners.length > 0 ? `/api/image/download/${banners[0].image}` : 'img'} />
         )}
       </div>
 
@@ -30,13 +49,14 @@ const ContactPage = () => {
             <span className="text-secondary">Contact Us</span>
           </div>
         </nav>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-       <div className='col-span-1'>
-       <LeftSection />
-       </div>
-        <div className='col-span-1'>
-        <RightSection />
-        </div>
+          <div className="col-span-1">
+            <LeftSection />
+          </div>
+          <div className="col-span-1">
+            <RightSection />
+          </div>
         </div>
       </div>
     </>

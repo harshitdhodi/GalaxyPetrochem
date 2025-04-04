@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useGetBannerByPageSlugQuery } from "@/slice/banner/banner";
 
 import SkeletonLoader from "./SkeletonLoader";
 import SlideshowImages from "./SlideShowImages";
 import SlideshowControls from "./SlideShowControlles";
-import ReadMoreButton from "./ReadMoreButton.jsx";
+import ReadMoreButton from "./ReadMoreButton";
 import { preloadResources } from "./PreLoad";
 
 if (typeof window !== "undefined") {
@@ -17,7 +16,8 @@ if (typeof window !== "undefined") {
 const Slideshow = () => {
   const { pageSlug } = useParams();
   const slug = pageSlug || "/";
-  const { data: banners, isLoading } = useGetBannerByPageSlugQuery(slug);
+  const [banners, setBanners] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -26,6 +26,24 @@ const Slideshow = () => {
   const [isSmallDevice, setIsSmallDevice] = useState(false);
   const lcpImageRef = useRef(null);
   const slideshowRef = useRef(null);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch(`/api/banner/getByPageSlug?pageSlug=${encodeURIComponent(slug)}`);
+        const data = await res.json();
+       console.log(data)
+        setBanners(data || []);
+      } catch (error) {
+        console.error("Failed to fetch banners:", error);
+        setBanners([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, [slug]);
 
   useEffect(() => {
     const checkDeviceSize = () => {

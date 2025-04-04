@@ -16,7 +16,7 @@ const NavSection = ({
     const [blogDropdownOpen, setBlogDropdownOpen] = useState(false);
 
     return (
-        <nav className=" text-white  bg-blue-800">
+        <nav className=" text-white  bg-gradient-to-l from-[#2860da] to-[#9e5d94]">
             <div className="w-full  px-4 flex items-center justify-evenly">
                 <div className="space-x-2 lg:space-x-3 hidden md:flex text-sm items-center lg:text-[16px] font-bold">
                     {/* Corporate Dropdown */}
@@ -109,7 +109,7 @@ const NavSection = ({
                         <div className="hidden md:flex justify-center items-center">
                             <Link 
                                 to="/advance-search"
-                                className="text-white bg-primary rounded-none px-4 lg:px-7 py-6 lg:py-5 hover:text-white text-sm lg:text-[16px] font-bold"
+                                className="text-white bg-[#df5832] rounded-none px-4 lg:px-7 py-6 lg:py-5 hover:text-white text-sm lg:text-[16px] font-bold"
                             >
                                 Advanced Search
                             </Link>

@@ -5,6 +5,7 @@ import CorporateProfile from '../componets/home/CorporateProfile.jsx';
 import Slideshow from './component/SlideShow'
 import CompanyInfo from '../componets/home/CompanyInfo.jsx';
 import axios from 'axios';
+import TestimonialSection from './component/Testimonial';
 
 const HomePage = () => {
   const [homeData, setHomeData] = useState({
@@ -34,8 +35,8 @@ const HomePage = () => {
       <CompanyInfo />
       <CategoryCards categories={homeData.category} />
       <FeaturedProducts recentProducts={homeData.recentProducts}  catalogues={homeData.catalogue}/>
-      <CorporateProfile aboutData={homeData.aboutUs} />
-      {/* <Footer /> */}
+      {/* <CorporateProfile aboutData={homeData.aboutUs} /> */}
+      <TestimonialSection />
     </div>
   );
 };

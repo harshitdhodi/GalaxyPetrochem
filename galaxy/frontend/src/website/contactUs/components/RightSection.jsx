@@ -2,14 +2,12 @@
 
 import React, { useState } from 'react'
 import { Button } from '@/website/componets/components/ui/button'
-import { useAddInquiryMutation } from '@/slice/inquiry/inquiry'
 
 import ReCAPTCHA from 'react-google-recaptcha'
 
 export default function RightSection() {
   const [loading, setLoading] = useState(false)
   const [captchaValue, setCaptchaValue] = useState(null)
-  const [addInquiry] = useAddInquiryMutation()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,11 +17,10 @@ export default function RightSection() {
       return;
     }
   
-    // Show confirmation dialog
     const isConfirmed = window.confirm('Are you sure you want to submit this inquiry?');
   
     if (!isConfirmed) {
-      return; // Stop submission if user clicks "Cancel"
+      return;
     }
   
     setLoading(true);
@@ -32,18 +29,31 @@ export default function RightSection() {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
   
-      await addInquiry(data).unwrap();
+      const response = await fetch('/api/inquiry/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      const result = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit inquiry');
+      }
   
       alert('Your message has been sent successfully!');
-      
+  
       e.target.reset();
       setCaptchaValue(null);
     } catch (error) {
-      alert(error.data?.message || error.message || 'Something went wrong!');
+      alert(error.message || 'Something went wrong!');
     } finally {
       setLoading(false);
     }
   };
+  
   
 
   return (

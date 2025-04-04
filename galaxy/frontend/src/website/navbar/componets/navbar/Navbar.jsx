@@ -1,37 +1,101 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Search, UserCircle, LogIn, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import SearchBar from "./SearchBar.jsx";
-import Footer from "../home/Footer.jsx";
-import { useGetLogoQuery } from "@/slice/logo/LogoSlice";
 import NavSection from "./NavSection";
-import { useGetAllCategoriesQuery } from "@/slice/blog/blogCategory";
+import axios from "axios";
+import MobileMenu from "./MobileMenu.jsx";
 
-export default function NavbarComp({ categories }) {
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
+// Custom hooks for API fetching with proper caching
+const useLogoData = () => {
+  const [logoData, setLogoData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const response = await axios.get("/api/companyLogo/get-logo");
+    
+        setLogoData(response.data.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogo();
+  }, []);
+
+  return { logoData, loading, error };
+};
+
+const useCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/chemicalCategory/getAll");
+        const parsedCategories = response.data.map((blog) => ({
+          id: blog._id,
+          name: blog.category,
+          slug: blog.slug,
+        }));
+        setCategories(parsedCategories);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  return { categories, loading, error };
+};
+
+// Optimized LogoComponent
+const LogoComponent = React.memo(({ src, alt, title }) => {
+  if (!src) return null;
+  
+  return (
+    <img
+      src={src}
+      alt={alt || "Company Logo"}
+      title={title}
+      width="150"
+      height="50"
+      loading="eager"
+      className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
+      fetchPriority="high"
+    />
+  );
+});
+
+export default function NavbarComp({ categories: propCategories = [] }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const [mobileMenuState, setMobileMenuState] = useState({
-    open: false,
-    categoryDropdown: null,
-  });
-
-  const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery();
-
-  const parsedBlogCategories = blogCategories.map((blog) => ({
-    id: blog._id,
-    name: blog.category,
-    slug: blog.slug,
-  }));
-
   const { pathname } = useLocation();
-  const isHomeActive = pathname === "/" || pathname === "/home";
-  const isProductsActive = pathname.startsWith("/categories");
-  const isBlogActive = pathname.startsWith("/blogs");
-  const isContactActive = pathname.startsWith("/contact-us");
+  
+  // Use custom hooks for API data
+  const { logoData } = useLogoData();
+  console.log(logoData)
+  const { categories: blogCategories } = useCategories();
 
-  const navigate = useNavigate();
+  // Determine active state
+  const activeStates = {
+    isHomeActive: pathname === "/" || pathname === "/home",
+    isProductsActive: pathname.startsWith("/categories"),
+    isBlogActive: pathname.startsWith("/blogs"),
+    isContactActive: pathname.startsWith("/contact-us")
+  };
 
+  // Handle scroll for sticky header
   useEffect(() => {
     const handleScroll = () => {
       const scrollPercent =
@@ -43,76 +107,89 @@ export default function NavbarComp({ categories }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const { data: logoData } = useGetLogoQuery();
-
   // Preload the logo image with proper attributes
   useEffect(() => {
-    if (logoData?.headerLogo) {
+    if (logoData?.data?.headerLogo) {
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
-      preloadLink.href = `/api/logo/download/${logoData.headerLogo}`;
+      preloadLink.href = `/api/logo/download/${logoData.data.headerLogo}`;
       preloadLink.as = "image";
-      preloadLink.type = "image/svg+xml"; // Specify SVG type for better browser handling
+      preloadLink.type = "image/svg+xml";
       document.head.appendChild(preloadLink);
+  
+      return () => {
+        document.head.removeChild(preloadLink);
+      };
     }
-  }, [logoData?.headerLogo]);
-
+  }, [logoData?.data?.headerLogo]);
+  
   // Update favicon dynamically
   useEffect(() => {
     if (logoData?.favIcon) {
       const faviconUrl = `/api/logo/download/${logoData.favIcon}`;
-      const favicon = document.querySelector('link[rel="icon"]');
+      let favicon = document.querySelector('link[rel="icon"]');
+      
       if (favicon) {
         favicon.href = faviconUrl;
       } else {
-        const newFavicon = document.createElement("link");
-        newFavicon.rel = "icon";
-        newFavicon.href = faviconUrl;
-        document.head.appendChild(newFavicon);
+        favicon = document.createElement("link");
+        favicon.rel = "icon";
+        favicon.href = faviconUrl;
+        document.head.appendChild(favicon);
       }
     }
   }, [logoData?.favIcon]);
 
-  // Memoize the logo source to prevent recalculations
+  // Memoize logo source to prevent recalculations
   const logoSrc = useMemo(() => {
     return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : "";
   }, [logoData?.headerLogo]);
 
-  // Optimized LogoComponent with inline SVG or image fallback
-  const LogoComponent = React.memo(({ src, alt, title }) => {
-    return (
-      
-      <img
-        src={src}
-        alt={alt}
-        title={title}
-        width="150" // Explicit width to prevent layout shift
-        height="50" // Adjust based on actual aspect ratio of your logo
-        loading="eager"
-        className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
-        fetchpriority="high" // Prioritize loading
-      />
-    );
-  });
+  // Toggle mobile menu with body scroll lock
+  const toggleMobileMenu = useCallback(() => {
+    const newState = !mobileMenuOpen;
+    setMobileMenuOpen(newState);
+    
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = newState ? 'hidden' : '';
+  }, [mobileMenuOpen]);
+
+  // Clean up body style on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   return (
     <>
-      <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
-        <div  className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
+      <header 
+        className={`w-full relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}
+        role="banner"
+      >
+        <div className="max-w-[80rem] mx-auto  py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
+            <LogoComponent 
+              src={logoSrc} 
+              alt="Company Logo" 
+              title={logoData?.headerLogoName} 
+            />
           </Link>
+          
           <div className="w-1/2 md:mt-0 hidden md:block">
             <SearchBar />
           </div>
+          
           <div className="flex gap-5 justify-between w-full items-center md:hidden">
-            <div className="relative  w-full">
+            <div className="relative w-full">
               <SearchBar />
             </div>
             <button
-              variant="ghost"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
               className="text-main hover:text-secondary hover:bg-transparent p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -120,141 +197,31 @@ export default function NavbarComp({ categories }) {
         </div>
 
         <NavSection
-          categories={categories}
-          parsedBlogCategories={parsedBlogCategories}
-          isHomeActive={isHomeActive}
-          isProductsActive={isProductsActive}
-          isBlogActive={isBlogActive}
-          isContactActive={isContactActive}
+          categories={propCategories}
+          parsedBlogCategories={blogCategories}
+          isHomeActive={activeStates.isHomeActive}
+          isProductsActive={activeStates.isProductsActive}
+          isBlogActive={activeStates.isBlogActive}
+          isContactActive={activeStates.isContactActive}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
         />
 
-        {/* Mobile Menu with CSS Animation */}
-        <div
-          className={`
-            md:hidden fixed top-0 left-0 right-0 w-full z-[80]
-            transition-all duration-300 ease-in-out
-            ${
-              mobileMenuOpen
-                ? "opacity-100 h-screen"
-                : "opacity-0 h-0 pointer-events-none overflow-hidden"
-            }
-          `}
-        >
-          {/* Backdrop */}
-          <div
-            className="fixed bg-black bg-opacity-50 z-[75]"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-
-          {/* Menu Content */}
-          <div className="relative h-[100vh] w-full px-4 pb-2 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94]">
-            <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img
-                  src={logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""}
-                  alt="Company Logo"
-                  width="150" // Explicit width for mobile logo
-                  height="50" // Adjust based on actual aspect ratio
-                  className="h-auto w-[150px]"
-                  fetchpriority="high"
-                />
-              </Link>
-              <button
-                variant="ghost"
-                className="text-main_light hover:text-secondary hover:bg-transparent p-1 border"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <Link
-              to="/"
-              className={`block py-2 text-white hover:text-secondary ${isHomeActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/corporate"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Corporate
-            </Link>
-
-            {/* Products Dropdown */}
-            <div>
-              <button
-                className="block w-full text-left py-2 text-white hover:text-secondary"
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              >
-                Products
-              </button>
-              {categoryDropdownOpen && (
-                <div className="pl-4 space-y-2 bg-white rounded-md shadow-md">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      to={`/${category.slug}`}
-                      className="block py-1 text-main text-md hover:text-secondary"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Link
-              to="/worldwide"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Worldwide
-            </Link>
-            <Link
-              to="/careers"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Careers
-            </Link>
-            <Link
-              to="/events"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Events
-            </Link>
-            <Link
-              to="/contact-us"
-              className={`block py-2 text-white hover:text-secondary ${isContactActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-            <button
-              variant="ghost"
-              className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
-              onClick={() => {
-                navigate("/advance-search");
-                setMobileMenuOpen(false);
-              }}
-            >
-              Advanced Search
-            </button>
-          </div>
-        </div>
+        {/* Mobile Menu */}
+        <MobileMenu 
+          isOpen={mobileMenuOpen}
+          onClose={toggleMobileMenu}
+          categories={propCategories}
+          logoSrc={logoSrc}
+          logoName={logoData?.headerLogoName}
+          activeStates={activeStates}
+        />
       </header>
 
       <main className="w-full">
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      {/* Footer component would go here */}
     </>
   );
 }

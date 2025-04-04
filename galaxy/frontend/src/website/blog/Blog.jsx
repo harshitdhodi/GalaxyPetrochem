@@ -1,6 +1,5 @@
 import { CalendarIcon, ClockIcon, MailIcon, PhoneIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { useGetAllBlogsExceptLatestQuery, useGetBlogsByCategoryQuery, useGetLatestBlogQuery } from '@/slice/blog/blog';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,50 +10,56 @@ export default function BlogPage() {
 
   const [blogCard, setBlogCard] = useState(null);
   const [contactInfo, setContactInfo] = useState(null);
+  const [blogs, setBlogs] = useState(null);
+  const [latestBlogData, setLatestBlogData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchBlogCard = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/blogCard/getCard');
-        setBlogCard(response.data[0]);
+        setLoading(true);
+        
+        // Fetch blog card
+        const blogCardResponse = await axios.get('/api/blogCard/getCard');
+        setBlogCard(blogCardResponse.data[0]);
+        
+        // Fetch contact info
+        const contactInfoResponse = await axios.get('/api/contactInfo/get');
+        setContactInfo(contactInfoResponse.data[0]);
+        
+        // Fetch latest blog
+        const latestBlogResponse = await axios.get('/api/blog/getLatestBlog');
+        setLatestBlogData(latestBlogResponse.data);
+        
+        // Fetch blogs based on slug
+        if (slug) {
+          const blogsByCategoryResponse = await axios.get(`/api/blog/getBlogsByCategory/${slug}`);
+          setBlogs(blogsByCategoryResponse.data);
+        } else {
+          const allBlogsResponse = await axios.get('/api/blog/getAllBlogsExceptLatest');
+          setBlogs(allBlogsResponse.data);
+        }
+        
+        setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch blog card:', error);
+        console.error('Failed to fetch data:', error);
+        setError(true);
+        setLoading(false);
       }
     };
 
-    const fetchContactInfo = async () => {
-      try {
-        const response = await axios.get('/api/contactInfo/get');
-        setContactInfo(response.data[0]);
-      } catch (error) {
-        console.error('Failed to fetch contact info:', error);
-      }
-    };
-
-    fetchBlogCard();
-    fetchContactInfo();
-  }, []);
-
-  // Fetch blogs based on the presence of slug
-  const { data: blogsByCategory, isLoading: loadingBlogsByCategory, error: errorBlogsByCategory } =
-    slug ? useGetBlogsByCategoryQuery(slug) : { data: null, isLoading: false, error: null };
-  
-  const { data: latestBlog, isLoading: loadingLatestBlog, error: errorLatestBlog } = useGetLatestBlogQuery();
- 
-  const { data: allBlogs, isLoading: loadingAllBlogs, error: errorAllBlogs } =
-    !slug ? useGetAllBlogsExceptLatestQuery() : { data: null, isLoading: false, error: null };
+    fetchData();
+  }, [slug]);
 
   // Handle loading and error states
-  if (loadingLatestBlog || loadingAllBlogs || loadingBlogsByCategory) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (errorLatestBlog || errorAllBlogs || errorBlogsByCategory) {
+  if (error) {
     return <div>Error loading blogs.</div>;
   }
-
-  // Use appropriate blogs data
-  const blogsToShow = slug ? blogsByCategory : allBlogs;
 
   return (
     <>
@@ -77,12 +82,12 @@ export default function BlogPage() {
                 </h2>   
 
                 {/* Featured Post - Latest Blog */}
-                {latestBlog && (
+                {latestBlogData && (
                   <div className="bg-white transform transition-transform duration-100 hover:scale-105 hover:shadow-md hover:shadow-main_light shadow-lg shadow-main_light/50 rounded-lg h-[60vh] border border-gray-200 mb-12 overflow-hidden">
                     <div className="md:flex ">
                       <div className="md:w-2/5 p-5 lg:w-[80%] h-[50vh]">
                         <img
-                          src={`/api/image/download/${latestBlog.image}`}
+                          src={`/api/image/download/${latestBlogData.image}`}
                           alt="Featured blog post img"
                           className="w-full h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
                         />
@@ -90,22 +95,22 @@ export default function BlogPage() {
                       <div className="md:w-3/5 h-[50vh] p-4">
                         <h3 className="text-2xl font-bold mb-2 text-main">
                           <Link to="#" className="hover:underline text-[#052852]">
-                            {latestBlog.title}
+                            {latestBlogData.title}
                           </Link>
                         </h3>
                         <p
                           className="text-gray-600 mb-4"
                           dangerouslySetInnerHTML={{
-                            __html: latestBlog.details.slice(31, 107),
+                            __html: latestBlogData.details.slice(31, 107),
                           }}
                         />
                         <div className="flex items-center text-sm text-gray-500 mb-4">
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          <span>{new Date(latestBlog.date).toLocaleDateString()}</span>
+                          <span>{new Date(latestBlogData.date).toLocaleDateString()}</span>
                           <ClockIcon className="ml-4 mr-2 h-4 w-4" />
-                          <span>{latestBlog.readTime} min read</span>
+                          <span>{latestBlogData.readTime} min read</span>
                         </div>
-                        <Link to={`/blog/${latestBlog.slug}`}>
+                        <Link to={`/blog/${latestBlogData.slug}`}>
                           <button className="btn bg-main text-white hover:bg-[#1299ca] px-8 py-2 rounded">
                             Read More
                           </button>
@@ -122,8 +127,8 @@ export default function BlogPage() {
               {slug ? `Blogs in "${slug}"` : 'Recent Posts'}
             </h3>
             <div className="grid gap-6 md:grid-cols-2">
-              {blogsToShow &&
-                blogsToShow.map((post, index) => (
+              {blogs &&
+                blogs.map((post, index) => (
                   <div
                     key={index}
                     className="bg-white shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-md hover:shadow-main_light shadow-main_light/50 rounded-lg border border-gray-200 overflow-hidden h-[450px]"
@@ -131,8 +136,7 @@ export default function BlogPage() {
                     <img
                       src={`/api/image/download/${post.image}`}
                       alt={`${post.title} cover img`}
-                      className="w-full h-[60%] object-contain px-6
-                       rounded-t-lg transition-opacity duration-300 hover:opacity-90"
+                      className="w-full h-[60%] object-contain px-6 rounded-t-lg transition-opacity duration-300 hover:opacity-90"
                     />
                     <div className="card-header px-4 mt-3">
                       <h3 className="text-xl font-bold text-gray-800">

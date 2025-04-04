@@ -1,11 +1,25 @@
 import { Factory, Target, FlaskRoundIcon as Flask, Droplet, Leaf, Gauge, Atom, Zap, Fuel } from "lucide-react"
 import { Banner } from "../contactUs/components/Banner"
-import { useGetBannerByPageSlugQuery } from "@/slice/banner/banner";
-import banner from "../.././assets/petrochemical.jpg"
+import banner from "../.././assets/petrochemical.webp"
+import { useEffect, useState } from "react";
 export default function PetrochemicalAboutUs() {
     const path = location.pathname.replace(/^\//, '') || 'introduction'; 
-    const { data: banners, isLoading } = useGetBannerByPageSlugQuery(path);
-
+     const [banners, setBanners] = useState([]);
+    useEffect(() => {
+      const fetchBanner = async () => {
+        try {
+          const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${path}`);
+       
+          setBanners(response.data || []);
+        } catch (error) {
+          console.error('Failed to fetch banner:', error);
+        } finally {
+          setIsBannerLoading(false);
+        }
+      };
+  
+      fetchBanner();
+    }, [path]);
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -14,14 +28,6 @@ export default function PetrochemicalAboutUs() {
       ) : (
         <Banner imageUrl={banner} />
       )}
-      {/* <header className="">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">About PetroTech Industries</h1>
-          <p className="text-xl max-w-3xl mx-auto opacity-90">
-            Pioneering petrochemical solutions for a sustainable future
-          </p>
-        </div>
-      </header> */}
 
       {/* Company Information */}
       <section className="py-16 px-4">

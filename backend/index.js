@@ -75,7 +75,7 @@ const apiRoutes = [
   ['/api/image', require('./route/image')],
   ['/api/blogCategory', require('./route/blogCategory')],
   ['/api/blog', require('./route/blog')],
-  ['/api/email', require('./route/email')],
+  ['/api/email', require('./route/email')], 
   ['/api/template', require('./route/emailTemplate')],
   ['/api/productInquiry', require('./route/productInquiry')],
   ['/api/sitemap', require('./route/sitemapRoute')],

@@ -15,16 +15,16 @@ function capitalizeWords(str) {
   return str ? str.replace(/\b\w/g, char => char.toUpperCase()) : "";
 }
 
-export default function CategoryCards({ categories }) {  // Fix: Destructure categories properly
+export default function CategoryCards({ categories }) {
   const [visibleCategories, setVisibleCategories] = useState([]);
-  const [loading, setLoading] = useState(true);  // Fix: Correct useState declaration
+  const [loading, setLoading] = useState(true);
 
   console.log("Received Categories:", categories); // Debugging data
 
   // Optimize initial render by limiting visible cards
   useEffect(() => {
     if (categories?.length) {
-      setVisibleCategories(categories.slice(0, 4)); // Fix: Accessing correct array
+      setVisibleCategories(categories.slice(0, 4));
 
       // Show all categories after a slight delay
       const timer = setTimeout(() => {
@@ -54,42 +54,57 @@ export default function CategoryCards({ categories }) {  // Fix: Destructure cat
   }, [categories]);
 
   return (
-    <div className="w-full mt-7 flex flex-col justify-center items-center overflow-x-auto pb-6">
-      <div className="grid gap-6 lg:max-w-[75rem] h-auto w-full px-4 md:px-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-center">
-        {loading
-          ? [...Array(8)].map((_, i) => <SkeletonCard key={i} />)
-          : visibleCategories.map((category, index) => (
-            <Link
-              key={category._id}
-              to={`/${category.slug}`}
-              className="group relative aspect-[3/3] overflow-hidden w-full sm:w-auto"
-            >
-              <img
-                src={category.photo ? `/api/logo/download/${category.photo}` : "/placeholder.jpg"}
-                alt={category.alt || "Category Image"}
-                className="object-fill sm:object-fill w-full h-full transition-transform group-hover:scale-105"
-                width={300}
-                height={300}
-                fetchPriority={index < 2 ? "high" : "auto"}
-                loading={index < 4 ? "lazy" : "eager"}
-                decoding="async"
-                title={category.alt || "Category"}
-                style={{
-                  backgroundImage: `url('/low-quality-placeholder.jpg')`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-
-              <div className="absolute bg-[#61b0ab]/10 inset-0"></div>
-              <div className="absolute bg-[#61b0ab] bottom-0 left-0 right-0 p-3 flex items-center justify-between text-white">
-                <h3 className="font-semibold text-md">{capitalizeWords(category.category || "Unknown")}</h3>
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
-          ))
-        }
+    <>
+      <div className="w-[70%] mx-auto flex flex-col justify-start">
+        <h2 className="text-4xl md:text-5xl font-bold pb-4 bg-gradient-to-r from-[#f18061] via-[#2860da] to-[#9e5d94] bg-clip-text text-transparent">
+          Our Products Category
+        </h2>
+        <div className="h-2 mt-1 w-[20%] bg-[#e84c20]"></div>
       </div>
-    </div>
+
+      <div className="w-full mt-7 flex flex-col justify-center items-center overflow-x-auto pb-6">
+        <div className="grid gap-6 lg:max-w-[80rem] h-auto w-full px-4 md:px-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-center">
+          {loading
+            ? [...Array(8)].map((_, i) => <SkeletonCard key={i} />)
+            : visibleCategories.map((category, index) => (
+              <div
+                key={category._id}
+                className="group relative aspect-[3/3] overflow-hidden w-full sm:w-auto rounded-md"
+              >
+                {/* Image Container */}
+                <img
+                  src={category.photo ? `/api/logo/download/${category.photo}` : "/placeholder.jpg"}
+                  alt={category.alt || "Category Image"}
+                  className="object-fill sm:object-fill w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  width={300}
+                  height={300}
+                  fetchPriority={index < 2 ? "high" : "auto"}
+                  loading={index < 4 ? "lazy" : "eager"}
+                  decoding="async"
+                  title={category.alt || "Category"}
+                  style={{
+                    backgroundImage: `url('/low-quality-placeholder.jpg')`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }} 
+                />
+
+                {/* Overlay */}
+                <div className="absolute bg-blue-500/10 hover:bg-amber-700/10  inset-0"></div>
+             
+                
+                {/* Hover Button (hidden by default, appears on hover) */}
+                <Link
+                  to={`/${category.slug}`}
+                  className="absolute bottom-0 left-0 transform -translate-y-1/2 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center"
+                >
+                 {category.category}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </div>
+            ))}
+        </div>
+      </div>
+    </>
   );
 }
