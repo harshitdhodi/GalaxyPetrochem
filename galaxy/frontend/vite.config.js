@@ -5,7 +5,7 @@ import viteCompression from "vite-plugin-compression";
 import svgr from "vite-plugin-svgr";
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from "rollup-plugin-visualizer";
-
+ 
 export default defineConfig({
   plugins: [
     react(),
