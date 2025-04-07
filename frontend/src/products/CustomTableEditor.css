@@ -1,0 +1,24 @@
+/* Apply styling to tables created in Quill */
+.custom-quill-editor table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 12px;
+  }
+  
+  .custom-quill-editor table td,
+  .custom-quill-editor table th {
+    padding: 12px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Light red background for odd rows */
+  .custom-quill-editor table tr:nth-child(odd) {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+  
+  /* Blue text for first column */
+  .custom-quill-editor table td:first-child {
+    color: blue;
+  }
+  

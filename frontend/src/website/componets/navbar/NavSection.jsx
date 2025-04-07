@@ -16,7 +16,7 @@ const NavSection = ({
     const [blogDropdownOpen, setBlogDropdownOpen] = useState(false);
 
     return (
-        <nav className="bg-custom-gradient text-white">
+        <nav className="text-white  bg-gradient-to-l from-[#2860da] to-[#9e5d94]">
             <div className="max-w-[75rem] mx-auto px-4 flex items-center justify-evenly">
                 <div className="space-x-2 lg:space-x-3 hidden md:flex text-sm items-center lg:text-[16px] font-bold">
                     {/* Corporate Dropdown */}
@@ -26,34 +26,13 @@ const NavSection = ({
                         onMouseLeave={() => setCorporateDropdownOpen(false)}
                     >
                         <NavLink 
-                            href="/introduction" 
+                            href="/about-us" 
                             className={() => isHomeActive ? "text-primary" : ""}
                             end
                         >
-                            Corporate
+                            AboutUs
                         </NavLink>
-                        <div
-                            className={`
-                                absolute left-0 w-64 bg-blue-800 text-white shadow-lg z-50 font-normal
-                                transition-all duration-200 ease-in-out
-                                ${corporateDropdownOpen 
-                                    ? 'opacity-100 translate-y-0' 
-                                    : 'opacity-0 -translate-y-2 pointer-events-none'}
-                            `}
-                        >
-                            <Link
-                                to="/introduction"
-                                className="block px-4 py-2 hover:bg-blue-600 transition-colors"
-                            >
-                                <span>Introduction</span>
-                            </Link>
-                            <Link
-                                to="/vision-mission"
-                                className="block px-4 py-2 hover:bg-blue-600 transition-colors"
-                            >
-                                Vision
-                            </Link>
-                        </div>
+                   
                     </div>
 
                     {/* Products Dropdown */}
@@ -75,10 +54,10 @@ const NavSection = ({
                         Worldwide
                     </NavLink>
                     <NavLink 
-                        href="/careers"
+                        href="/brands"
                         className={({ isActive }) => isActive ? "text-primary" : ""}
                     >
-                        Careers
+                        Brands
                     </NavLink>
 
                     {/* Blog Dropdown */}

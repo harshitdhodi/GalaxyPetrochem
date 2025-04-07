@@ -28,7 +28,7 @@ const ContactPage = () => {
               Home
             </Link>
             <span className="text-gray-400">&raquo;</span>
-            <span className="text-secondary">Contact Us</span>
+            <span className="text-primary">Contact Us</span>
           </div>
         </nav>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

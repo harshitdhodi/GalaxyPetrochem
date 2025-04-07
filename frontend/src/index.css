@@ -13,6 +13,27 @@ img {
   will-change: transform, opacity;
 }
 
+/* Optional: Shared editor styles */
+.ql-editor table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ql-editor table td,
+.ql-editor table th {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.ql-editor table tr:nth-child(odd) {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.ql-editor table td:first-child {
+  color: blue;
+}
+
+
 @layer base {
   :root {
 
@@ -156,7 +177,7 @@ img {
 
 @layer components {
   .bg-custom-gradient {
-    @apply bg-gradient-to-l from-main to-[#9e5d94] text-white;
+    @apply bg-gradient-to-l from-[#6c94ec] to-[#0f62ac] text-white;
   }
 }
 

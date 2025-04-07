@@ -53,10 +53,10 @@ const NavSection = ({
                         Worldwide
                     </NavLink>
                     <NavLink 
-                        href="/careers"
+                        href="/brands"
                         className={({ isActive }) => isActive ? "text-primary" : ""}
                     >
-                        Careers
+                        Brands
                     </NavLink>
 
                     {/* Blog Dropdown */}

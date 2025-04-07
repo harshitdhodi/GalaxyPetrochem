@@ -1,12 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import CorporateSection from './footer/CorporateSection';
+import CorporateSection from './footer/CorporateSection.jsx';
 import ProductsSection from './footer/ProductSection';
 import ContactSection from './footer/ContactSection';
 import Copyright from './footer/CopyRight';
 import LogoSection from './footer/LogoSection';
-
 export default function Footer() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,41 +34,13 @@ export default function Footer() {
       });
   }, []);
   
-  // For lazy loading the background image
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            import('../../images/footer.jpg').then(imgModule => {
-              setBgImage(imgModule.default);
-            }).catch(error => {
-              console.error('Failed to load footer background image:', error);
-              setBgImage('');
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '200px' }
-    );
-    
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
-    
-    return () => {
-      if (footerRef.current) {
-        observer.unobserve(footerRef.current);
-      }
-    };
-  }, []);
+
 
   return (
     <>
       <footer
         ref={footerRef}
-        className="relative text-white py-8 md:py-12 bg-gray-800"
+        className="relative text-white py-8 md:py-16 bg-gray-800"
         style={{
           backgroundImage: bgImage ? `url(${bgImage})` : 'none',
           backgroundSize: 'cover',
@@ -78,7 +49,7 @@ export default function Footer() {
         }}
       >
         {/* Dark Blue Overlay */}
-        <div className="absolute inset-0 bg-main/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-l from-[#9e5d94] to-[#2860da] text-white"></div>
         
         {/* Content Container */}
         <div className="relative w-full max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">

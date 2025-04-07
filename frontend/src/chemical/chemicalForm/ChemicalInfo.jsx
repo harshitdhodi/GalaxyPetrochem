@@ -4,11 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import slugify from 'slugify';
-import JoditEditor from 'jodit-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export const ChemicalInfoForm = ({ control, setValue }) => {
-  const editor = useRef(null);
-
   const name = useWatch({
     control,
     name: 'name',
@@ -24,6 +23,21 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
       setValue('slug', generatedSlug);
     }
   }, [name, setValue]);
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ['bold', 'italic', 'underline'],
+      ['link', 'image'],
+      ['clean'],
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline',
+    'link', 'image',
+  ];
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-none border-none">
@@ -62,23 +76,19 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
           />
         </div>
 
-        {/* Jodit Editor for Rich Text */}
+        {/* Quill Editor for Rich Text */}
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <Controller
             name="description"
             control={control}
             render={({ field }) => (
-              <JoditEditor
-                ref={editor}
-                value={field.value || ''} // Ensure controlled value
-                onBlur={(newContent) => field.onChange(newContent)} // Use onBlur instead of onChange
-                config={{
-                  readonly: false,
-                  toolbarButtonSize: 'small',
-                  buttons: 'bold,italic,underline,ul,ol,table,link,image',
-                  height: 300, // Optional: Set a height for better UX
-                }}
+              <ReactQuill
+                value={field.value || ''}
+                onChange={field.onChange}
+                modules={modules}
+                formats={formats}
+                theme="snow"
               />
             )}
           />

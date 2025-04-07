@@ -13,7 +13,7 @@ export default function CompanyInfo() {
         <div className="grid items-center gap-16  lg:grid-cols-2">
           {/* Image section */}
           <div className="flex justify-center  w-full order-2 lg:order-1">
-            <div className="relative w-full   group">
+            <div className="relative w-full  group">
               {/* Image without scroll effect */}
               <div className="relative w-full lg:mt-8 overflow-hidden rounded-md shadow-[0_20px_50px_rgba(8,112,184,0.3)] transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(8,112,184,0.5)]">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-purple-700/20 z-10 mix-blend-multiply"></div>
@@ -28,7 +28,7 @@ export default function CompanyInfo() {
                 {/* Decorative frame */}
                 <div className="absolute inset-0 border-2 border-white/20 rounded-2xl z-20 m-3 pointer-events-none"></div>
               </div>
-
+              
               {/* Stats overlay */}
               <div className="absolute -bottom-6 -right-6 bg-white rounded-xl shadow-lg
               shadow-blue-400 p-4 z-30 transition-transform duration-300 group-hover:translate-y-2">

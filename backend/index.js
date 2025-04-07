@@ -59,7 +59,7 @@ const apiRoutes = [
   ['/api/admin', admin],
   ['/api/supplier', require('./route/supplier')],
   ['/api/allHome', require('./route/allHomePage')],
-  
+  ['/api/brand', require('./route/brand')],
   ['/api/chemicalCategory', require('./route/chemicalCategory')],
   ['/api/chemical', require('./route/chemical')],
   ['/api/customer', require('./route/customer')], 
