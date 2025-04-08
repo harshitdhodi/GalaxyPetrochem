@@ -129,6 +129,8 @@ import SearchResultsTable from './website/pages/AdvanceSearchProduct';
 import BrandsPage from './website/pages/Brands';
 import PetrochemicalAboutUs from './website/pages/AboutUs';
 import BrandsList from './websiteBackend/brand/BrandsTable';
+import CompanyForm from './websiteBackend/copanyInfo/CompanyInfoForm';
+import TestimonialManager from './websiteBackend/testimonial/testimonial';
 
 // Auth Components
 const PrivateRoute = ({ children }) => {
@@ -232,8 +234,8 @@ function App() {
             // { path: '/edit-product/:id', element: <Suspense fallback={<LoadingFallback />}><EditProductForm /></Suspense> },
 
             { path: '/brands-list', element: <Suspense fallback={<LoadingFallback />}><BrandsList /></Suspense> },
-
-
+            { path: 'testimonial-table', element: <Suspense fallback={<LoadingFallback />}><TestimonialManager /></Suspense> },
+            { path: '/company-info-form', element: <Suspense fallback={<LoadingFallback />}><CompanyForm /></Suspense> },
             { path: 'chemical-form', element: <Suspense fallback={<LoadingFallback />}><ChemicalFormPage /></Suspense> },
             { path: 'edit-chemical-form/:id', element: <Suspense fallback={<LoadingFallback />}><ChemicalFormPage /></Suspense> },
             { path: 'chemical-types', element: <Suspense fallback={<LoadingFallback />}><ChemicalTypes /></Suspense> },
@@ -357,6 +359,9 @@ function App() {
             // Privacy Policy Routes
             { path: 'privacypolicy-terms', element: <Suspense fallback={<LoadingFallback />}><PrivacyForm /></Suspense> },
             { path: 'terms-and-conditions-form', element: <Suspense fallback={<LoadingFallback />}><TermsConditionForm /></Suspense> },
+         
+          
+         
           ]
         }
       ]

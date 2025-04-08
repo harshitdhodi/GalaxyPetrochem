@@ -1,11 +1,22 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import slugify from 'slugify';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+// ✅ Custom Slug Generator
+const customSlugify = (text) =>
+  text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 
 export const ChemicalInfoForm = ({ control, setValue }) => {
   const name = useWatch({
@@ -15,11 +26,7 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
 
   useEffect(() => {
     if (name) {
-      const generatedSlug = slugify(name, {
-        lower: true,
-        strict: true,
-        trim: true,
-      });
+      const generatedSlug = customSlugify(name);
       setValue('slug', generatedSlug);
     }
   }, [name, setValue]);
@@ -33,11 +40,7 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
     ],
   };
 
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline',
-    'link', 'image',
-  ];
+  const formats = ['header', 'bold', 'italic', 'underline', 'link', 'image'];
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-none border-none">
@@ -64,11 +67,7 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
                 id="slug"
                 {...field}
                 onChange={(e) => {
-                  const customSlug = slugify(e.target.value, {
-                    lower: true,
-                    strict: true,
-                    trim: true,
-                  });
+                  const customSlug = customSlugify(e.target.value);
                   field.onChange(customSlug);
                 }}
               />
@@ -76,7 +75,6 @@ export const ChemicalInfoForm = ({ control, setValue }) => {
           />
         </div>
 
-        {/* Quill Editor for Rich Text */}
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <Controller

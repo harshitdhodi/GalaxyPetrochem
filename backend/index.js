@@ -99,7 +99,9 @@ const apiRoutes = [
   ['/api/privacy', require('./route/privacy')],
   ['/api/terms', require('./route/termscondition')],
   ['/api/careerInfo', require('./route/careerInfo')],
-  ['/api/product', require('./route/product')]
+  ['/api/product', require('./route/product')],
+  ['/api/companyInfo', require('./route/companyInfo')],
+  ['/api/testimonial', require('./route/testimonial')]
 ];
 
 // Apply routes

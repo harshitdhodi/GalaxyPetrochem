@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import CategoryCards from '../componets/home/CategoryCards';
 import FeaturedProducts from '../componets/home/FeatureProducts';
 import Slideshow from '../componets/home/SlideShow';
@@ -14,30 +14,55 @@ const HomePage = () => {
     aboutUs: []
   });
 
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollY / docHeight) * 100;
+
+      if (scrollPercent > 20 && !hasScrolled) {
+        setHasScrolled(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasScrolled]);
+
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
         const response = await axios.get('/api/allHome/getAllHomePage');
-        console.log(response.data)
-        setHomeData(response.data); 
+        setHomeData(response.data);
       } catch (error) {
         console.error('Error fetching home page data:', error);
       }
     };
 
-    fetchHomeData();
-  }, []);
+    if (hasScrolled) {
+      fetchHomeData();
+    }
+  }, [hasScrolled]);
 
   return (
     <div className='w-full'>
       <Slideshow />
       <CompanyInfo />
-      <CategoryCards categories={homeData.category} />
-      <FeaturedProducts recentProducts={homeData.recentProducts}  catalogues={homeData.catalogue}/>
-      {/* <CorporateProfile aboutData={homeData.aboutUs} /> */}
-      <TestimonialSection />
+      {hasScrolled && (
+        <>
+          <CategoryCards categories={homeData.category} />
+          <FeaturedProducts recentProducts={homeData.recentProducts} catalogues={homeData.catalogue} />
+          <TestimonialSection />
+        </>
+      )}
     </div>
   );
 };
 
-export default HomePage
+export default HomePage;
