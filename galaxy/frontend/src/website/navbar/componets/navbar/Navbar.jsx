@@ -64,16 +64,16 @@ const LogoComponent = React.memo(({ src, alt, title }) => {
   if (!src) return null;
   
   return (
-    <img
-      src={src}
-      alt={alt || "Company Logo"}
-      title={title}
-      width="150"
-      height="50"
-      loading="eager"
-      className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
-      fetchPriority="high"
-    />
+    // <img
+    //   src={src}
+    //   alt={alt || "Company Logo"}
+    //   title={title}
+    //   width="150"
+    //   height="50"
+    //   loading="eager"
+    //   className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
+    //   fetchPriority="high"
+    // />
   );
 });
 

@@ -47,12 +47,7 @@ const NavSection = ({
                     </NavLink>
 
                     {/* Static Links */}
-                    <NavLink 
-                        href="/worldwide"
-                        className={({ isActive }) => isActive ? "text-primary" : ""}
-                    >
-                        Worldwide
-                    </NavLink>
+                 
                     <NavLink 
                         href="/brands"
                         className={({ isActive }) => isActive ? "text-primary" : ""}

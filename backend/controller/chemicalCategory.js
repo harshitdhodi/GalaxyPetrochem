@@ -2,7 +2,6 @@ const ProductCategory = require("../model/chemicalCategory");
 const Product=require("../model/chemical")
 const fs = require('fs');
 const path = require('path');
-const { default: mongoose } = require("mongoose");
 
 const deleteFile = (filePath) => {
   fs.unlink(filePath, (err) => {
@@ -13,35 +12,28 @@ const deleteFile = (filePath) => {
 };
 
 const insertCategory = async (req, res) => {
-  console.log("🔹 Request body:", req.body);
-  console.log("🔹 Uploaded files:", req.files);
+  const { category,details,
+    alt,imgtitle,slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
+
+  const photo = req.file ? req.file.filename : null;
 
   try {
-    const photo = req.files?.photo?.[0]?.filename || null;
-    console.log("✅ Final photo filename:", photo);
+    const existingCategory = await ProductCategory.findOne({ category });
 
-    if (!photo) {
-      return res.status(400).json({ error: "Photo is required" });
+    if (existingCategory) {
+      return res.status(400).json({ message: 'Category already exists' });
     }
 
-    // Create a new category object including all body fields
-    const newCategoryData = {
-      ...req.body,  // Spread all body fields dynamically
-      photo,        // Add photo separately
-    };
-
-    const newCategory = new ProductCategory(newCategoryData);
+    const newCategory = new ProductCategory({  category,alt,imgtitle,photo,
+      details,
+      slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq  });
     const savedCategory = await newCategory.save();
 
-    return res.status(201).json(savedCategory);
+    res.status(201).json(savedCategory);
   } catch (error) {
-    console.error("❌ Error inserting category:", error);
-    return res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
-
- 
-
 
 const insertSubCategory = async (req, res) => {
   const { categoryId } = req.query;
@@ -113,69 +105,59 @@ const insertSubSubCategory = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
-const uploadDir = path.join(__dirname, '../logos');
+
 const updateCategory = async (req, res) => {
+  const { categoryId } = req.query;
+
+  const { 
+    category, alt, imgtitle, slug, metatitle, metadescription,details,
+    metakeywords, metacanonical, metalanguage, metaschema, 
+    otherMeta, url, priority, changeFreq 
+  } = req.body;
+
+  let photo = req.body.photo;
+
+  if (req.file) {
+    photo = req.file.filename; // New image uploaded
+  }
+
   try {
-    const { categoryId } = req.query;
-
-    if (!categoryId) {
-      return res.status(400).json({ message: 'Category ID is required' });
-    }
-
-    const {
-      category, alt, imgtitle, slug, metatitle, metadescription, details,
-      metakeywords, metacanonical, metalanguage, metaschema,
-      otherMeta, url, priority, changeFreq
-    } = req.body;
-
-    console.log("Request body:", req.body);
-    console.log("Uploaded files:", req.files);
-
     // Find the existing category
     const existingCategory = await ProductCategory.findById(categoryId);
+
     if (!existingCategory) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Default to existing photo if no new file is uploaded
-    let photo = existingCategory.photo;
+    // Delete the old image if a new one is uploaded
+    if (req.file && existingCategory.photo) {
+      const oldImagePath = path.join(__dirname, '../images', existingCategory.photo); // Adjust the path to match your setup
 
-    // Check if a new photo is uploaded
-    if (req.files && req.files.photo) {
-      photo = req.files.photo[0].filename; // Get uploaded file name
-
-      // Delete the old image if it exists
-      if (existingCategory.photo) {
-        const oldImagePath = path.join(__dirname, '../logos', existingCategory.photo);
-
-        if (fs.existsSync(oldImagePath)) {
-          console.log("Deleting old image:", oldImagePath);
-          fs.unlinkSync(oldImagePath);
-        } else {
-          console.log("Old image not found:", oldImagePath);
-        }
+      // Check if the file exists before attempting to delete
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
       }
     }
 
     // Update the category with new data
     const updatedCategory = await ProductCategory.findByIdAndUpdate(
       categoryId,
-      {
-        category, alt, imgtitle, photo, slug, details,
-        metatitle, metadescription, metakeywords, metacanonical, metalanguage,
-        metaschema, otherMeta, url, priority, changeFreq
+      { 
+        category, alt, imgtitle, photo, slug,details,
+         metatitle, metadescription, 
+        metakeywords, metacanonical, metalanguage, metaschema, otherMeta, 
+        url, priority, changeFreq 
       },
       { new: true, runValidators: true }
     );
 
-    console.log("Updated category:", updatedCategory);
-
-    return res.status(200).json(updatedCategory);
+    res.status(200).json(updatedCategory);
   } catch (error) {
-    console.error("Error updating category:", error);
-    return res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
+
 const updateSubCategory = async (req, res) => {
   // Update category
   const { categoryId, subCategoryId } = req.query;
@@ -283,69 +265,46 @@ const updatesubsubcategory = async (req, res) => {
 
 const deletecategory = async (req, res) => {
   const { id } = req.query;
-  console.log('Received ID:', id);
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid category ID' });
-  }
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
+  console.log(id)
   try {
     // Find the category by its ID
-    const category = await ProductCategory.findById(id).session(session);
-    
+    const category = await ProductCategory.findById(id);
+
+    // Check if the category exists
     if (!category) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ message: 'Category not found' });
     }
 
     // Check if there are subcategories or sub-subcategories
     const hasSubcategories = category.subCategories.length > 0;
     const hasSubSubcategories = category.subCategories.some(subCat => subCat.subSubCategory.length > 0);
-    
+
     if (hasSubcategories || hasSubSubcategories) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ message: 'Category has associated subcategories or sub-subcategories and cannot be deleted' });
     }
 
-    // Delete the associated category image if it exists
-    if (category.photo) {
-      const photoPath = path.join(__dirname, '../logos', category.photo);
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-        console.log('Deleted image file:', photoPath);
-      }
-    }
-
-    // Delete the category
-    const deletedCategory = await ProductCategory.findByIdAndDelete(id, { session });
     
+    const photoPath = path.join(__dirname, '../logos', category.photo);
+    deleteFile(photoPath);
+
+
+    // Proceed to delete the category
+    const deletedCategory = await ProductCategory.findByIdAndDelete(id);
+
     if (!deletedCategory) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Remove category reference from all associated products
+
+    // Find and update all products that reference this category, removing the category reference
     await Product.updateMany(
       { categories: id },
-      { $pull: { categories: id } },
-      { session }
+      { $pull: { categories: id } }
     );
 
-    await session.commitTransaction();
-    session.endSession();
-    
     res.status(200).json({ message: 'Category deleted successfully and references removed from products' });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error('Error deleting category:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 

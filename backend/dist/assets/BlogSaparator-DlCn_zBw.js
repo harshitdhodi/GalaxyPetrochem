@@ -1,2 +1,0 @@
-import{j as t}from"./main-CYgOQvaw.js";import{u as s,k as o}from"./vendor-BCMiqwDy.js";import a from"./BlogDetailPage-BGeLvkrW.js";import i from"./BlogPage-Cop3nxxJ.js";import"./utils-ZFgnvnbw.js";import"./clock-BaSdAL7b.js";import"./phone-DZEwz9E4.js";import"./mail-CkHvO2Os.js";const r=()=>{const r=s(),{slug:m}=o(),e=r.pathname.startsWith("/blog/pipes")||r.pathname.startsWith("/blog/chemical2")||r.pathname.startsWith("/blog/chemical1");return t.jsx("div",{children:e?t.jsx(i,{}):t.jsx(a,{})})};export{r as default};
-//# sourceMappingURL=BlogSaparator-DlCn_zBw.js.map

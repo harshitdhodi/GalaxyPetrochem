@@ -47,12 +47,13 @@ app.get('/images/:filename', async (req, res) => {
 
 // Static file serving with no caching
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false, 
-  lastModified: false, 
+  etag: false,
+  lastModified: false,
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // cache for 1 hour
   }
 }));
+
  
 // API Routes
 const apiRoutes = [
@@ -84,7 +85,6 @@ const apiRoutes = [
   ['/api/contactForm', require('./route/contactForm')],
   ['/api/chemicalMail', require('./route/chemicalMail')],
   ['/api/career', require('./route/carrer')],
-  ['/api/worldwide', require('./route/worldwide')],
   ['/api/contactinfo', require('./route/contactinfo')],
   ['/api/emailCategory', require('./route/emailCategory')],
   ['/api/companyLogo', require('./route/companyLogo')],
@@ -101,7 +101,8 @@ const apiRoutes = [
   ['/api/careerInfo', require('./route/careerInfo')],
   ['/api/product', require('./route/product')],
   ['/api/companyInfo', require('./route/companyInfo')],
-  ['/api/testimonial', require('./route/testimonial')]
+  ['/api/testimonial', require('./route/testimonial')],
+  ['/api/petrochemProduct', require('./route/petroChemProduct')],
 ];
 
 // Apply routes
@@ -113,7 +114,7 @@ app.use(express.static(path.join(__dirname, 'dist'), {
   etag: false, 
   lastModified: false, 
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'dist, max-age=3600'); // cache for 1 hour
   }
 }));
 
@@ -122,7 +123,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// MongoDB Connection
+// MongoDB Connection 
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -140,7 +141,7 @@ app.listen(PORT, () => {
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
   console.log(`Server running on port ${PORT}`);
-  generateAllSitemaps(); // Generate sitemaps on startup
+  // generateAllSitemaps(); // Generate sitemaps on startup
 });
 // SMTP Connection Test
 const nodemailer = require('nodemailer');

@@ -34,47 +34,14 @@ export default function Footer() {
       });
   }, []);
   
-  // For lazy loading the background image
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            import('../../../../assets/footer.jpg').then(imgModule => {
-              setBgImage(imgModule.default);
-            }).catch(error => {
-              console.error('Failed to load footer background image:', error);
-              setBgImage('');
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '200px' }
-    );
-    
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
-    
-    return () => {
-      if (footerRef.current) {
-        observer.unobserve(footerRef.current);
-      }
-    };
-  }, []);
+
 
   return (
     <>
       <footer
         ref={footerRef}
         className="relative text-white py-8 md:py-12 bg-gray-800"
-        style={{
-          backgroundImage: bgImage ? `url(${bgImage})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
+      
       >
         {/* Dark Blue Overlay */}
         <div className="absolute inset-0 bg-gradient-to-l from-[#9e5d94] to-[#2860da] text-white"></div>

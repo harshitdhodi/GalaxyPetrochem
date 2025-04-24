@@ -41,44 +41,45 @@ exports.getUserPhotoById = async (req, res) => {
 
 // UPDATE
 exports.updateUserPhoto = async (req, res) => {
-    try {
-      const { name } = req.body;
-      const id = req.params.id;
-  
-      const existingUser = await UserPhoto.findById(id);
-      if (!existingUser) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Delete old photo if new one is uploaded
-      if (req.file && existingUser.photo) {
-        const oldPhotoPath = path.join(__dirname, '../uploads', existingUser.photo);
-        if (fs.existsSync(oldPhotoPath)) {
-          fs.unlinkSync(oldPhotoPath);
-        }
-      }
-  
-      const updatedData = {
-        name: name || existingUser.name,
-        photo: req.file ? req.file.filename : existingUser.photo,
-      };
-  
-      const updatedUser = await UserPhoto.findByIdAndUpdate(id, updatedData, {
-        new: true,
-      });
-  
-      res.status(200).json({
-        message: 'User updated successfully',
-        data: updatedUser,
-      });
-    } catch (error) {
-      console.error('Error updating user:', error);
-      res.status(500).json({
-        message: 'Failed to update user',
-        error: error.message,
-      });
+  try {
+    const { name } = req.body;
+    const id = req.params.id;
+
+    const existingUser = await UserPhoto.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  };
+
+    // Delete old photo if new one is uploaded
+    if (req.files && req.files.photo && existingUser.photo) {
+      const oldPhotoPath = path.join(__dirname, '../uploads', existingUser.photo);
+      if (fs.existsSync(oldPhotoPath)) {
+        fs.unlinkSync(oldPhotoPath);
+      }
+    }
+
+    const updatedData = {
+      name: name || existingUser.name,
+      photo: req.files && req.files.photo ? req.files.photo[0].filename : existingUser.photo,
+    };
+
+    const updatedUser = await UserPhoto.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
+
+    res.status(200).json({
+      message: 'User updated successfully',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({
+      message: 'Failed to update user',
+      error: error.message,
+    });
+  }
+};
+
 // DELETE
 exports.deleteUserPhoto = async (req, res) => {
   try {

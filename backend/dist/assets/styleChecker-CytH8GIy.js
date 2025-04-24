@@ -1,0 +1,2 @@
+import{cm as r}from"./main-CzSo-TQq.js";var n=function(n){if(r()&&window.document.documentElement){var e=Array.isArray(n)?n:[n],t=window.document.documentElement;return e.some((function(r){return r in t.style}))}return!1};function e(r,e){return Array.isArray(r)||void 0===e?n(r):function(r,e){if(!n(r))return!1;var t=document.createElement("div"),i=t.style[r];return t.style[r]=e,t.style[r]!==i}(r,e)}export{e as i};
+//# sourceMappingURL=styleChecker-CytH8GIy.js.map

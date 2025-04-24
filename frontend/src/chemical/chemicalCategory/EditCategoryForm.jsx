@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditCategory = () => {
   const { categoryId, subCategoryId, subSubCategoryId } = useParams();
@@ -165,28 +165,7 @@ const EditCategory = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="">
-       <nav>
-              <ul className="flex gap-2 mb-5 flex-wrap">
-              <li>
-                <Link to="/" className="text-gray-500 hover:text-main">
-                  Dashboard
-                </Link>
-              </li>
-              <li className="text-gray-500">&gt;</li>
-              <li>
-                <Link to="/chemical-category  " className="text-gray-500 hover:text-main">
-                  Categories
-                </Link>
-              </li>
-              <li className="text-gray-500">&gt;</li>
-              <li>
-                <Link to="" className="text-main hover:text-main">
-                 Add Category
-                </Link>
-              </li>
-              </ul>
-            </nav>
+    <form onSubmit={handleSubmit} className="p-4">
       <h1 className="text-xl font-bold font-serif text-gray-700 uppercase text-center">Edit Category</h1>
       <div className="mb-4">
         <label htmlFor="category" className="block font-semibold mb-2">

@@ -5,10 +5,12 @@ import path from "path";
 import viteCompression from "vite-plugin-compression";
 import svgr from "vite-plugin-svgr";
 import { visualizer } from "rollup-plugin-visualizer";
-
+import legacy from '@vitejs/plugin-legacy'
 export default defineConfig({
   plugins: [
-    react(),
+    react(),  legacy({
+      targets: ['defaults', 'not IE 11'],
+    }),
     visualizer({
       open: true, 
       filename: "stats.html",  

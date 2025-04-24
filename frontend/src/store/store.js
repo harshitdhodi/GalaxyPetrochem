@@ -21,7 +21,7 @@ import { productInquiryApi } from '@/slice/inquiry/productInquiry';
 import { aboutUsApi } from '../slice/aboutUs/aboutUs';
 import { bannerApi } from '@/slice/banner/banner';
 import { careerApi } from '../slice/career/CareerForm';
-import { worldwideApi } from '../slice/worldwide/worldwide';
+
 import { emailCategoryApi } from '../slice/emailCategory/emailCategory';
 import { logoApi } from '../slice/logo/LogoSlice';
 import { contactInfoApi } from '../slice/contactInfo/contactInfo';
@@ -52,7 +52,6 @@ const store = configureStore({
     [aboutUsApi.reducerPath]: aboutUsApi.reducer,
     [bannerApi.reducerPath]: bannerApi.reducer,
     [careerApi.reducerPath]: careerApi.reducer,
-    [worldwideApi.reducerPath]: worldwideApi.reducer,
     [emailCategoryApi.reducerPath]: emailCategoryApi.reducer,
     [logoApi.reducerPath]: logoApi.reducer,
     [contactInfoApi.reducerPath]: contactInfoApi.reducer,
@@ -87,7 +86,7 @@ const store = configureStore({
       .concat(aboutUsApi.middleware)
       .concat(bannerApi.middleware)
       .concat(careerApi.middleware)
-      .concat(worldwideApi.middleware)
+  
       .concat(emailCategoryApi.middleware)
       .concat(logoApi.middleware)
       .concat(contactInfoApi.middleware)

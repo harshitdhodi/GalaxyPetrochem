@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import banner from "../.././assets/petrochemical.webp";
 import { Banner } from "./Banner.jsx";
-import { CompanyInfo } from "./aboutUs/CompanyInfo.jsx";
+// import { CompanyInfo } from "./aboutUs/CompanyInfo.jsx";
 import { MissionVision } from "./aboutUs/MissionVision.jsx";
 import { ProductShowcase } from "./aboutUs/ProductShowcase.jsx";
-import { IndustryExpertise } from "./aboutUs/IndustryExpertise.jsx";
 import { Sustainability } from "./aboutUs/Sustainability.jsx";
 import { GlobalPresence } from "./aboutUs/GlobalPresence.jsx";
+import CompanyInfo from "../componets/home/CompanyInfo";
+import IndustryExpertise from "./aboutUs/IndustryExpertise";
 
 
 export default function PetrochemicalAboutUs() {
@@ -40,10 +41,10 @@ export default function PetrochemicalAboutUs() {
 
       <CompanyInfo />
       <MissionVision />
-      <ProductShowcase />
+      {/* <ProductShowcase /> */}
       <IndustryExpertise />
-      <Sustainability />
-      <GlobalPresence />
+      {/* <Sustainability /> */}
+      {/* <GlobalPresence /> */}
    
     </div>
   );

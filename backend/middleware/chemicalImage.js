@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Ensure the necessary folders exist
 const createFoldersIfNotExist = () => {
-  const folders = ['uploads/images', 'uploads/documents', 'uploads/msds', 'uploads/specs'];
+  const folders = ['uploads/images', 'uploads/msds', 'uploads/pdf'];
   folders.forEach(folder => {
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder, { recursive: true });
@@ -25,24 +25,14 @@ const storage = multer.diskStorage({
       case 'images':
         folder = 'uploads/images';
         break;
-      case 'catalog':
-        folder = 'uploads/documents';
-        break;
       case 'msds':
         folder = 'uploads/msds';
         break;
-      case 'specs':
-        folder = 'uploads/specs';
-        break;
-      case 'resumeFile':
-        folder = 'uploads/documents';
+      case 'pdf':
+        folder = 'uploads/pdf';
         break;
       default:
         folder = 'uploads';
-    }
-    
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder, { recursive: true });
     }
     
     cb(null, folder);
@@ -50,7 +40,6 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
     const filename = `${Date.now()}${ext}`;
-    file.path = filename;
     cb(null, filename);
   }
 });
@@ -59,53 +48,71 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // Limit each file size to 10MB
+    fileSize: 50 * 1024 * 1024 // Limit each file size to 10MB
   },
   fileFilter: (req, file, cb) => {
-    if (file.fieldname === 'images') {
-      // For images, check image formats
-      const allowedTypes = /jpeg|jpg|png|gif|webp/;
-      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-      const mimetype = allowedTypes.test(file.mimetype);
+    // Log the file information for debugging
+    console.log("File being processed:", {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      extension: path.extname(file.originalname).toLowerCase()
+    });
 
-      if (extname && mimetype) {
+    if (file.fieldname === 'images') {
+      // For images, check image formats - add more accepted types
+      const allowedTypes = /jpeg|jpg|png|gif|webp|svg|bmp|tiff/i;
+      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      
+      // Expand the accepted mimetypes
+      const allowedMimetypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'image/svg+xml',
+        'image/bmp',
+        'image/tiff'
+      ];
+      
+      const mimetype = allowedMimetypes.includes(file.mimetype);
+
+      if (extname || mimetype) {  // Changed from AND to OR for more leniency
         return cb(null, true);
       } else {
-        cb(new Error('Only image files are allowed'), false);
+        console.log("Image validation failed:", {
+          extname_valid: extname,
+          mimetype_valid: mimetype,
+          extension: path.extname(file.originalname).toLowerCase(),
+          mimetype: file.mimetype
+        });
+        cb(new Error(`Only image files are allowed. Received: ${file.mimetype} with extension ${path.extname(file.originalname)}`), false);
       }
-    } else if (file.fieldname === 'catalog') {
-      // For catalogs, check PDF format
-      const isPDF = file.mimetype === 'application/pdf';
+    } else if (file.fieldname === 'pdf') {
+      // For PDF files, check PDF format
+      const isPDF = file.mimetype === 'application/pdf' || path.extname(file.originalname).toLowerCase() === '.pdf';
       if (isPDF) {
         return cb(null, true);
       } else {
-        cb(new Error('Only PDF files are allowed for catalogs'), false);
+        cb(new Error(`Only PDF files are allowed for this field. Received: ${file.mimetype}`), false);
       }
-    } else if (file.fieldname === 'msds' || file.fieldname === 'specs') {
-      // For MSDS and specs files, check allowed formats (PDF, DOC, DOCX)
-      const isValidFormat = [
+    } else if (file.fieldname === 'msds') {
+      // For MSDS files, check allowed formats (PDF, DOC, DOCX)
+      const validExtensions = ['.pdf', '.doc', '.docx'];
+      const validMimetypes = [
         'application/pdf',
         'application/msword', 
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      ].includes(file.mimetype);
+      ];
+      
+      const extname = validExtensions.includes(path.extname(file.originalname).toLowerCase());
+      const mimetype = validMimetypes.includes(file.mimetype);
 
-      if (isValidFormat) {
+      if (extname || mimetype) {  // Changed from AND to OR for more leniency
         return cb(null, true);
       } else {
-        cb(new Error(`Only PDF, DOC, and DOCX files are allowed for ${file.fieldname}`), false);
-      }
-    } else if (file.fieldname === 'resumeFile') {
-      // For resumes, check allowed formats
-      const isValidFormat = [
-        'application/pdf',
-        'application/msword', 
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      ].includes(file.mimetype);
-
-      if (isValidFormat) {
-        return cb(null, true);
-      } else {
-        cb(new Error('Only PDF, DOC, and DOCX files are allowed for resumes'), false);
+        cb(new Error(`Only PDF, DOC, and DOCX files are allowed for MSDS. Received: ${file.mimetype}`), false);
       }
     } else {
       // Default case for other file types
@@ -115,10 +122,10 @@ const upload = multer({
 });
 
 // Handle multiple files for "images" and single file for other fields
-module.exports = upload.fields([
+const uploadMiddleware = upload.fields([
   { name: 'images', maxCount: 10 },
-  { name: 'catalog', maxCount: 1 },
   { name: 'msds', maxCount: 1 },
-  { name: 'specs', maxCount: 1 },
-  { name: 'resumeFile', maxCount: 1 }
+  { name: 'pdf', maxCount: 1 }
 ]);
+
+module.exports = uploadMiddleware;

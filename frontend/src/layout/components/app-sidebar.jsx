@@ -92,6 +92,13 @@ const menuData = [
           { title: "Blog", icon: PlusSquare, url: "/blog-table" },
           { title: "Blog Card", icon: PlusSquare, url: "/blogCard" },
         ]
+      }, {
+        title: "Brands",
+        icon: FileQuestion,
+        children: [
+          { title: "List", icon: List, url: "/brands-list" },
+          // { title: "Add New", icon: PlusSquare, url: "/about-us-form" },
+        ]
       },
      
       {
@@ -111,6 +118,7 @@ const menuData = [
               "/banner-table"
           },
           { title: "Add New", icon: PlusSquare, url: "/add-banner" },
+          { title: "Brands", icon: PlusSquare, url: "/brands-list" },
 
         ]
       },
