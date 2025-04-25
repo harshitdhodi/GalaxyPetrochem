@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-export default function ProductInfo({ productDetails, name, price, categorySlug }) {
+export default function ProductInfo({tagline, productDetails, name, price, categorySlug }) {
   // Process the HTML content using useMemo to avoid unnecessary re-processing
   const { extractedPContent, remainingContent } = useMemo(() => {
     // Create a temporary div to parse HTML content
@@ -29,36 +29,29 @@ export default function ProductInfo({ productDetails, name, price, categorySlug 
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-main mb-2">
+      <h1 className="text-2xl font-bold text-[#2e60d7] ">
         {name} 
       </h1>
-      <p className="text-lg font-bold text-main">
-        Price : {price}
-        <span className='text-secondary font-semibold'>
-          {categorySlug === "tubes-pipes" ? "/kg" : "/Piece"}
-        </span>
+      <p className="text-lg font-bold mb-4 text-[#3a6ada]">
+      {tagline}
+      
       </p>
 
       {/* Apply styles directly to the container for the extracted paragraph */}
       {extractedPContent && (
-        <p className="extracted-paragraph" dangerouslySetInnerHTML={{ __html: extractedPContent }} />
+        <p className="extracted-paragraph text-md text-gray-900" dangerouslySetInnerHTML={{ __html: extractedPContent }} />
       )}
 
-      <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
+      {/* <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
         <div 
           className="custom-product-details overflow-x-auto w-full"
           dangerouslySetInnerHTML={{ __html: remainingContent }} 
         />
-      </div>
+      </div> */}
 
       {/* Using global styles instead of scoped styles */}
       <style jsx global>{`
-        .extracted-paragraph {
-          margin-bottom: 16px;
-          font-size: 18px;
-          color: #145bc7;
-          font-weight: 600;
-        }
+        
         .custom-product-details table {
           width: max-content;
           min-width: 100%;

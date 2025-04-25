@@ -37,7 +37,7 @@ const NavSection = ({
 
                     {/* Products Dropdown */}
                     <NavLink
-                        href="/categories"
+                        href="/products"
                         hasDropdown={true}
                         categories={categories}
                         state={{ categoryName: "Products" }}

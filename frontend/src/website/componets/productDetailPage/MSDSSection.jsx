@@ -38,7 +38,7 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
                   
               <Button
                 onClick={() => window.open(`/api/image/pdf/view/${catalogue.catalogue}`, '_blank')}
-                className="w-full bg-main hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-2"
+                className="w-full bg-[#e95821] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-2"
               >
                 Catalogue
               </Button>
@@ -49,7 +49,7 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
         )}
         <Button
           onClick={onInquiry}
-          className="w-full md:w-1/4 bg-main hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
+          className="w-full md:w-1/4 bg-[#e95821] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
         >
           Inquiry Now
         </Button>

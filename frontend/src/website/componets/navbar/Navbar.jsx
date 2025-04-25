@@ -192,7 +192,10 @@ export default function NavbarComp({ categories }) {
                 className="block w-full text-left py-2 text-white hover:text-secondary"
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
               >
+                <Link to={'/products'}>
                 Products
+                </Link>
+             
               </button>
               {categoryDropdownOpen && (
                 <div className="pl-4 space-y-2 bg-white rounded-md shadow-md">

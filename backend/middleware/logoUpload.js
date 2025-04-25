@@ -76,7 +76,8 @@ const uploadLogo = async (req, res, next) => {
     const uploadFields = upload.fields([
       { name: 'headerLogo', maxCount: 1 },
       { name: 'favIcon', maxCount: 1 },
-      { name: 'icon', maxCount: 1 }
+      { name: 'icon', maxCount: 1 },
+      { name: 'photo', maxCount: 1 }
     ]);
 
     uploadFields(req, res, async (err) => {

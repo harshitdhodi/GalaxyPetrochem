@@ -156,3 +156,45 @@ exports.getProductsByBrandId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get product by slug
+exports.getProductBySlug = async (req, res) => {
+  try {
+    const product = await Product.find({ slug: req.query.slug })
+      .populate("brandId categoryId subCategoryId");
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getRecentProductsByCategorySlug = async (req, res) => {
+  const { slug } = req.query;
+
+  try {
+    // Step 1: Find the current product by slug
+    const currentProduct = await Product.findOne({ slug });
+
+    if (!currentProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Step 2: Find the 5 most recent products in the same category excluding the current product
+    const recentProducts = await Product.find({
+      categoryId: currentProduct.categoryId,
+      slug: { $ne: slug } // Exclude the current product
+    })
+      .sort({ createdAt: -1 }) // Most recent first
+      .limit(5)
+      .populate("brandId categoryId subCategoryId");
+
+    res.json(recentProducts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

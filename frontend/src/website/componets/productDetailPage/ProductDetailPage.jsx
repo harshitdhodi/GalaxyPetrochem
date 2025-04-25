@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import Breadcrumb from "../SubCategoryPage/BreadCrumb";
 import ImageSection from "./ProductImageSec";
 import ProductInfo from "./ProductInfo";
 import MSDSSection from "./MSDSSection";
@@ -10,6 +9,7 @@ import InquiryForm from "./InquiryForm";
 import Footer from "../home/Footer";
 import RecentProduct from "./RecentProduct";
 import NotFoundPage from "../NotFoundPage.jsx";
+import ProductDetailBreadcrumb from "../SubCategoryPage/ProductDetailBreadCrumb";
 
 export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -25,17 +25,19 @@ export default function ProductDetailPage() {
       try {
         setIsLoading(true);
         setIsError(false);
-        const response = await fetch(`/api/product/getbySlug/${slug}`);
-        if (!response.ok) throw new Error("Failed to fetch product data");
+        const response = await fetch(`/api/petrochemProduct/getbySlug?slug=${slug}`);
         const data = await response.json();
         console.log(data);
 
-        if (!data || Object.keys(data).length === 0) {
+        if (!response.ok) throw new Error("Failed to fetch product data");
+
+        if (!data || data.length === 0) {
           navigate("/404", { replace: true }); // Redirect to 404 page if no data
           return;
         }
 
-        setProductData(data);
+        // Assuming the data array contains multiple products and you want the first one
+        setProductData(data[0]);
       } catch (error) {
         console.error("Error fetching product data:", error);
         setIsError(true);
@@ -58,15 +60,15 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     const defaultTitle = "Product Details";
-    if (productData?.metaTitle) {
-      document.title = `${productData.metaTitle} - Product Details`;
+    if (productData?.meta?.title) {
+      document.title = `${productData.meta.title} - Product Details`;
       let metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
-        metaDescription.setAttribute("content", productData.metaDescription || `Details about ${productData.name}`);
+        metaDescription.setAttribute("content", productData.meta.description || `Details about ${productData.name}`);
       } else {
         const newMetaDescription = document.createElement("meta");
         newMetaDescription.setAttribute("name", "description");
-        newMetaDescription.setAttribute("content", productData.metaDescription || `Details about ${productData.name}`);
+        newMetaDescription.setAttribute("content", productData.meta.description || `Details about ${productData.name}`);
         document.head.appendChild(newMetaDescription);
       }
     } else {
@@ -79,16 +81,17 @@ export default function ProductDetailPage() {
   }, [productData, isLoading]);
 
   const fallbackImage = "https://via.placeholder.com/300x300?text=No+Image+Available";
-  console.log(productData)
+  
+  // Handling product images
   const images = productData?.images?.length
-    ? productData.images.map(img => ({
-      url: img.url || fallbackImage,
-      alt: img.alt || "Product Image",
-      title: img.title || "Product Image",
-    }))
+    ? productData.images.map((img) => ({
+        url: img.url || fallbackImage,
+        alt: img.alt || "Product Image",
+        title: img.title || "Product Image",
+      }))
     : [{ url: fallbackImage, alt: "No Image Available", title: "No Image" }];
-
-  const productDetails = productData?.table || "";
+  
+  const productDetails = productData?.details || "";
 
   if (isError) {
     return (
@@ -102,7 +105,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto mb-10 px-4 py-2 relative">
+    <div className="max-w-7xl mx-auto mb-10 px-4 py-2 relative">
       {showInquiryForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <InquiryForm productName={productData?.name} onClose={() => setShowInquiryForm(false)} />
@@ -114,18 +117,24 @@ export default function ProductDetailPage() {
         </div>
       ) : (
         <>
-          <Breadcrumb
-            chemicals={productData?.category?.category}
-            slug={productData?.category?.slug}
+          <ProductDetailBreadcrumb
+            chemicals={productData?.categoryId?.category}
+            slug={productData?.categoryId?.slug}
             categorySlug={productData?.name}
           />
           <div className="lg:flex gap-12">
             <ImageSection images={images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
             <div className="w-full">
-              <ProductInfo productDetails={productDetails} name={productData?.name} price={productData.price} categorySlug={productData.categorySlug} />
+              <ProductInfo
+                productDetails={productDetails}
+                name={productData?.name}
+                price={productData?.price}
+                categorySlug={productData?.categorySlug}
+                tagline={productData?.tagline}
+              />
               <MSDSSection
-                msds={productData?.metaSchema}
-                specs={productData?.metaKeyword}
+                msds={productData?.msds}
+                specs={productData?.specification}
                 name={productData?.name}
                 onInquiry={() => setShowInquiryForm(true)}
               />
@@ -148,7 +157,12 @@ export default function ProductDetailPage() {
                 __html: productData?.details || "No description available for this product.",
               }}
             />
-
+            <div
+              className="bg-transparent leading-relaxed prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: productData?.tableInfo || "No description available for this product.",
+              }}
+            />
           </div>
         </>
       )}

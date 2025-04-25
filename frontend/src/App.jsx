@@ -173,7 +173,7 @@ function App() {
           children: [
             { index: true, element: <Suspense fallback={<LoadingFallback />}><HomePage /></Suspense> },
             { path: 'categories', element: <Suspense fallback={<LoadingFallback />}><ProductCategoryPage /></Suspense> },
-            { path: 'ParentProductCategory', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
+            // { path: 'ParentProductCategory', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
             { path: 'alphabetsbaseCategory', element: <Suspense fallback={<LoadingFallback />}><AlphabetsBaseCategory /></Suspense> },
             { path: ':categorySlug/:slug', element: <Suspense fallback={<LoadingFallback />}><Saperator /></Suspense> },
             { path: 'about-us', element: <Suspense fallback={<LoadingFallback />}><PetrochemicalAboutUs /></Suspense> },
@@ -186,6 +186,7 @@ function App() {
             { path: '/about', element: <Suspense fallback={<LoadingFallback />}><AboutDescription /></Suspense> },
             { path: '/introduction', element: <Suspense fallback={<LoadingFallback />}><Introduction /></Suspense> },
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
+            { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
           
 
             // brands section 
@@ -229,7 +230,7 @@ function App() {
                 </ChemicalProvider>
               )
             },
-            { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ProductTable /></Suspense> },
+            { path: '/products-table', element: <Suspense fallback={<LoadingFallback />}><ProductTable /></Suspense> },
 
             { path: '/products/add', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },
             { path: '/products/edit/:id', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },

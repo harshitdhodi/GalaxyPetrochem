@@ -1,5 +1,5 @@
 const ProductCategory = require("../model/chemicalCategory");
-const Product=require("../model/chemical")
+const Product=require("../model/petrochemProduct")
 const fs = require('fs');
 const path = require('path');
 
@@ -110,43 +110,39 @@ const updateCategory = async (req, res) => {
   const { categoryId } = req.query;
 
   const { 
-    category, alt, imgtitle, slug, metatitle, metadescription,details,
+    category, alt, imgtitle, slug, metatitle, metadescription, details,
     metakeywords, metacanonical, metalanguage, metaschema, 
     otherMeta, url, priority, changeFreq 
   } = req.body;
 
   let photo = req.body.photo;
 
-  if (req.file) {
-    photo = req.file.filename; // New image uploaded
+  // Handle uploaded photo from multer.fields
+  if (req.files && req.files.photo && req.files.photo[0]) {
+    photo = req.files.photo[0].filename;
   }
 
   try {
-    // Find the existing category
     const existingCategory = await ProductCategory.findById(categoryId);
-
     if (!existingCategory) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Delete the old image if a new one is uploaded
-    if (req.file && existingCategory.photo) {
-      const oldImagePath = path.join(__dirname, '../images', existingCategory.photo); // Adjust the path to match your setup
-
-      // Check if the file exists before attempting to delete
+    // Delete old image if a new one was uploaded
+    if (req.files && req.files.photo && existingCategory.photo) {
+      const oldImagePath = path.join(__dirname, '../logos', existingCategory.photo);
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
       }
     }
 
-    // Update the category with new data
+    // Update category
     const updatedCategory = await ProductCategory.findByIdAndUpdate(
       categoryId,
       { 
-        category, alt, imgtitle, photo, slug,details,
-         metatitle, metadescription, 
-        metakeywords, metacanonical, metalanguage, metaschema, otherMeta, 
-        url, priority, changeFreq 
+        category, alt, imgtitle, photo, slug, details,
+        metatitle, metadescription, metakeywords, metacanonical,
+        metalanguage, metaschema, otherMeta, url, priority, changeFreq
       },
       { new: true, runValidators: true }
     );
@@ -157,17 +153,50 @@ const updateCategory = async (req, res) => {
   }
 };
 
-
+const sharp = require('sharp');
 const updateSubCategory = async (req, res) => {
-  // Update category
   const { categoryId, subCategoryId } = req.query;
- 
-  const { category,alt,imgtitle,slug, metatitle,details,
-     metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
-  let photo = req.body.photo; 
 
-  if (req.file) {
-    photo = req.file.filename; 
+  const {
+    category,
+    alt,
+    imgtitle,
+    slug,
+    metatitle,
+    details,
+    metadescription,
+    metakeywords,
+    metacanonical,
+    metalanguage,
+    metaschema,
+    otherMeta,
+    url,
+    priority,
+    changeFreq,
+  } = req.body;
+
+  let photo = req.body.photo;
+
+  // Handle uploaded photo via multer and processed earlier
+  if (req.files?.photo?.[0]) {
+    const tempPath = req.files.photo[0].path;
+    const finalFileName = req.files.photo[0].filename;
+    const finalPath = path.join(__dirname, '../logos', finalFileName);
+
+    try {
+      if (path.extname(tempPath).toLowerCase() === '.svg') {
+        await fs.promises.rename(tempPath, finalPath);
+      } else {
+        await sharp(tempPath)
+          .webp({ quality: 90 })
+          .resize({ width: 1024, withoutEnlargement: true })
+          .toFile(finalPath);
+        fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
+      }
+      photo = finalFileName;
+    } catch (err) {
+      return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
+    }
   }
 
   try {
@@ -180,9 +209,7 @@ const updateSubCategory = async (req, res) => {
     if (!subCategory) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
-   
 
-   
     subCategory.category = category || subCategory.category;
     subCategory.photo = photo || subCategory.photo;
     subCategory.alt = alt || subCategory.alt;
@@ -200,17 +227,11 @@ const updateSubCategory = async (req, res) => {
     subCategory.priority = priority !== null && priority !== undefined ? priority : subCategory.priority;
     subCategory.changeFreq = changeFreq || subCategory.changeFreq;
 
-
-
     await categoryDoc.save();
 
-    if (!categoryDoc) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-
-    res.status(200).json(categoryDoc);
+    res.status(200).json({ message: 'Subcategory updated successfully', data: categoryDoc });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -410,23 +431,40 @@ const getAll = async (req, res) => {
 
 const getSpecificCategory = async (req, res) => {
   try {
-    const { slug } = req.query; // Get the slug from the query parameters
+    const { slug } = req.query;
+
     if (!slug) {
-      return res.status(400).json({ message: 'Slug is required' }); // Check if slug is provided
+      return res.status(400).json({ message: 'Slug is required' });
     }
 
-    // Find the category by slug
-    const category = await ProductCategory.findOne({ slug: slug });
+    // Step 1: Get the main category by slug
+    const category = await ProductCategory.findOne({ slug });
 
     if (!category) {
-      return res.status(404).json({ message: 'Category not found' }); // If category is not found, return 404
+      return res.status(404).json({ message: 'Category not found' });
     }
 
-    res.status(200).json(category); // Return the category if found
+    // Step 2: Extract all subCategory _id values
+    const subCategoryIds = category.subCategories.map(sub => sub._id);
+
+    // Step 3: Find all products that match any of the subCategoryIds
+    const products = await Product.find({
+      subCategoryId: { $in: subCategoryIds }
+    });
+
+    // Step 4: Return both category and matched products
+    res.status(200).json({
+      category,
+      products
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error }); // Return server error in case of any issue
+    console.error('Error fetching category and products:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
+
 
 
 const getSpecificSubcategory = async (req, res) => {
@@ -743,30 +781,41 @@ const fetchCategoryUrlmetaById = async (req, res) => {
   }
 };
 
-const getSpecificSubcategoryBySlug
- = async (req, res) => {
-  const { slug } = req.query; // Only slug is required
+const getSpecificSubcategoryBySlug = async (req, res) => {
+  const { slug } = req.query;
+
   try {
+    // Step 1: Find the category containing the subcategory with the given slug
     const category = await ProductCategory.findOne({
-      subCategories: { $elemMatch: { slug } }, // Find category with subcategory matching the slug
+      subCategories: { $elemMatch: { slug } },
     });
 
     if (!category) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
-    // Find the specific subcategory within the matched category
+    // Step 2: Extract the matched subcategory
     const subCategory = category.subCategories.find((sub) => sub.slug === slug);
 
     if (!subCategory) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
-    res.status(200).json(subCategory);
+    // Step 3: Fetch all products that belong to this subcategory
+    const products = await Product.find({ subCategoryId: subCategory._id });
+
+    // Step 4: Return both the subcategory and its products
+    res.status(200).json({
+      subCategory,
+      products,
+    });
+
   } catch (error) {
+    console.error('Error fetching subcategory and products:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 const getSpecificCategoryById = async (req, res) => {
   try {
@@ -787,5 +836,27 @@ const getSpecificCategoryById = async (req, res) => {
     res.status(500).json({ message: 'Server error', error }); // Return server error in case of any issue
   }
 };
-module.exports = { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug
-  , fetchCategoryUrlmetaById, getSpecificCategoryById };
+
+
+const getAllCategoriesWithProducts = async (req, res) => {
+  try {
+    const categories = await ProductCategory.aggregate([
+      {
+        $lookup: {
+          from: "petrochemproducts", // this must match the **collection name** (check in MongoDB)
+          localField: "_id",
+          foreignField: "categoryId",
+          as: "products",
+        },
+      },
+    ]);
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error fetching categories with products:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+module.exports = { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug,getAllCategoriesWithProducts, fetchCategoryUrlmetaById, getSpecificCategoryById };

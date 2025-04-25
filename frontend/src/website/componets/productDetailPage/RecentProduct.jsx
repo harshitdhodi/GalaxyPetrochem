@@ -4,12 +4,12 @@ import axios from "axios";
 
 const RecentProduct = () => {
   const [recentProducts, setRecentProducts] = useState([]);
-  const { categorySlug } = useParams();
+  const { slug } = useParams();
 
   useEffect(() => {
     const fetchRecentProducts = async () => {
       try {
-        const response = await axios.get(`/api/product/getRecentProducts/${categorySlug}`);
+        const response = await axios.get(`/api/petrochemProduct/getRecentProductsByCategorySlug?slug=${slug}`);
         console.log(response.data);
         setRecentProducts(response.data?.slice(0, 6) || []);
       } catch (error) {
@@ -18,7 +18,7 @@ const RecentProduct = () => {
     };
 
     fetchRecentProducts();
-  }, [categorySlug]);
+  }, [slug]);
 
   return (
     <div className="container mx-auto px-4 py-8">
