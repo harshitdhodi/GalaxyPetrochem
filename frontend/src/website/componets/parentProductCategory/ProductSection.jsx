@@ -1,6 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function ProductSection({ title, image, products, slug }) {
+function ProductSection({ title, image, subcategories, slug }) {
+  const navigate = useNavigate();
+console.log("Products in ProductSection:", subcategories); // Debugging line
+  const handleProductClick = (subCategorySlug) => {
+    navigate(`/${slug}/${subCategorySlug}`);
+  };
 
   return (
     <div className="mb-12">
@@ -22,13 +27,15 @@ function ProductSection({ title, image, products, slug }) {
         {/* Products List */}
         <div className="flex-grow">
           <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-2 scrollbar">
-            {products && products.length > 0 ? (
-              products.map((product, index) => (
+            {subcategories && subcategories.length > 0 ? (
+              subcategories.map((product, index) => (
                 <p
                   key={index}
                   className="bg-gray-200 py-2 px-5 text-sm rounded-md hover:text-[#2b60d9] cursor-pointer"
+                  onClick={() => handleProductClick(product.slug)}
                 >
-                  {product.name}
+                  {product.category
+}
                 </p>
               ))
             ) : (
@@ -39,12 +46,11 @@ function ProductSection({ title, image, products, slug }) {
           </div>
         </div>
       </div>
-<Link to={`/${slug}`}>
-<button className="mt-6 bg-red-600 float-start hover:bg-red-700 text-white font-bold py-2 px-5 rounded transition-colors">
-        VIEW MORE
-      </button>
-</Link>
-     
+      <Link to={`/${slug}`}>
+        <button className="mt-6 bg-red-600 float-start hover:bg-red-700 text-white font-bold py-2 px-5 rounded transition-colors">
+          VIEW MORE
+        </button>
+      </Link>
     </div>
   );
 }

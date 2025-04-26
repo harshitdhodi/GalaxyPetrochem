@@ -40,7 +40,7 @@ function SubCategoryProductList() {
 
                 {/* Breadcrumb below the banner */}
                 <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-                    <Breadcrumb subcategoryName={categoryData?.category} categorySlug={categorySlug} />
+                    <Breadcrumb subcategoryName={categoryData?.category} subCategorySlug={categoryData?.slug} categorySlug={categorySlug} />
                 </div>
             </div>
 

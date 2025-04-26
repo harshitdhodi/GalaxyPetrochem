@@ -10,7 +10,8 @@ const formatText = (text) => {
     .join(' ');
 };
 
-export function Breadcrumb({ chemicalName, categorySlug, categoryName, slug2, subcategoryName }) {
+export function Breadcrumb({ chemicalName,subCategorySlug, categorySlug, categoryName, slug2, subcategoryName }) {
+  console.log(subCategorySlug)
   return (
     <nav className="mb-6 md:mx-5  lg:mx-5  xl:ml-0 pb-3">
       <ol className="list-none inline-flex">
@@ -24,7 +25,7 @@ export function Breadcrumb({ chemicalName, categorySlug, categoryName, slug2, su
         </li>
         <li className="flex items-center">
           <span className="text-[12px] sm:text-[15px]">
-            <Link to={`/chemicals/${categorySlug}`} className="text-white bg-gray-600 px-2 rounded-md">
+            <Link to={`/${categorySlug}`} className="text-white bg-gray-600 px-2 rounded-md">
               {formatText(categorySlug)}
             </Link>
           </span>

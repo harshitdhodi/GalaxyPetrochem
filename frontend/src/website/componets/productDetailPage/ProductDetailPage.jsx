@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
   return (
     <div className="max-w-7xl mx-auto mb-10 px-4 py-2 relative">
       {showInquiryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="fixed inset-0  z-50 flex items-center justify-center">
           <InquiryForm productName={productData?.name} onClose={() => setShowInquiryForm(false)} />
         </div>
       )}
@@ -134,7 +134,7 @@ export default function ProductDetailPage() {
               />
               <MSDSSection
                 msds={productData?.msds}
-                specs={productData?.specification}
+                specs={productData?.pdf}
                 name={productData?.name}
                 onInquiry={() => setShowInquiryForm(true)}
               />

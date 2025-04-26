@@ -132,6 +132,7 @@ import BrandsList from './websiteBackend/brand/BrandsTable';
 import CompanyForm from './websiteBackend/copanyInfo/CompanyInfoForm';
 import TestimonialManager from './websiteBackend/testimonial/testimonial';
 import ProductForm from './petrochemProduct/ProductForm';
+import UpdatePetrochemicalProduct from './petrochemProduct/product-form/EditProductForm';
 
 // Auth Components
 const PrivateRoute = ({ children }) => {
@@ -157,6 +158,7 @@ const AppContent = () => {
 
 // Main App Component
 function App() {
+  
   const router = createBrowserRouter([
     {
       path: '/',
@@ -233,7 +235,7 @@ function App() {
             { path: '/products-table', element: <Suspense fallback={<LoadingFallback />}><ProductTable /></Suspense> },
 
             { path: '/products/add', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },
-            { path: '/products/edit/:id', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },
+            { path: '/products/edit/:id', element: <Suspense fallback={<LoadingFallback />}><UpdatePetrochemicalProduct /></Suspense> },
 
             { path: '/brands-list', element: <Suspense fallback={<LoadingFallback />}><BrandsList /></Suspense> },
             { path: 'testimonial-table', element: <Suspense fallback={<LoadingFallback />}><TestimonialManager /></Suspense> },

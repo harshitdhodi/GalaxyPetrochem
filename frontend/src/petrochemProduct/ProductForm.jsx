@@ -84,14 +84,26 @@ const ProductForm = () => {
     if (editProduct) {
       const mappedImages = editProduct.images?.map((img) => ({
         url: img.url,
-        altText: img.altText,
-        title: img.title,
+        altText: img.altText || "",
+        title: img.title || "",
         _id: img._id,
       })) || [];
-
-      setProductState({ ...editProduct, images: mappedImages });
-      if (editProduct.categoryId) {
-        fetchSubCategories(editProduct.categoryId);
+  
+      // Extract IDs from objects if needed
+      const productData = {
+        ...editProduct,
+        images: mappedImages,
+        // Convert object references to IDs if they are objects
+        brandId: typeof editProduct.brandId === 'object' ? editProduct.brandId._id : editProduct.brandId,
+        categoryId: typeof editProduct.categoryId === 'object' ? editProduct.categoryId._id : editProduct.categoryId,
+        subCategoryId: typeof editProduct.subCategoryId === 'object' ? editProduct.subCategoryId._id : editProduct.subCategoryId,
+      };
+  
+      setProductState(productData);
+      
+      // Fetch subcategories if categoryId exists
+      if (productData.categoryId) {
+        fetchSubCategories(productData.categoryId);
       }
     }
   }, [editProduct]);

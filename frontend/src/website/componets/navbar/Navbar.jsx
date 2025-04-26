@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import Footer from "../home/Footer";
 import { useGetLogoQuery } from "@/slice/logo/LogoSlice";
 import NavSection from "./NavSection";
+import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
@@ -97,19 +98,22 @@ export default function NavbarComp({ categories }) {
   });
 
   return (
-    <>
+    <> 
       <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
         <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
           </Link>
-          <div className="w-1/2 md:mt-0 hidden md:block">
+          <div className="w-1/2 md:flex md:mt-0 gap-5 hidden ">
             <SearchBar />
+      
+          <GoogleTranslate />
           </div>
           <div className="flex items-center md:hidden">
             <div className="w-full">
               <SearchBar />
             </div>
+        
             <Button
               variant="ghost"
               className="text-main hover:text-secondary hover:bg-transparent p-2"

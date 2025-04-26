@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function SubCategoryProductCard({ title, image, products, slug ,subCategorySlug}) {
     console.log("SubCategoryProductCard", subCategorySlug);
@@ -17,7 +17,6 @@ function SubCategoryProductCard({ title, image, products, slug ,subCategorySlug}
         <div>
             <h2 className="text-2xl font-bold text-[#0a3161] mb-2">{title}</h2>
             <div className="h-1 w-16 bg-[#0a3161] mb-6"></div>
-
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 border bg-[#2b60d9]">
                     <div className="w-64 h-64 rounded-full m-4 border overflow-hidden">
@@ -30,7 +29,10 @@ function SubCategoryProductCard({ title, image, products, slug ,subCategorySlug}
                         {products && products.length > 0 ? (
                             products.map((product, index) => (
                                 <div key={index}>
-                                    <p className="bg-gray-200 py-2 px-5 text-sm rounded-md hover:text-[#2b60d9] cursor-pointer">{product.name}</p>
+                                    <Link to={`/${product.subCategorySlug}/${product.slug}`} className="flex items-center gap-2 bg-gray-200">
+                                    
+                                    <p className=" py-2 px-5 text-sm rounded-md hover:text-[#2b60d9] cursor-pointer">{product.name}</p>
+                                    </Link>
                                 </div>
                             ))
                         ) : (

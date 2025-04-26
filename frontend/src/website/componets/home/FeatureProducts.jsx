@@ -164,7 +164,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                         <h3 className="text-xl md:text-2xl text-gray-600 font-bold mb-4">{catalogue.title}</h3>
                         <div className="relative overflow-hidden inline-block">
                           <img
-                            src={`/api/image/view/${catalogue.image}`}
+                            src={`/api/image/download/${catalogue.image}`}
                             alt={catalogue.title}
                             loading="lazy"
                             className="w-[100px] transition-transform duration-300 group-hover:scale-105"

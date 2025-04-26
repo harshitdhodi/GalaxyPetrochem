@@ -5,6 +5,7 @@ import { Image } from "antd";
 import { Banner } from "./Banner";
 import axios from "axios";
 import banner from "../.././assets/petrochemical.webp";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function BrandsPage() {
   const [selectedBrand, setSelectedBrand] = useState(null);
@@ -15,7 +16,7 @@ export default function BrandsPage() {
   const [isBannerLoading, setIsBannerLoading] = useState(true);
   const productsRef = useRef(null);
   const path = location.pathname.replace(/^\//, "") || "introduction";
-
+const navigate = useNavigate();
   // Fetch brands from /api/brand/
   useEffect(() => {
     const fetchBrands = async () => {
@@ -78,6 +79,15 @@ export default function BrandsPage() {
     }, 150);
   };
 
+  // Handle brand click to redirect to /blogs/:slug
+  const handleBrandClick = (slug) => {
+    navigate(`/blogs/${slug}`);
+  };
+
+  const handleProductClick = (slug) => {
+    navigate(`/blogs/${slug}`);
+  };
+  
   // Determine brand card color
   const getBrandColor = (index) => {
     const colors = ["#e84c20", "#2294d6", "#9c5f96"];
@@ -92,7 +102,17 @@ export default function BrandsPage() {
       ) : (
         <Banner imageUrl={banner} />
       )}
-
+  <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
+          <nav className="text-[#fff] text-md font-semibold">
+            <Link to={'/'}>
+              <span className="text-[12px] bg-gray-600 px-2 font- rounded-md sm:text-[15px] text-white">Home</span>
+            </Link>
+            <span className="mx-2 text-white">&gt;</span>
+            <Link>
+              <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Brands</span>
+            </Link>
+          </nav>
+        </div>
       {/* Brands Section */}
       <section className="w-[80rem] mx-auto px-4 py-12">
         <div className="flex items-center mb-8">
@@ -158,8 +178,9 @@ export default function BrandsPage() {
             {products.map((product, index) => (
               <div
                 key={product._id}
-                className="relative overflow-hidden bg-white rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                className="relative overflow-hidden bg-white rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                 style={{ borderTop: `4px solid ${getBrandColor(index)}` }}
+                onClick={() => handleProductClick(product.slug)}
               >
                 <div className="p-5">
                   <div className="flex flex-col items-center">
@@ -180,6 +201,7 @@ export default function BrandsPage() {
                 </div>
               </div>
             ))}
+
           </div>
         </section>
       )}

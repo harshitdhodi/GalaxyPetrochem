@@ -55,7 +55,7 @@ export default function CategoryCards({ categories }) {
 
   return (
     <>
-      <div className="w-[70%] mx-auto flex flex-col justify-start">
+      <div className="w-[76rem] mx-auto flex flex-col justify-start">
         <h2 className="text-4xl md:text-5xl font-bold pb-4 bg-gradient-to-r from-[#f18061] via-[#2860da] to-[#9e5d94] bg-clip-text text-transparent">
           Our Products Category
         </h2>
@@ -75,25 +75,23 @@ export default function CategoryCards({ categories }) {
                 <img
                   src={category.photo ? `/api/logo/download/${category.photo}` : "/placeholder.jpg"}
                   alt={category.alt || "Category Image"}
-                  className="object-fill sm:object-fill min-w-[200px] max-w-[400px] min-h-[200px] max-h-[400px] w-full h-full transition-transform duration-300 group-hover:scale-105 "
-                
+                  className="object-fill sm:object-fill min-w-[200px] max-w-[400px] pt-[20%] min-h-[250px] max-h-[200px] w-full h-auto transition-transform duration-300 group-hover:scale-105"
                   fetchPriority={index < 2 ? "high" : "auto"}
                   loading={index < 4 ? "lazy" : "eager"}
                   decoding="async"
                   title={category.alt || "Category"}
-                
                 />
 
                 {/* Overlay */}
                 <div className="absolute bg-blue-500/10 hover:bg-amber-700/10  inset-0"></div>
-             
-                
+
+
                 {/* Hover Button (hidden by default, appears on hover) */}
                 <Link
                   to={`/${category.slug}`}
                   className="absolute bottom-0 left-0 transform -translate-y-1/2 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center"
                 >
-                 {category.category}
+                  {category.category}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </div>

@@ -13,16 +13,15 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Pencil, Trash2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const BrandsList = () => {
-  const [formData, setFormData] = useState({ name: '', photo: null });
+  const [formData, setFormData] = useState({ name: '', slug: '', photo: null });
   const [preview, setPreview] = useState(null);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingBrand, setEditingBrand] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
 
   const fetchBrands = async () => {
     try {
@@ -38,12 +37,38 @@ const BrandsList = () => {
   }, []);
 
   const handleChange = (e) => {
-    if (e.target.name === 'photo') {
+    const { name, value } = e.target;
+
+    if (name === 'photo') {
       const file = e.target.files[0];
       setFormData({ ...formData, photo: file });
       setPreview(URL.createObjectURL(file));
+    } else if (name === 'name') {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
+        .replace(/^-+|-+$/g, ''); // Trim leading or trailing hyphens
+      setFormData({ ...formData, name: value, slug });
     } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'photo') {
+      const file = e.target.files[0];
+      setEditingBrand({ ...editingBrand, photo: file });
+      setPreview(URL.createObjectURL(file));
+    } else if (name === 'name') {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      setEditingBrand({ ...editingBrand, name: value, slug });
+    } else {
+      setEditingBrand({ ...editingBrand, [name]: value });
     }
   };
 
@@ -53,9 +78,10 @@ const BrandsList = () => {
     try {
       const data = new FormData();
       data.append('name', formData.name);
+      data.append('slug', formData.slug);
       data.append('photo', formData.photo);
       await axios.post('/api/brand/addBrand', data);
-      setFormData({ name: '', photo: null });
+      setFormData({ name: '', slug: '', photo: null });
       setPreview(null);
       fetchBrands();
     } catch (err) {
@@ -93,6 +119,7 @@ const BrandsList = () => {
     try {
       const data = new FormData();
       data.append('name', editingBrand.name);
+      data.append('slug', editingBrand.slug);
       if (editingBrand.photo) {
         data.append('photo', editingBrand.photo);
       }
@@ -106,27 +133,29 @@ const BrandsList = () => {
       console.error('Error updating brand:', err);
     } finally {
       setLoading(false);
-    } 
+    }
   };
 
   return (
-    <><nav className="text-sm  mb-4">
-      <ol className="flex space-x-2">
-        <li>
-          <Link to="/dashboard" className="text-purple-900 hover:underline">
-            Dashboard
-          </Link>
-        </li>
-        <li>/</li>
-        <li className="text-gray-700">Brand</li>
-      </ol>
-    </nav><div className="max-w-7xl mx-auto mt-10 space-y-10">
+    <>
+      <nav className="text-sm mb-4">
+        <ol className="flex space-x-2">
+          <li>
+            <Link to="/dashboard" className="text-purple-900 hover:underline">
+              Dashboard
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-gray-700">Brand</li>
+        </ol>
+      </nav>
+      <div className="max-w-7xl mx-auto mt-10 space-y-10">
 
-        <Card className="p-6 ">
+        <Card className="p-6">
           <CardContent>
             <h2 className="text-2xl font-semibold mb-4">Add New Brand</h2>
-            <form onSubmit={handleSubmit} className="space-y-4  ">
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Brand Name</Label>
                   <Input
@@ -135,9 +164,20 @@ const BrandsList = () => {
                     placeholder="Enter brand name"
                     value={formData.name}
                     onChange={handleChange}
-                    required />
+                    required
+                  />
                 </div>
-
+                <div>
+                  <Label htmlFor="slug">Brand Slug</Label>
+                  <Input
+                    id="slug"
+                    name="slug"
+                    placeholder="Enter brand slug"
+                    value={formData.slug}
+                    onChange={handleChange} // Allows manual editing of the slug
+                    required
+                  />
+                </div>
                 <div>
                   <Label htmlFor="photo">Brand Photo</Label>
                   <Input
@@ -146,12 +186,14 @@ const BrandsList = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleChange}
-                    required />
+                    required
+                  />
                   {preview && !isEditing && (
                     <img
                       src={preview}
                       alt="Preview"
-                      className="mt-2 h-24 w-24 object-cover rounded-lg border" />
+                      className="mt-2 h-24 w-24 object-cover rounded-lg border"
+                    />
                   )}
                 </div>
               </div>
@@ -163,13 +205,14 @@ const BrandsList = () => {
           </CardContent>
         </Card>
 
-        <Card className="p-6  rounded-2xl">
+        <Card className="p-6 rounded-2xl">
           <CardContent>
             <h2 className="text-2xl font-semibold mb-4">All Brands</h2>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Slug</TableHead>
                   <TableHead>Photo</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -178,12 +221,14 @@ const BrandsList = () => {
                 {brands.map((brand) => (
                   <TableRow key={brand._id}>
                     <TableCell>{brand.name}</TableCell>
+                    <TableCell>{brand.slug}</TableCell>
                     <TableCell>
                       {brand.photo ? (
                         <img
                           src={`/api/logo/download/${brand.photo}`}
                           alt={brand.name}
-                          className="h-12 w-12 object-cover rounded" />
+                          className="h-12 w-12 object-cover rounded"
+                        />
                       ) : (
                         'No Image'
                       )}
@@ -228,10 +273,20 @@ const BrandsList = () => {
                     id="edit-name"
                     name="name"
                     value={editingBrand.name}
-                    onChange={(e) => setEditingBrand({ ...editingBrand, name: e.target.value })}
-                    required />
+                    onChange={handleEditChange}
+                    required
+                  />
                 </div>
-
+                <div>
+                  <Label htmlFor="edit-slug">Brand Slug</Label>
+                  <Input
+                    id="edit-slug"
+                    name="slug"
+                    value={editingBrand.slug}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
                 <div>
                   <Label htmlFor="edit-photo">Brand Photo</Label>
                   <Input
@@ -243,12 +298,14 @@ const BrandsList = () => {
                       const file = e.target.files[0];
                       setEditingBrand({ ...editingBrand, photo: file });
                       setPreview(URL.createObjectURL(file));
-                    } } />
+                    }}
+                  />
                   {preview && (
                     <img
                       src={preview}
                       alt="Preview"
-                      className="mt-2 h-24 w-24 object-cover rounded-lg border" />
+                      className="mt-2 h-24 w-24 object-cover rounded-lg border"
+                    />
                   )}
                 </div>
 
@@ -259,7 +316,8 @@ const BrandsList = () => {
             </div>
           </div>
         )}
-      </div></>
+      </div>
+    </>
   );
 };
 

@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async'; // Import HelmetProvider
 import store from './store/store';             
 import './index.css';
 import App from './App.jsx';
-
+import './GoogleTranslate'; 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider> {/* Wrap App with HelmetProvider */}

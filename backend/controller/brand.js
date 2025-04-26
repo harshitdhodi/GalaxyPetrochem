@@ -6,10 +6,10 @@ const path = require('path');
 // CREATE
 exports.createUserPhoto = async (req, res) => {
     try {
-      const { name } = req.body;
+      const { name, slug } = req.body;
       const photo = req.files && req.files.photo ? req.files.photo[0].filename : null;
   
-      const newUser = await UserPhoto.create({ name, photo });
+      const newUser = await UserPhoto.create({ name, slug, photo });
       res.status(201).json({ message: 'User photo created successfully', data: newUser });
     } catch (error) {
       res.status(500).json({ message: 'Error creating user photo', error: error.message });
@@ -42,7 +42,7 @@ exports.getUserPhotoById = async (req, res) => {
 // UPDATE
 exports.updateUserPhoto = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name , slug } = req.body;
     const id = req.params.id;
 
     const existingUser = await UserPhoto.findById(id);
@@ -60,6 +60,7 @@ exports.updateUserPhoto = async (req, res) => {
 
     const updatedData = {
       name: name || existingUser.name,
+      slug: slug || existingUser.slug,
       photo: req.files && req.files.photo ? req.files.photo[0].filename : existingUser.photo,
     };
 

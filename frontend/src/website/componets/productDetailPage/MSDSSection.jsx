@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react"; // Importing the MessageCircle ico
 import { useGetWhatsUpInfoQuery } from '@/slice/whatsUpInfo/WhatsUpInfo';
 import { useGetAllCataloguesQuery } from '@/slice/catalogue/catalogueslice';
 import { WhatsAppOutlined } from '@ant-design/icons';
+
 export default function MSDSSection({ msds, specs, name, onInquiry }) {
   const { data: whatsUpInfo, isLoading: isWhatsUpLoading } = useGetWhatsUpInfoQuery();
   const { data: catalogues, isLoading: isCataloguesLoading } = useGetAllCataloguesQuery(); // Fetch catalogues
@@ -35,10 +36,9 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
         {catalogues && catalogues.length > 0 ? (
           catalogues.map((catalogue) => (
             <div key={catalogue._id} className="w-full md:w-1/3 lg:w-1/4">
-                  
               <Button
-                onClick={() => window.open(`/api/image/pdf/view/${catalogue.catalogue}`, '_blank')}
-                className="w-full bg-[#e95821] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-2"
+                onClick={() => window.open(`/api/image/view/${specs}`, '_blank')}
+                className="w-full bg-[#e85920] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-2"
               >
                 Catalogue
               </Button>
@@ -47,9 +47,16 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
         ) : (
           <div>No catalogues available for download.</div>
         )}
+        
+        <Button
+          onClick={() => window.open(`/api/image/view/${msds}`, '_blank')}
+          className="w-full md:w-1/4 bg-[#e95821] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
+        >
+          MSDS
+        </Button>
         <Button
           onClick={onInquiry}
-          className="w-full md:w-1/4 bg-[#e95821] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
+          className="w-full md:w-1/4 bg-[#e85920] hover:bg-[#e95821] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
         >
           Inquiry Now
         </Button>

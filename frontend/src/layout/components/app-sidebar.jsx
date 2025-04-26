@@ -19,7 +19,7 @@ const menuData = [
     icon: LayoutDashboard,
     children: [
       { title: "products", icon: List, url: "/products-table" },
-      { title: "product-form", icon: List, url: "/add-products"},
+      { title: "product-form", icon: List, url: "/products/add"},
     
       { title: "Category", icon: ChartNoAxesGanttIcon, url: "/chemical-category" }
     ]

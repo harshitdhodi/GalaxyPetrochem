@@ -1,2 +1,0 @@
-import{bF as t,q as a}from"./main-CzSo-TQq.js";import{b as e}from"./vendor-BCMiqwDy.js";var r={icon:{tag:"svg",attrs:{viewBox:"64 64 896 896",focusable:"false"},children:[{tag:"path",attrs:{d:"M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"}},{tag:"path",attrs:{d:"M192 474h672q8 0 8 8v60q0 8-8 8H160q-8 0-8-8v-60q0-8 8-8z"}}]},name:"plus",theme:"outlined"},o=function(o,s){return e.createElement(t,a({},o,{ref:s,icon:r}))},s=e.forwardRef(o);export{s as R};
-//# sourceMappingURL=PlusOutlined-CdZ2zpwb.js.map
