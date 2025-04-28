@@ -1,0 +1,1 @@
+import{j as l}from"./index-DG2rto3Y-1745831588143.js";function e({imageUrl:s}){return l.jsxs("div",{className:"relative w-full h-[30vh] lg:h-[250px]",children:[l.jsx("img",{src:s,alt:"Banner",className:"w-full h-full object-fill"}),l.jsx("div",{className:"absolute inset-0 bg-black bg-opacity-30"})]})}export{e as B};

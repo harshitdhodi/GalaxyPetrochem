@@ -102,6 +102,7 @@ const apiRoutes = [
   ['/api/product', require('./route/product')],
   ['/api/companyInfo', require('./route/companyInfo')],
   ['/api/testimonial', require('./route/testimonial')],
+  ['/api/industry', require('./route/industryExperty')],
   ['/api/petrochemProduct', require('./route/petroChemProduct')],
 ];
 

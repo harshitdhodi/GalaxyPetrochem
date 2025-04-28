@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useSubmitApplicationMutation } from "@/slice/career/CareerForm";
+import {  Link, useLocation } from "react-router-dom";
 import { useGetBannerByPageSlugQuery } from "@/slice/banner/banner";
 import { Banner } from "../componets/Banner";
 import axios from 'axios';
@@ -22,7 +21,6 @@ export default function CareerForm() {
   const [resumeFile, setResumeFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [captchaValue, setCaptchaValue] = useState(null);
-  const [submitApplication, { isLoading }] = useSubmitApplicationMutation();
   const location = useLocation();
   const path = location.pathname.replace(/^\//, '') || 'career';
   const { data: banners, isLoading: isBannerLoading } = useGetBannerByPageSlugQuery(path);
@@ -264,9 +262,9 @@ export default function CareerForm() {
                   <Button
                     type="submit"
                     className="bg-main rounded-sm text-lg py-3 hover:bg-main_light"
-                    disabled={isLoading || isUploading}
+                    disabled={isUploading}
                   >
-                    {isLoading || isUploading ? 'Submitting...' : 'Submit'}
+                    {isUploading ? 'Submitting...' : 'Submit'}
                   </Button>
                   <Button
                     type="button"

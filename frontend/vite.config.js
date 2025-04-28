@@ -12,7 +12,6 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 const deferNonCriticalCSS = () => ({
   name: "defer-non-critical-css",
   transformIndexHtml(html, { bundle }) {
-    console.log("Bundle:", bundle); // Log the bundle object
     if (!bundle) {
       return html;
     }

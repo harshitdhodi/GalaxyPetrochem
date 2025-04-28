@@ -1,14 +1,11 @@
 import { CalendarIcon, ClockIcon, MailIcon, PhoneIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useGetAllBlogsExceptLatestQuery, useGetBlogsByCategoryQuery, useGetLatestBlogQuery } from '@/slice/blog/blog';
-import React, { useEffect, useState } from 'react';
-import Footer from '../componets/home/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function BlogPage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
 
   const [blogCard, setBlogCard] = useState(null);
   const [contactInfo, setContactInfo] = useState(null);

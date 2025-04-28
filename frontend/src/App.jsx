@@ -18,13 +18,12 @@ const HomePage = lazy(() => import('./website/pages/HomePage'));
 const ParentProductCategory = lazy(() => import('./website/pages/ParentProductCategory'));
 
 const ProductCategoryPage = lazy(() => import('./website/pages/ProductCategoryPage'));
-const SubCategories = lazy(() => import('./website/componets/SubCategoryPage/SubCategories'));
+
 const AlphabetsBaseCategory = lazy(() => import('./website/componets/alphabetbaseCategory/AlphabetsBaseCategory'));
-const ProductDetailPage = lazy(() => import('./website/componets/productDetailPage/ProductDetailPage'));
+
 const ContactPage = lazy(() => import('./website/pages/ContactPage'));
 const BlogPage = lazy(() => import('./website/pages/BlogPage'));
-const BlogDetailPage = lazy(() => import('./website/pages/BlogDetailPage'));
-const ChemicalSubcategoryPage = lazy(() => import('./website/pages/category_subcategoryPage'));
+
 
 // Dashboard Components - Lazy loaded
 const DashboardPage = lazy(() => import('./dashboard/DashboardPage'));
@@ -97,7 +96,6 @@ const AdvanceSearch = lazy(() => import('./website/pages/AdvanceSearchPage'));
 const Logo = lazy(() => import('./websiteBackend/companyLogo/CompanyLogoTable'));
 const LogoForm = lazy(() => import('./websiteBackend/companyLogo/LogoForm'));
 const ContactInfoForm = lazy(() => import('./websiteBackend/contactInfo/ContactInfoData'));
-const ContactForm = lazy(() => import('./websiteBackend/contactInfo/contactInfoForm'));
 const MenuListingForm = lazy(() => import('./websiteBackend/MenuListing/MenuListingForm'));
 const MenuListingTable = lazy(() => import('./websiteBackend/MenuListing/MenuListingTable'));
 const StaticMetaForm = lazy(() => import('./websiteBackend/staticMetaKeyword/StaticMetaForm'));
@@ -121,7 +119,6 @@ const CareerInfoForm = lazy(() => import('./websiteBackend/career/CareerInfoForm
 // Non-lazy imports
 import useDocumentTitle from './websiteBackend/staticMetaKeyword/DynamicMeta';
 import CriticalStyles from './website/componets/CriticalStyles';
-import NotFoundPage from './website/componets/NotFoundPage';
 // import ProductForm from './products/AddProducts';
 import ProductTable from './petrochemProduct/ProductTable';
 // import EditProductForm from './products/EditProduct';
@@ -133,6 +130,8 @@ import CompanyForm from './websiteBackend/copanyInfo/CompanyInfoForm';
 import TestimonialManager from './websiteBackend/testimonial/testimonial';
 import ProductForm from './petrochemProduct/ProductForm';
 import UpdatePetrochemicalProduct from './petrochemProduct/product-form/EditProductForm';
+import CreateIndustryForm from './websiteBackend/experties/IndustryExpertyForm';
+import IndustryManager from './websiteBackend/experties/IndustryManager';
 
 // Auth Components
 const PrivateRoute = ({ children }) => {
@@ -183,20 +182,17 @@ function App() {
             { path: 'blogs', element: <Suspense fallback={<LoadingFallback />}><BlogPage /></Suspense> },
             { path: 'blog/:slug', element: <Suspense fallback={<LoadingFallback />}><BlogSaparator /></Suspense> },
             { path: ':slug', element: <Suspense fallback={<LoadingFallback />}><Hello /></Suspense> },
-            { path: ':chemicals/:slug/:subsubCategorySlug', element: <Suspense fallback={<LoadingFallback />}><ChemicalSubcategoryPage /></Suspense> },
+          
             { path: '/search', element: <Suspense fallback={<LoadingFallback />}><ProductSearchBar /></Suspense> },
             { path: '/about', element: <Suspense fallback={<LoadingFallback />}><AboutDescription /></Suspense> },
             { path: '/introduction', element: <Suspense fallback={<LoadingFallback />}><Introduction /></Suspense> },
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
           
+         
 
             // brands section 
             { path: '/brands', element: <Suspense fallback={<LoadingFallback />}><BrandsPage /></Suspense> },
-       
-
-
-
             { path: '/advance-search', element: <Suspense fallback={<LoadingFallback />}><AdvanceSearch /></Suspense> },
             { path: '/privacy-policy', element: <Suspense fallback={<LoadingFallback />}><PrivacyPolicy /></Suspense> },
             { path: '/terms-and-conditions', element: <Suspense fallback={<LoadingFallback />}><TermsAndConditions /></Suspense> },
@@ -232,6 +228,8 @@ function App() {
                 </ChemicalProvider>
               )
             },
+            { path: '/industry-experties', element: <Suspense fallback={<LoadingFallback />}><IndustryManager /></Suspense> },
+
             { path: '/products-table', element: <Suspense fallback={<LoadingFallback />}><ProductTable /></Suspense> },
 
             { path: '/products/add', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },

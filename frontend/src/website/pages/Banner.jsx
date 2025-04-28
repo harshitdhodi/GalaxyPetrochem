@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types'; // Import PropTypes
 
 export function Banner({ imageUrl }) {
   return (
@@ -15,3 +15,8 @@ export function Banner({ imageUrl }) {
     </div>
   );
 }
+
+// Add PropTypes validation for Banner
+Banner.propTypes = {
+  imageUrl: PropTypes.string.isRequired, // Validate imageUrl as a required string
+};

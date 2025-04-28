@@ -9,11 +9,9 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function BrandsPage() {
   const [selectedBrand, setSelectedBrand] = useState(null);
-  const [animateProducts, setAnimateProducts] = useState(false);
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
-  const [isBannerLoading, setIsBannerLoading] = useState(true);
   const productsRef = useRef(null);
   const path = location.pathname.replace(/^\//, "") || "introduction";
 const navigate = useNavigate();
@@ -39,8 +37,6 @@ const navigate = useNavigate();
         setBanners(response.data || []);
       } catch (error) {
         console.error("Failed to fetch banner:", error);
-      } finally {
-        setIsBannerLoading(false);
       }
     };
 
@@ -79,10 +75,7 @@ const navigate = useNavigate();
     }, 150);
   };
 
-  // Handle brand click to redirect to /blogs/:slug
-  const handleBrandClick = (slug) => {
-    navigate(`/blogs/${slug}`);
-  };
+
 
   const handleProductClick = (slug) => {
     navigate(`/blogs/${slug}`);

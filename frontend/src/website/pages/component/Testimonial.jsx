@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { Star, ChevronLeft, ChevronRight } from "lucide-react"
+import PropTypes from "prop-types"
 
 export default function TestimonialSection() {
   const [testimonials, setTestimonials] = useState([])
@@ -62,7 +63,7 @@ export default function TestimonialSection() {
             What Our Clients Say
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Don't just take our word for it. Here's what our clients have to say about their experience.
+            Don&apos;t just take our word for it. Here&apos;s what our clients have to say about their experience.
           </p>
         </div>
 
@@ -207,11 +208,26 @@ function TestimonialCard({ testimonial }) {
 
       <blockquote className="flex-grow">
         <p className="text-gray-700 italic relative">
-          <span className="text-[#9e5d94] text-4xl absolute -top-2 -left-2 opacity-20">"</span>
+          <span className="text-[#9e5d94] text-4xl absolute -top-2 -left-2 opacity-20">&ldquo;</span>
           {testimonial.message}
-          <span className="text-[#9e5d94] text-4xl absolute -bottom-6 -right-2 opacity-20">"</span>
+          <span className="text-[#9e5d94] text-4xl absolute -bottom-6 -right-2 opacity-20">&rdquo;</span>
         </p>
       </blockquote>
     </div>
   )
+}
+
+// Define PropTypes for TestimonialCard
+TestimonialCard.propTypes = {
+  testimonial: PropTypes.shape({
+    _id: PropTypes.string,
+    photo: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    altName: PropTypes.string,
+    imgTitle: PropTypes.string,
+    designation: PropTypes.string,
+    company: PropTypes.string,
+    rating: PropTypes.number,
+    message: PropTypes.string.isRequired
+  }).isRequired
 }

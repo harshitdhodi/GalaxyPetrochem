@@ -3,17 +3,14 @@ import banner from "../.././assets/petrochemical.webp";
 import { Banner } from "./Banner.jsx";
 // import { CompanyInfo } from "./aboutUs/CompanyInfo.jsx";
 import { MissionVision } from "./aboutUs/MissionVision.jsx";
-import { ProductShowcase } from "./aboutUs/ProductShowcase.jsx";
-import { Sustainability } from "./aboutUs/Sustainability.jsx";
-import { GlobalPresence } from "./aboutUs/GlobalPresence.jsx";
 import CompanyInfo from "../componets/home/CompanyInfo";
 import IndustryExpertise from "./aboutUs/IndustryExpertise";
+import axios from "axios";
 
 
 export default function PetrochemicalAboutUs() {
   const path = location.pathname.replace(/^\//, '') || 'introduction'; 
   const [banners, setBanners] = useState([]);
-  const [isBannerLoading, setIsBannerLoading] = useState(true);
 
   useEffect(() => {
     const fetchBanner = async () => {
@@ -22,9 +19,7 @@ export default function PetrochemicalAboutUs() {
         setBanners(response.data || []);
       } catch (error) {
         console.error('Failed to fetch banner:', error);
-      } finally {
-        setIsBannerLoading(false);
-      }
+      } 
     };
 
     fetchBanner();

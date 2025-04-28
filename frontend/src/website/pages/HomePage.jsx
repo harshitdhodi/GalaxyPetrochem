@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import CategoryCards from '../componets/home/CategoryCards';
 import FeaturedProducts from '../componets/home/FeatureProducts';
 import Slideshow from '../componets/home/SlideShow';

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import img from "../images/adBanner.jpg"
 import { Banner } from '../componets/Banner'
 import SearchSections from '../componets/advanceSearch/SearchSections'

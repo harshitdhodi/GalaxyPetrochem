@@ -1,0 +1,1 @@
+import{r as u}from"./index-DG2rto3Y-1745831588143.js";function o(r){const e=u.useRef({value:r,previous:r});return u.useMemo(()=>(e.current.value!==r&&(e.current.previous=e.current.value,e.current.value=r),e.current.previous),[r])}export{o as u};

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import ChemicalSubcategoryPage from './website/pages/category_subcategoryPage';
+
 import AlphabetBasedProduct from './website/pages/AlphabetBasedProduct';
 import ParentProductCategory from './website/pages/ParentProductCategory';
 import SubCategoryProduct from './website/componets/parentProductCategory/subcategory/SubCategoryProduct';

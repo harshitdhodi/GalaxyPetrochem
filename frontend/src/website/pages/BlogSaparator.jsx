@@ -1,11 +1,9 @@
-import React from 'react'
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import BlogDetailPage from './BlogDetailPage';
 import BlogPage from './BlogPage';
 
 const BlogSaparator = () => {
     const location = useLocation();
-    const { slug } = useParams();
   
     // Check if the URL contains '/chemicals' or '/microbiology'
     const isProductsPath =

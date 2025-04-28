@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductSection from "../componets/parentProductCategory/ProductSection";
 import banner from "../.././assets/petrochemical.webp";
 import { Banner } from "./Banner";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Link } from "react-router-dom";
+
 function ParentProductCategory() {
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,14 +28,12 @@ function ParentProductCategory() {
     fetchBanner();
   }, [path]);
 
-
-
   useEffect(() => {
     const fetchAllCategoriesWithProducts = async () => {
       try {
         const response = await axios.get("/api/chemicalCategory/getAllCategoriesWithProducts");
         const data = response.data;
-        console.log("Fetched categories with products:", data); // Log the fetched data
+        console.log("Fetched categories with products:", data);
         setAllCategories(data);
       } catch (error) {
         console.error("Error fetching categories with products:", error);
@@ -47,10 +45,12 @@ function ParentProductCategory() {
     fetchAllCategoriesWithProducts();
   }, []);
 
-  if (loading) return <p className="text-center">Loading categories and products...</p>;
+  if (loading || isBannerLoading) {
+    return <p className="text-center">Loading...</p>;
+  }
 
   return (
-    <>
+    <div>
       <div className="relative">
         {/* Banner */}
         {banners && banners.length > 0 ? (
@@ -62,11 +62,11 @@ function ParentProductCategory() {
         {/* Breadcrumb below the banner */}
         <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
           <nav className="text-[#fff] text-md font-semibold">
-            <Link to={'/'}>
+            <Link to="/">
               <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Home</span>
             </Link>
             <span className="mx-2 text-white">&gt;</span>
-            <Link>
+            <Link to="#">
               <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Product</span>
             </Link>
           </nav>
@@ -74,8 +74,7 @@ function ParentProductCategory() {
       </div>
 
       <div className="container mx-auto px-4 max-w-7xl pt-10">
-        <h2 className="text-4xl text-[#0a3161] font-bold mb-3 ">Our Categories</h2>
-        {/* <div className="h-1 w-16 bg-[#0a3161] mb-6"></div> */}
+        <h2 className="text-4xl text-[#0a3161] font-bold mb-3">Our Categories</h2>
       </div>
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 pb-8 max-w-7xl gap-10">
         {allCategories.length === 0 ? (
@@ -87,14 +86,13 @@ function ParentProductCategory() {
                 title={category.category}
                 image={`/api/logo/download/${category.photo}`}
                 subcategories={category.subCategories || []}
-
                 slug={category.slug}
               />
             </div>
           ))
         )}
       </div>
-    </>
+    </div>
   );
 }
 

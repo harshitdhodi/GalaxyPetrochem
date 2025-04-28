@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Banner } from '../componets/Banner';
 import LeftSection from '../componets/contact_sec/LeftSide';
 import RightSection from '../componets/contact_sec/RightSide';
-import Footer from '../componets/home/Footer';
 import img from "../images/contact-us.png";
 import { useGetBannerByPageSlugQuery } from '@/slice/banner/banner';
 

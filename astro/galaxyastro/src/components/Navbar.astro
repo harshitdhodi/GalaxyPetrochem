@@ -1,0 +1,30 @@
+---
+import { createBrowserRouter   } from 'react-router-dom';
+import NavbarComp from '../react/componets/navbar/Navbar';
+
+// Fetch data at server-side build time
+const chemicalCategoriesResponse = await fetch('http://localhost:3028/api/chemicalCategory/getAll');
+const categories = await chemicalCategoriesResponse.json();
+
+const blogCategoriesResponse = await fetch('http://localhost:3028/api/blogCategory/get');
+const blogCategories = await blogCategoriesResponse.json();
+
+const logoResponse = await fetch('http://localhost:3028/api/companyLogo/get-logo');
+const logoData = await logoResponse.json();
+
+// Get the current path from Astro.request for SSR
+
+---
+
+<header class="w-full">
+  <!-- Use createBrowserRouter for SSR and pass the current path -->
+  <createBrowserRouter >
+    <NavbarComp 
+     
+      categories={categories} 
+      blogCategories={blogCategories}
+      logoData={logoData}
+    
+    />
+  </createBrowserRouter>
+</header>
