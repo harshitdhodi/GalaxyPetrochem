@@ -7,7 +7,7 @@ import SearchBar from "./SearchBar";
 import Footer from "../home/Footer";
 import { useGetLogoQuery } from "@/slice/logo/LogoSlice";
 import NavSection from "./NavSection";
-// import GoogleTranslate from "@/GoogleTranslate";
+import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
@@ -107,7 +107,7 @@ export default function NavbarComp({ categories }) {
           <div className="w-1/2 md:flex md:mt-0 gap-5 hidden ">
             <SearchBar />
       
-          {/* <GoogleTranslate /> */}
+          <GoogleTranslate />
           </div>
           <div className="flex items-center md:hidden">
             <div className="w-full">
