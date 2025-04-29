@@ -136,7 +136,7 @@ mongoose.connect(process.env.DATABASE_URI, {
 });
  
 // Server startup 
-const PORT = process.env.PORT || 3028;
+const PORT = process.env.PORT || 3036;
 app.listen(PORT, () => {
   console.log(`Environment Variables:`, {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
