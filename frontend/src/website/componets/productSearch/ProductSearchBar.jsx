@@ -16,10 +16,11 @@ export default function ProductSearchBar() {
 
     const fetchChemicalData = async () => {
       try {
-        const response = await fetch(`/api/product/getBySlug/${slug}`);
+        const response = await fetch(`/api/petrochemProduct/getBySlug?slug=${slug}`);
         if (response.ok) {
           const data = await response.json();
-          setChemical(data); // Set the fetched chemical data
+          console.log(data[0]);
+          setChemical(data[0]); // Set the fetched chemical data
         } else {
           setIsError(true); // Set error state if the request failed
         }
@@ -52,6 +53,15 @@ export default function ProductSearchBar() {
     );
   }
 
+  // Extract category information from categoryId object
+  const categorySlug = chemical.categoryId?.slug || '';
+  const categoryName = chemical.categoryId?.category || 'N/A';
+  const subCategoryName = chemical.subCategorySlug
+  ? chemical.subCategorySlug.replace(/-/g, ' ').charAt(0).toUpperCase() + chemical.subCategorySlug.replace(/-/g, ' ').slice(1).toLowerCase()
+  : 'N/A';
+
+
+
   return (
     <>
     <div className="flex justify-center w-full">
@@ -67,39 +77,43 @@ export default function ProductSearchBar() {
         <Table>
           <TableHeader className="bg-main">
             <TableRow>
-             
               <TableHead className="text-white">Product Name</TableHead>
               <TableHead className="text-white">Category</TableHead>
-              <TableHead className="text-white">Price</TableHead>
+              <TableHead className="text-white">Sub Category</TableHead>
+              <TableHead className="text-white">Brand</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow className="bg-blue-50">
-         
               <TableCell>
-                <Link 
-                  to={`/${chemical.category.slug}/${chemical.slug}`} 
-                  className="text-main hover:underline cursor-pointer"
-                >
-                  {chemical.name}
-                </Link>
+                {chemical.slug ? (
+                  <Link 
+                    to={`/${chemical.subCategorySlug}/${chemical.slug}`} 
+                    className="text-main hover:underline cursor-pointer"
+                  >
+                    {chemical.name}
+                  </Link>
+                ) : (
+                  chemical.name || 'Unknown'
+                )}
               </TableCell>
               <TableCell>
-              <Link 
-                  to={`/${chemical.category.slug}`} 
-                  className="text-main hover:underline cursor-pointer"
-                >
-                {chemical.category.category || 'N/A'}
-                </Link>
-                </TableCell>
-              <TableCell>{chemical.price || 'N/A'} /piece</TableCell>
-              
-              
+                {categorySlug ? (
+                  <Link 
+                    to={`/${categorySlug}`} 
+                    className="text-main hover:underline cursor-pointer"
+                  >
+                    {categoryName}
+                  </Link>
+                ) : (
+                  categoryName
+                )}
+              </TableCell>
+              <TableCell>{subCategoryName}</TableCell>
+              <TableCell>{chemical.brandId?.name || 'N/A'}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
-
-      
       </div>
     </div>
     <Footer/>

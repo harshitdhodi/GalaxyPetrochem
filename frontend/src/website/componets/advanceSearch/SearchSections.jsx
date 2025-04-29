@@ -6,36 +6,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useGetSpecificCategoryBySlugQuery } from "@/slice/chemicalSlice/chemicalCategory";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function SearchCategorySection({ title }) {
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+function SearchCategorySection({ title, slug }) {
+  const { data, isLoading, error } = useGetSpecificCategoryBySlugQuery(slug);
   const [selectedCategory, setSelectedCategory] = useState("");
   const navigate = useNavigate();
 
-  // Fetch categories from the API
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("/api/chemicalCategory/getAll");
-        setCategories(response.data || []);
-        setIsLoading(false);
-      } catch (err) {
-        setError("Error loading categories");
-        setIsLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const subcategories = data?.category.subCategories
+  || [];
 
   const handleSubmit = () => {
     if (selectedCategory) {
-      navigate(`/${selectedCategory}`);
+      navigate(`/${slug}/${selectedCategory}`);
     }
   };
 
@@ -45,15 +31,15 @@ function SearchCategorySection({ title }) {
       <div className="space-y-4">
         <Select onValueChange={(value) => setSelectedCategory(value)}>
           <SelectTrigger className="bg-white">
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder="Select sub category" />
           </SelectTrigger>
           <SelectContent>
             {isLoading ? (
               <SelectItem disabled>Loading...</SelectItem>
             ) : error ? (
-              <SelectItem disabled>{error}</SelectItem>
+              <SelectItem disabled>Error loading categories</SelectItem>
             ) : (
-              categories.map((subcat) => (
+              subcategories.map((subcat) => (
                 <SelectItem key={subcat._id} value={subcat.slug}>
                   {subcat.category}
                 </SelectItem>
@@ -62,7 +48,7 @@ function SearchCategorySection({ title }) {
           </SelectContent>
         </Select>
         <Button
-          className="w-full bg-secondary hover:bg-primary"
+          className="w-full bg-[#e85920] hover:bg-[#e85920]"
           onClick={handleSubmit}
         >
           SUBMIT
@@ -77,26 +63,17 @@ export default function SearchSections() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const handleSearchSubmit = async () => {
+  const handleSearchSubmit = () => {
     if (!searchType || !searchTerm) {
       alert("Please select a search type and enter a search term.");
       return;
     }
   
-    const queryParam =
-      searchType === "product_name"
-        ? `/api/product/advanceSearch?name=${encodeURIComponent(searchTerm)}`
-        : `/api/product/advanceSearch?price=${encodeURIComponent(searchTerm)}`;
+    // Convert to lowercase and replace whitespace with a hyphen
+    const formattedSearchTerm = searchTerm.toLowerCase().replace(/\s+/g, "-");
   
-    try {
-      const response = await axios.get(queryParam);
-      console.log("Search Results:", response.data);
-  
-      // Pass search results via state
-      navigate(`/product-search`, { state: { results: response.data, searchTerm } });
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
+    // Redirect to the search page with query parameters
+    navigate(`/search?tab=${encodeURIComponent(formattedSearchTerm)}`);
   };
   
   
@@ -104,7 +81,10 @@ export default function SearchSections() {
   return (
     <div className="grid gap-6 md:grid-cols-3 py-6">
       {/* Chemicals Section */}
-      <SearchCategorySection title="Search Chemicals" />
+      <SearchCategorySection title="Search Industrial Oils" slug="industrial-oils" />
+
+      {/* Microbiology Section */}
+      <SearchCategorySection title="Search Greases" slug="greases" />
 
       {/* Products Section */}
       <div className="bg-gray-100/80 p-6 rounded-lg space-y-4">
@@ -116,7 +96,8 @@ export default function SearchSections() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="product_name">Product Name</SelectItem>
-              <SelectItem value="price">Product Price</SelectItem>
+              {/* <SelectItem value="product_code">Product Code</SelectItem> */}
+              {/* <SelectItem value="cas">CAS Number</SelectItem> */}
             </SelectContent>
           </Select>
           <input
@@ -127,7 +108,7 @@ export default function SearchSections() {
             className="w-full px-3 py-2 border rounded-md border-input bg-background bg-white"
           />
           <Button
-            className="w-full bg-secondary hover:bg-primary"
+            className="w-full bg-[#e85920] hover:bg-[#e85920]"
             onClick={handleSearchSubmit}
           >
             SUBMIT

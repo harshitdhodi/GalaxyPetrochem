@@ -47,18 +47,36 @@ router.get("/download/:filename", cache("1 day"), async (req, res) => {
 // PDF Viewing
 router.get("/view/:filename", (req, res) => {
   const { filename } = req.params;
-  const filePath = path.join(__dirname, "../uploads/images", filename);
+  const filePath = path.join(__dirname, "../uploads/pdf", filename);
+  const filePath2 = path.join(__dirname, "../uploads/msds", filename);
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "inline");
+  const sendPDF = (filePathToSend) => {
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline");
+    res.sendFile(filePathToSend, (err) => {
+      if (err) {
+        console.error("SendFile Error:", err);
+        res.status(500).json({ message: "File display failed" });
+      }
+    });
+  };
 
-  res.sendFile(filePath, (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: "File display failed" });
+  // Check which file path exists
+  fs.access(filePath, fs.constants.F_OK, (err1) => {
+    if (!err1) {
+      sendPDF(filePath);
+    } else {
+      fs.access(filePath2, fs.constants.F_OK, (err2) => {
+        if (!err2) {
+          sendPDF(filePath2);
+        } else {
+          res.status(404).json({ message: "File not found in both directories" });
+        }
+      });
     }
   });
 });
+
 
 // PDF Download
 router.get("/pdf/download/:filename", (req, res) => {

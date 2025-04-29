@@ -1,0 +1,34 @@
+---
+import Welcome from '../components/Welcome.astro';
+import Layout from '../layouts/Layout.astro';
+import "../styles/global.css";
+import Navbar from '../react/Navbar.jsx';
+import BannerSlider from '../components/Banner.astro';
+import CompanyInfo from 'src/react/componets/CompanyInfo';
+import CompanyCategory from '../components/CompanyCategory.astro';
+
+// Fetch data from the API
+async function fetchHomeData() {
+  try {
+    const response = await fetch('http://localhost:3028/api/allHome/getAllHomePage');
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching home data:', error);
+    return { category: [], recentProducts: [], catalogue: [], aboutUs: [] }; // Fallback to empty structure
+  }
+}
+
+const homeData = await fetchHomeData();
+---
+
+<Layout>
+  <Navbar />
+  <BannerSlider />
+  <CompanyInfo />
+  <CompanyCategory categories={homeData.category || []} />
+</Layout>

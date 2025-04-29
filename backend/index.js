@@ -1,4 +1,4 @@
-
+ 
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -47,19 +47,20 @@ app.get('/images/:filename', async (req, res) => {
 
 // Static file serving with no caching
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false, 
-  lastModified: false, 
+  etag: false,
+  lastModified: false,
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // cache for 1 hour
   }
 }));
+
  
 // API Routes
 const apiRoutes = [
   ['/api/admin', admin],
   ['/api/supplier', require('./route/supplier')],
   ['/api/allHome', require('./route/allHomePage')],
-  
+  ['/api/brand', require('./route/brand')],
   ['/api/chemicalCategory', require('./route/chemicalCategory')],
   ['/api/chemical', require('./route/chemical')],
   ['/api/customer', require('./route/customer')], 
@@ -75,7 +76,7 @@ const apiRoutes = [
   ['/api/image', require('./route/image')],
   ['/api/blogCategory', require('./route/blogCategory')],
   ['/api/blog', require('./route/blog')],
-  ['/api/email', require('./route/email')],
+  ['/api/email', require('./route/email')], 
   ['/api/template', require('./route/emailTemplate')],
   ['/api/productInquiry', require('./route/productInquiry')],
   ['/api/sitemap', require('./route/sitemapRoute')],
@@ -84,7 +85,6 @@ const apiRoutes = [
   ['/api/contactForm', require('./route/contactForm')],
   ['/api/chemicalMail', require('./route/chemicalMail')],
   ['/api/career', require('./route/carrer')],
-  ['/api/worldwide', require('./route/worldwide')],
   ['/api/contactinfo', require('./route/contactinfo')],
   ['/api/emailCategory', require('./route/emailCategory')],
   ['/api/companyLogo', require('./route/companyLogo')],
@@ -99,9 +99,14 @@ const apiRoutes = [
   ['/api/privacy', require('./route/privacy')],
   ['/api/terms', require('./route/termscondition')],
   ['/api/careerInfo', require('./route/careerInfo')],
-  ['/api/product', require('./route/product')]
+  ['/api/product', require('./route/product')],
+  ['/api/companyInfo', require('./route/companyInfo')],
+  ['/api/testimonial', require('./route/testimonial')],
+  ['/api/industry', require('./route/industryExperty')],
+  ['/api/missionVision', require('./route/missionVision')],
+  ['/api/petrochemProduct', require('./route/petroChemProduct')],
 ];
-
+ 
 // Apply routes
 apiRoutes.forEach(([route, handler]) => {
   app.use(route, handler);
@@ -111,7 +116,7 @@ app.use(express.static(path.join(__dirname, 'dist'), {
   etag: false, 
   lastModified: false, 
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'dist, max-age=3600'); // cache for 1 hour
   }
 }));
 
@@ -120,7 +125,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// MongoDB Connection
+// MongoDB Connection 
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -138,7 +143,7 @@ app.listen(PORT, () => {
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
   console.log(`Server running on port ${PORT}`);
-  generateAllSitemaps(); // Generate sitemaps on startup
+  // generateAllSitemaps(); // Generate sitemaps on startup
 });
 // SMTP Connection Test
 const nodemailer = require('nodemailer');

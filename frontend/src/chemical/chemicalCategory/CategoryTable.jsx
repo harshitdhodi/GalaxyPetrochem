@@ -11,18 +11,13 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, ChevronDown, Edit, Trash2, Plus } from 'lucide-react'
-import { 
-  useDeleteChemicalCategoryMutation,
-  useGetAllChemicalCategoriesQuery,
-   
-} from '@/slice/chemicalSlice/chemicalCategory'
+import { useGetAllChemicalCategoriesQuery } from '@/slice/chemicalSlice/chemicalCategory'
 import { Link, useNavigate } from 'react-router-dom'
 
 const CategoryRow = ({ item, level, parentIds = {} }) => {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = React.useState(false)
   const hasSubcategories = item.subCategories?.length > 0 || item.subSubCategory?.length > 0
-  const [deleteCategory, { isLoading: isDeleting }] = useDeleteChemicalCategoryMutation()
   
   const currentLevelIds = {
     ...parentIds,
@@ -40,39 +35,29 @@ const CategoryRow = ({ item, level, parentIds = {} }) => {
     navigate(editPath)
   }
 
-  const handleDelete = async () => {
-    try {
-      await deleteCategory(item._id).unwrap()
-      // Success - RTK Query will automatically refetch the category list
-    } catch (error) {
-      console.error('Failed to delete category:', error)
-    }
-  }
-
   return (
     <>
       <TableRow>
         <TableCell className="font-medium">
-          <div className="flex items-center" style={{ paddingLeft: `${level * 20}px` }}>
-            {hasSubcategories && (
-              <button onClick={() => setIsOpen(!isOpen)} className="mr-2">
-                {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              </button>
-            )}
-            {item.category}
-          </div>
+        <div className={`flex items-center pl-[${level * 20}px]`}>
+  {hasSubcategories && (
+    <button onClick={() => setIsOpen(!isOpen)} className="mr-2">
+      {isOpen ? (
+        <ChevronDown className="h-4 w-4" />
+      ) : (
+        <ChevronRight className="h-4 w-4" />
+      )}
+    </button>
+  )}
+  {item.category}
+</div>
         </TableCell>
         <TableCell>
           <div className="flex justify-start ">
             <Button variant="ghost" size="icon" onClick={handleEdit}>
               <Edit className="h-4 w-4 text-blue-600" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleDelete} 
-              disabled={isDeleting}
-            >
+            <Button variant="ghost" size="icon">
               <Trash2 className="h-4 w-4 text-red-600" />
             </Button>
           </div>

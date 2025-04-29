@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const TermsAndConditions = () => {
   const [termsCondition, setTermsCondition] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTermsCondition = async () => {
@@ -15,7 +14,7 @@ const TermsAndConditions = () => {
           setTermsCondition(termsData.termsCondition);
         }
       } catch (error) {
-        setError('Failed to fetch terms and conditions');
+        console.error('Failed to fetch terms and conditions:', error);
       } finally {
         setIsLoading(false);
       }
@@ -26,10 +25,6 @@ const TermsAndConditions = () => {
 
   if (isLoading) {
     return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
   }
 
   return (
@@ -47,12 +42,5 @@ const TermsAndConditions = () => {
     </>
   );
 };
-
-const Section = ({ title, children }) => (
-  <div className="mb-6">
-    <h2 className="text-xl font-semibold text-gray-800 mb-3">{title}</h2>
-    <div className="text-gray-600 leading-relaxed">{children}</div>
-  </div>
-);
 
 export default TermsAndConditions;

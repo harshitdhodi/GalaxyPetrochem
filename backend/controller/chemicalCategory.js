@@ -1,8 +1,7 @@
 const ProductCategory = require("../model/chemicalCategory");
-const Product=require("../model/chemical")
+const Product=require("../model/petrochemProduct")
 const fs = require('fs');
 const path = require('path');
-const { default: mongoose } = require("mongoose");
 
 const deleteFile = (filePath) => {
   fs.unlink(filePath, (err) => {
@@ -13,35 +12,28 @@ const deleteFile = (filePath) => {
 };
 
 const insertCategory = async (req, res) => {
-  console.log("🔹 Request body:", req.body);
-  console.log("🔹 Uploaded files:", req.files);
+  const { category,details,
+    alt,imgtitle,slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
+
+  const photo = req.file ? req.file.filename : null;
 
   try {
-    const photo = req.files?.photo?.[0]?.filename || null;
-    console.log("✅ Final photo filename:", photo);
+    const existingCategory = await ProductCategory.findOne({ category });
 
-    if (!photo) {
-      return res.status(400).json({ error: "Photo is required" });
+    if (existingCategory) {
+      return res.status(400).json({ message: 'Category already exists' });
     }
 
-    // Create a new category object including all body fields
-    const newCategoryData = {
-      ...req.body,  // Spread all body fields dynamically
-      photo,        // Add photo separately
-    };
-
-    const newCategory = new ProductCategory(newCategoryData);
+    const newCategory = new ProductCategory({  category,alt,imgtitle,photo,
+      details,
+      slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq  });
     const savedCategory = await newCategory.save();
 
-    return res.status(201).json(savedCategory);
+    res.status(201).json(savedCategory);
   } catch (error) {
-    console.error("❌ Error inserting category:", error);
-    return res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
-
- 
-
 
 const insertSubCategory = async (req, res) => {
   const { categoryId } = req.query;
@@ -113,79 +105,98 @@ const insertSubSubCategory = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
-const uploadDir = path.join(__dirname, '../logos');
+
 const updateCategory = async (req, res) => {
+  const { categoryId } = req.query;
+
+  const { 
+    category, alt, imgtitle, slug, metatitle, metadescription, details,
+    metakeywords, metacanonical, metalanguage, metaschema, 
+    otherMeta, url, priority, changeFreq 
+  } = req.body;
+
+  let photo = req.body.photo;
+
+  // Handle uploaded photo from multer.fields
+  if (req.files && req.files.photo && req.files.photo[0]) {
+    photo = req.files.photo[0].filename;
+  }
+
   try {
-    const { categoryId } = req.query;
-
-    if (!categoryId) {
-      return res.status(400).json({ message: 'Category ID is required' });
-    }
-
-    const {
-      category, alt, imgtitle, slug, metatitle, metadescription, details,
-      metakeywords, metacanonical, metalanguage, metaschema,
-      otherMeta, url, priority, changeFreq
-    } = req.body;
-
-    console.log("Request body:", req.body);
-    console.log("Uploaded files:", req.files);
-
-    // Find the existing category
     const existingCategory = await ProductCategory.findById(categoryId);
     if (!existingCategory) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Default to existing photo if no new file is uploaded
-    let photo = existingCategory.photo;
-
-    // Check if a new photo is uploaded
-    if (req.files && req.files.photo) {
-      photo = req.files.photo[0].filename; // Get uploaded file name
-
-      // Delete the old image if it exists
-      if (existingCategory.photo) {
-        const oldImagePath = path.join(__dirname, '../logos', existingCategory.photo);
-
-        if (fs.existsSync(oldImagePath)) {
-          console.log("Deleting old image:", oldImagePath);
-          fs.unlinkSync(oldImagePath);
-        } else {
-          console.log("Old image not found:", oldImagePath);
-        }
+    // Delete old image if a new one was uploaded
+    if (req.files && req.files.photo && existingCategory.photo) {
+      const oldImagePath = path.join(__dirname, '../logos', existingCategory.photo);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
       }
     }
 
-    // Update the category with new data
+    // Update category
     const updatedCategory = await ProductCategory.findByIdAndUpdate(
       categoryId,
-      {
+      { 
         category, alt, imgtitle, photo, slug, details,
-        metatitle, metadescription, metakeywords, metacanonical, metalanguage,
-        metaschema, otherMeta, url, priority, changeFreq
+        metatitle, metadescription, metakeywords, metacanonical,
+        metalanguage, metaschema, otherMeta, url, priority, changeFreq
       },
       { new: true, runValidators: true }
     );
 
-    console.log("Updated category:", updatedCategory);
-
-    return res.status(200).json(updatedCategory);
+    res.status(200).json(updatedCategory);
   } catch (error) {
-    console.error("Error updating category:", error);
-    return res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
-const updateSubCategory = async (req, res) => {
-  // Update category
-  const { categoryId, subCategoryId } = req.query;
- 
-  const { category,alt,imgtitle,slug, metatitle,details,
-     metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
-  let photo = req.body.photo; 
 
-  if (req.file) {
-    photo = req.file.filename; 
+const sharp = require('sharp');
+const updateSubCategory = async (req, res) => {
+  const { categoryId, subCategoryId } = req.query;
+
+  const {
+    category,
+    alt,
+    imgtitle,
+    slug,
+    metatitle,
+    details,
+    metadescription,
+    metakeywords,
+    metacanonical,
+    metalanguage,
+    metaschema,
+    otherMeta,
+    url,
+    priority,
+    changeFreq,
+  } = req.body;
+
+  let photo = req.body.photo;
+
+  // Handle uploaded photo via multer and processed earlier
+  if (req.files?.photo?.[0]) {
+    const tempPath = req.files.photo[0].path;
+    const finalFileName = req.files.photo[0].filename;
+    const finalPath = path.join(__dirname, '../logos', finalFileName);
+
+    try {
+      if (path.extname(tempPath).toLowerCase() === '.svg') {
+        await fs.promises.rename(tempPath, finalPath);
+      } else {
+        await sharp(tempPath)
+          .webp({ quality: 90 })
+          .resize({ width: 1024, withoutEnlargement: true })
+          .toFile(finalPath);
+        fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
+      }
+      photo = finalFileName;
+    } catch (err) {
+      return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
+    }
   }
 
   try {
@@ -198,9 +209,7 @@ const updateSubCategory = async (req, res) => {
     if (!subCategory) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
-   
 
-   
     subCategory.category = category || subCategory.category;
     subCategory.photo = photo || subCategory.photo;
     subCategory.alt = alt || subCategory.alt;
@@ -218,17 +227,11 @@ const updateSubCategory = async (req, res) => {
     subCategory.priority = priority !== null && priority !== undefined ? priority : subCategory.priority;
     subCategory.changeFreq = changeFreq || subCategory.changeFreq;
 
-
-
     await categoryDoc.save();
 
-    if (!categoryDoc) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-
-    res.status(200).json(categoryDoc);
+    res.status(200).json({ message: 'Subcategory updated successfully', data: categoryDoc });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -283,69 +286,46 @@ const updatesubsubcategory = async (req, res) => {
 
 const deletecategory = async (req, res) => {
   const { id } = req.query;
-  console.log('Received ID:', id);
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid category ID' });
-  }
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
+  console.log(id)
   try {
     // Find the category by its ID
-    const category = await ProductCategory.findById(id).session(session);
-    
+    const category = await ProductCategory.findById(id);
+
+    // Check if the category exists
     if (!category) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ message: 'Category not found' });
     }
 
     // Check if there are subcategories or sub-subcategories
     const hasSubcategories = category.subCategories.length > 0;
     const hasSubSubcategories = category.subCategories.some(subCat => subCat.subSubCategory.length > 0);
-    
+
     if (hasSubcategories || hasSubSubcategories) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ message: 'Category has associated subcategories or sub-subcategories and cannot be deleted' });
     }
 
-    // Delete the associated category image if it exists
-    if (category.photo) {
-      const photoPath = path.join(__dirname, '../logos', category.photo);
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-        console.log('Deleted image file:', photoPath);
-      }
-    }
-
-    // Delete the category
-    const deletedCategory = await ProductCategory.findByIdAndDelete(id, { session });
     
+    const photoPath = path.join(__dirname, '../logos', category.photo);
+    deleteFile(photoPath);
+
+
+    // Proceed to delete the category
+    const deletedCategory = await ProductCategory.findByIdAndDelete(id);
+
     if (!deletedCategory) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Remove category reference from all associated products
+
+    // Find and update all products that reference this category, removing the category reference
     await Product.updateMany(
       { categories: id },
-      { $pull: { categories: id } },
-      { session }
+      { $pull: { categories: id } }
     );
 
-    await session.commitTransaction();
-    session.endSession();
-    
     res.status(200).json({ message: 'Category deleted successfully and references removed from products' });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    console.error('Error deleting category:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
@@ -451,23 +431,40 @@ const getAll = async (req, res) => {
 
 const getSpecificCategory = async (req, res) => {
   try {
-    const { slug } = req.query; // Get the slug from the query parameters
+    const { slug } = req.query;
+
     if (!slug) {
-      return res.status(400).json({ message: 'Slug is required' }); // Check if slug is provided
+      return res.status(400).json({ message: 'Slug is required' });
     }
 
-    // Find the category by slug
-    const category = await ProductCategory.findOne({ slug: slug });
+    // Step 1: Get the main category by slug
+    const category = await ProductCategory.findOne({ slug });
 
     if (!category) {
-      return res.status(404).json({ message: 'Category not found' }); // If category is not found, return 404
+      return res.status(404).json({ message: 'Category not found' });
     }
 
-    res.status(200).json(category); // Return the category if found
+    // Step 2: Extract all subCategory _id values
+    const subCategoryIds = category.subCategories.map(sub => sub._id);
+
+    // Step 3: Find all products that match any of the subCategoryIds
+    const products = await Product.find({
+      subCategoryId: { $in: subCategoryIds }
+    });
+
+    // Step 4: Return both category and matched products
+    res.status(200).json({
+      category,
+      products
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error }); // Return server error in case of any issue
+    console.error('Error fetching category and products:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
+
 
 
 const getSpecificSubcategory = async (req, res) => {
@@ -784,30 +781,41 @@ const fetchCategoryUrlmetaById = async (req, res) => {
   }
 };
 
-const getSpecificSubcategoryBySlug
- = async (req, res) => {
-  const { slug } = req.query; // Only slug is required
+const getSpecificSubcategoryBySlug = async (req, res) => {
+  const { slug } = req.query;
+
   try {
+    // Step 1: Find the category containing the subcategory with the given slug
     const category = await ProductCategory.findOne({
-      subCategories: { $elemMatch: { slug } }, // Find category with subcategory matching the slug
+      subCategories: { $elemMatch: { slug } },
     });
 
     if (!category) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
-    // Find the specific subcategory within the matched category
+    // Step 2: Extract the matched subcategory
     const subCategory = category.subCategories.find((sub) => sub.slug === slug);
 
     if (!subCategory) {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
-    res.status(200).json(subCategory);
+    // Step 3: Fetch all products that belong to this subcategory
+    const products = await Product.find({ subCategoryId: subCategory._id });
+
+    // Step 4: Return both the subcategory and its products
+    res.status(200).json({
+      subCategory,
+      products,
+    });
+
   } catch (error) {
+    console.error('Error fetching subcategory and products:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 const getSpecificCategoryById = async (req, res) => {
   try {
@@ -828,5 +836,27 @@ const getSpecificCategoryById = async (req, res) => {
     res.status(500).json({ message: 'Server error', error }); // Return server error in case of any issue
   }
 };
-module.exports = { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug
-  , fetchCategoryUrlmetaById, getSpecificCategoryById };
+
+
+const getAllCategoriesWithProducts = async (req, res) => {
+  try {
+    const categories = await ProductCategory.aggregate([
+      {
+        $lookup: {
+          from: "petrochemproducts", // this must match the **collection name** (check in MongoDB)
+          localField: "_id",
+          foreignField: "categoryId",
+          as: "products",
+        },
+      },
+    ]);
+
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error fetching categories with products:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+module.exports = { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug,getAllCategoriesWithProducts, fetchCategoryUrlmetaById, getSpecificCategoryById };

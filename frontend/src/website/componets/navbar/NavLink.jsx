@@ -71,7 +71,7 @@ export function NavLink({
       {isHovered && categories?.length > 0 && (
         <div
           className={`
-            absolute left-0 w-64 bg-blue-800 text-white shadow-lg z-50
+            absolute left-0 w-64 bg-[#2b5fd9] text-white shadow-lg z-50
             transition-all duration-200 ease-in-out
             ${isHovered 
               ? 'opacity-100 translate-y-0' 

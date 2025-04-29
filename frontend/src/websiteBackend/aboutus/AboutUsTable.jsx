@@ -1,103 +1,84 @@
-import React from 'react';
-import { Table, Button, Space, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { useGetAboutUsQuery, useDeleteAboutUsMutation } from '../../slice/aboutUs/aboutUs';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // import useNavigate
+import axios from 'axios';
+import { Edit } from 'lucide-react';
+const StatsTable = () => {
+  const [stats, setStats] = useState([]);
+  const navigate = useNavigate(); // initialize navigate
 
-const AboutUsTable = () => {
-  const navigate = useNavigate();
-  const { data: aboutUsData, isLoading } = useGetAboutUsQuery();
-  const [deleteAboutUs] = useDeleteAboutUsMutation();
-
-  const handleDelete = async (id) => {
+  const fetchStats = async () => {
     try {
-      await deleteAboutUs(id);
-      message.success('About Us entry deleted successfully');
+      const res = await axios.get('/api/aboutus/getAll');
+      setStats(res.data.data);
     } catch (error) {
-      message.error('Failed to delete About Us entry');
+      console.error('Error fetching stats:', error);
     }
   };
 
-  const columns = [
-    {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      width: '10%',
-    },
-    {
-      title: 'Short Description',
-      dataIndex: 'shortDescription',
-      key: 'shortDescription',
-      ellipsis: true,
-      width: '40%',
-      render: (shortDescription) => (
-        <div dangerouslySetInnerHTML={{ __html: shortDescription }} />
-      ),
-    },
-    {
-      title: 'Image',
-      dataIndex: 'image',
-      key: 'image',
-      width: '15%',
-      render: (image) => (
-        <img 
-          src={`/api/image/download/${image}`} 
-          alt="About Us" 
-          style={{ width: '100px', height: '50px', objectFit: 'cover' }} 
-        />
-      ),
-    },
-    
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: '10%',
-      render: (_, record) => (
-        <Space>
-          <Button 
-            type="primary" 
-            icon={<EditOutlined />}
-            onClick={() => navigate(`/edit-about-us-form/${record._id}`)}
-          >
-          </Button>
-          <Button 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record._id)}
-          >
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this record?')) {
+      try {
+        await axios.delete(`/api/aboutus/deleteStats?id=${id}`);
+        setStats(prev => prev.filter(item => item._id !== id));
+      } catch (error) {
+        console.error('Delete failed:', error);
+      }
+    }
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/edit-about-us-form/${id}`);
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   return (
-    <div>
-      <div style={{ padding: '24px' }} className='flex justify-between items-center'>
-        <div className='text-2xl font-bold'>
-          <h1>About Us</h1>   
-        </div>
-        <div>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            onClick={() => navigate('/about-us-form')}
-            style={{ marginBottom: '16px' }}
-          >
-            Add About Us
-          </Button>
-        </div>
-      </div>
-      <Table 
-        columns={columns} 
-        dataSource={aboutUsData} 
-        loading={isLoading}
-        rowKey="_id"
-        pagination={false}
-      />
+    <div className="overflow-x-auto mt-6">
+      <table className="min-w-full table-auto border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-100 text-left">
+            <th className="border p-2">Years</th>
+            <th className="border p-2">Clients</th>
+            <th className="border p-2">Experts</th>
+            <th className="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stats.map((stat) => (
+            <tr key={stat._id} className="hover:bg-gray-50">
+              <td className="border p-2">{stat.years}</td>
+              <td className="border p-2">{stat.clients}</td>
+              <td className="border p-2">{stat.experts}</td>
+              <td className="border p-2 flex gap-2">
+                <button
+                  onClick={() => handleEdit(stat._id)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1"
+                >
+                  <Edit size={16} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(stat._id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+          {stats.length === 0 && (
+            <tr>
+              <td colSpan="4" className="text-center py-4 text-gray-500">
+                No stats available.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
 
-export default AboutUsTable;
+export default StatsTable;

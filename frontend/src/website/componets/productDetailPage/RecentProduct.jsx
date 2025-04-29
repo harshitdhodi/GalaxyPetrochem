@@ -4,12 +4,12 @@ import axios from "axios";
 
 const RecentProduct = () => {
   const [recentProducts, setRecentProducts] = useState([]);
-  const { categorySlug } = useParams();
+  const { slug } = useParams();
 
   useEffect(() => {
     const fetchRecentProducts = async () => {
       try {
-        const response = await axios.get(`/api/product/getRecentProducts/${categorySlug}`);
+        const response = await axios.get(`/api/petrochemProduct/getRecentProductsByCategorySlug?slug=${slug}`);
         console.log(response.data);
         setRecentProducts(response.data?.slice(0, 6) || []);
       } catch (error) {
@@ -18,7 +18,7 @@ const RecentProduct = () => {
     };
 
     fetchRecentProducts();
-  }, [categorySlug]);
+  }, [slug]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -28,7 +28,7 @@ const RecentProduct = () => {
       </div>
 
       {recentProducts.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {recentProducts.map((product) => (
             <Link
               to={`/${product.slug}`}
@@ -37,46 +37,46 @@ const RecentProduct = () => {
               transition-all duration-300 transform hover:-translate-y-1"
             >
               <div className="flex flex-col h-full">
-                <div className="relative p-4 bg-gray-50">
-                  <div className="aspect-w-16 aspect-h-9 h-[40vh]">
-                    <img
-                      src={product.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : "/placeholder.jpg"}
-                      alt={product.images?.[0]?.altText || product.name}
-                      className="w-full h-full object-contain  
-                      group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                </div>
-                <div className="p-5 flex-1 bg-gradient-to-b from-blue-50 to-blue-100">
-                  <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-                  <div className="">
-                    <p className="text-main mt-1 text-md  font-semibold">₹{product.price}<span className="text-black">/piece</span> </p>
-
-                    {/* Render first two table rows as normal text with colon after the first column only */}
-                    {product.table && (
-                      <div
-                        className="mt-1 text-blue-700 space-y-1"
-                        dangerouslySetInnerHTML={{
-                          __html: product.table
-                            .replace(/border:\s?1px\s?solid[^;]+;/g, "") // Remove border styles
-                            .replace(/<table[^>]*>/g, "<div class='space-y-1'>") // Replace table with div
-                            .replace(/<\/table>/g, "</div>") // Close div
-                            .replace(/<tbody>|<\/tbody>/g, "") // Remove tbody
-                            .replace(/<tr>/g, "<div class='flex'>") // Convert row to flex div
-                            .replace(/<\/tr>/g, "</div>") // Close row div
-                            .replace(
-                              /<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>/g,
-                              "<p class='mr-2 font-semibold'>$1:</p><p class='text-gray-800 font-semibold'>$2</p>"
-                            )
-                            // Add colon only after first column
-                            .split("</div>") // Split rows
-                            .slice(0, 2) // Take only first 2 rows
-                            .join("</div>") // Join back rows
-                        }}
+                <div className="relative  bg-gray-50">
+                  <div className="flex-shrink-0 border bg-[#2b60d9]">
+                    <div className="w-52 h-52 ml-9 rounded-full m-4  border overflow-hidden">
+                      <img
+                        src={product.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : "/placeholder.jpg"}
+                        alt={product.images?.[0]?.altText || product.name}
+                        className="w-full h-full  object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                    )}
+                    </div>
                   </div>
+
                 </div>
+                <div className="w-2/3 p-4 bg-gradient-to-br from-blue-50 to-white">
+                <h3 className="text-xl font-bold text-blue-900 mb-1">{product.name}</h3>
+                <p className="text-sm text-blue-700 mb-1 font-semibold">Category: {product.categoryId.category}</p>
+                <p className="text-sm text-gray-600 mb-3 font-medium">Brand: {product.brandId.name}</p>
+
+                {/* Table Data in bullet-like format */}
+                {product.table && (
+                  <div
+                    className="text-sm text-gray-700 space-y-1"
+                    dangerouslySetInnerHTML={{
+                      __html: product.table
+                        .replace(/border:\s?1px\s?solid[^;]+;/g, "")
+                        .replace(/<table[^>]*>/g, "<div class='space-y-1'>")
+                        .replace(/<\/table>/g, "</div>")
+                        .replace(/<tbody>|<\/tbody>/g, "")
+                        .replace(/<tr>/g, "<div class='flex space-x-2'>")
+                        .replace(/<\/tr>/g, "</div>")
+                        .replace(
+                          /<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>/g,
+                          "<span class='font-semibold text-blue-800'>$1:</span><span class='text-gray-800'>$2</span>"
+                        )
+                        .split("</div>")
+                        .slice(0, 2)
+                        .join("</div>")
+                    }}
+                  />
+                )}
+              </div>
               </div>
             </Link>
           ))}

@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import Footer from "../home/Footer";
 import { useGetLogoQuery } from "@/slice/logo/LogoSlice";
 import NavSection from "./NavSection";
+import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
@@ -97,22 +98,25 @@ export default function NavbarComp({ categories }) {
   });
 
   return (
-    <>
+    <> 
       <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
         <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
           </Link>
-          <div className="w-1/2 md:mt-0 hidden md:block">
+          <div className="w-1/2 md:flex md:mt-0 gap-5 hidden ">
             <SearchBar />
+      
+          <GoogleTranslate />
           </div>
           <div className="flex items-center md:hidden">
             <div className="w-full">
               <SearchBar />
             </div>
+        
             <Button
               variant="ghost"
-              className="text-main hover:text-secondary hover:bg-transparent p-2"
+              className="text-main  hover:bg-transparent p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -164,7 +168,7 @@ export default function NavbarComp({ categories }) {
               </Link>
               <button
                 variant="ghost"
-                className="text-main_light hover:text-secondary hover:bg-transparent p-1 border"
+                className="text-main_light  hover:bg-transparent p-1 border"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <X className="h-6 w-6" />
@@ -173,14 +177,14 @@ export default function NavbarComp({ categories }) {
 
             <Link
               to="/"
-              className={`block py-2 text-white hover:text-secondary ${isHomeActive ? "text-primary" : ""}`}
+              className={`block py-2 text-white  ${isHomeActive ? "text-primary" : ""}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/corporate"
-              className="block py-2 text-white hover:text-secondary"
+              className="block py-2 text-white "
               onClick={() => setMobileMenuOpen(false)}
             >
               Corporate
@@ -189,10 +193,13 @@ export default function NavbarComp({ categories }) {
             {/* Products Dropdown */}
             <div>
               <button
-                className="block w-full text-left py-2 text-white hover:text-secondary"
+                className="block w-full text-left py-2 text-white "
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
               >
+                <Link to={'/products'}>
                 Products
+                </Link>
+             
               </button>
               {categoryDropdownOpen && (
                 <div className="pl-4 space-y-2 bg-white rounded-md shadow-md">
@@ -200,7 +207,7 @@ export default function NavbarComp({ categories }) {
                     <Link
                       key={category.id}
                       to={`/${category.slug}`}
-                      className="block py-1 text-main text-md hover:text-secondary"
+                      className="block py-1 text-main text-md "
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {category.name}
@@ -212,28 +219,28 @@ export default function NavbarComp({ categories }) {
 
             <Link
               to="/worldwide"
-              className="block py-2 text-white hover:text-secondary"
+              className="block py-2 text-white "
               onClick={() => setMobileMenuOpen(false)}
             >
               Worldwide
             </Link>
             <Link
               to="/careers"
-              className="block py-2 text-white hover:text-secondary"
+              className="block py-2 text-white "
               onClick={() => setMobileMenuOpen(false)}
             >
               Careers
             </Link>
             <Link
               to="/events"
-              className="block py-2 text-white hover:text-secondary"
+              className="block py-2 text-white "
               onClick={() => setMobileMenuOpen(false)}
             >
               Events
             </Link>
             <Link
               to="/contact-us"
-              className={`block py-2 text-white hover:text-secondary ${isContactActive ? "text-primary" : ""}`}
+              className={`block py-2 text-white  ${isContactActive ? "text-primary" : ""}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Contact Us
@@ -255,7 +262,7 @@ export default function NavbarComp({ categories }) {
       <main className="w-full mb-10 mx-auto">
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }

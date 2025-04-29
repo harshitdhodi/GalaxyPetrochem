@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import JoditEditor from "jodit-react";
 
 const EditCategory = () => {
   const { categoryId, subCategoryId, subSubCategoryId } = useParams();
@@ -9,6 +10,7 @@ const EditCategory = () => {
   const [photo, setPhoto] = useState("");
   const [altText, setAltText] = useState("");
   const [imgtitle, setImgtitle] = useState("");
+  const editor = useRef(null);
   const [details, setDetails] = useState("")
   const [currentPhoto, setCurrentPhoto] = useState("");
   const [slug, setSlug] = useState("");
@@ -165,28 +167,7 @@ const EditCategory = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="">
-       <nav>
-              <ul className="flex gap-2 mb-5 flex-wrap">
-              <li>
-                <Link to="/" className="text-gray-500 hover:text-main">
-                  Dashboard
-                </Link>
-              </li>
-              <li className="text-gray-500">&gt;</li>
-              <li>
-                <Link to="/chemical-category  " className="text-gray-500 hover:text-main">
-                  Categories
-                </Link>
-              </li>
-              <li className="text-gray-500">&gt;</li>
-              <li>
-                <Link to="" className="text-main hover:text-main">
-                 Add Category
-                </Link>
-              </li>
-              </ul>
-            </nav>
+    <form onSubmit={handleSubmit} className="p-4">
       <h1 className="text-xl font-bold font-serif text-gray-700 uppercase text-center">Edit Category</h1>
       <div className="mb-4">
         <label htmlFor="category" className="block font-semibold mb-2">
@@ -251,19 +232,58 @@ const EditCategory = () => {
           </div>
         )}
       </div>
-      <div className="mb-4">
-              <label htmlFor="imgtitle" className="block font-semibold mb-2">
-                Details
-              </label>
-              <textarea
-                type="text"
-                id="details"
-                value={details}
-                onChange={(e) => setDetails(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none"
-                required
-              />
-            </div>
+      <JoditEditor
+  ref={editor}
+  value={details}
+  tabIndex={1}
+  onBlur={(newContent) =>
+    setDetails(newContent) // Update state on blur
+  }
+  config={{
+    readonly: false, // Enable editing
+    toolbarSticky: false,
+    uploader: {
+      insertImageAsBase64URI: true, // Allow image upload as Base64
+    },
+    buttons: [
+      "bold",
+      "italic",
+      "underline",
+      "strikethrough",
+      "|",
+      "ul",
+      "ol",
+      "|",
+      "font",
+      "fontsize",
+      "brush",
+      "paragraph",
+      "|",
+      "image",
+      "table",
+      "link",
+      "|",
+      "align",
+      "undo",
+      "redo",
+    ],
+    style: {
+      backgroundColor: "white", // Default background color
+    },
+    events: {
+      afterPaste: (event) => {
+        const editorContent = event.editor.editor;
+        const pastedElements = editorContent.querySelectorAll("*");
+
+        pastedElements.forEach((element) => {
+          if (!element.style.backgroundColor) {
+            element.style.backgroundColor = "white"; // Set default background color
+          }
+        });
+      },
+    },
+  }}
+/>
       <div className="mb-4 mt-4">
         <label htmlFor="slug" className="block font-semibold mb-2">
           Slug

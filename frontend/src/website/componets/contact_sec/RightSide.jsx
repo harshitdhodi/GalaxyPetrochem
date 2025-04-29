@@ -51,7 +51,7 @@ export default function RightSection() {
 
   return (
     <div className="bg-blue-50 p-6 rounded-lg">
-      <h2 className="text-xl text-main font-semibold mb-4">
+      <h2 className="text-xl text-primary font-semibold mb-4">
         Please fill in the form below to send us your enquiries.
       </h2>
       
@@ -123,7 +123,7 @@ export default function RightSection() {
         <div className="flex gap-4">
           <Button 
             type="submit" 
-            className="w-1/4 mt-3 bg-main hover:bg-main_light"
+            className="w-1/4 mt-3 bg-primary  hover:bg-[#ee451b]"
             disabled={loading}
           >
             {loading ? 'Submitting...' : 'Submit'}

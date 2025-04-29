@@ -1,17 +1,19 @@
-const router = require('express').Router();
-const {  createAboutUs,
-    getAboutUs,
-    updateAboutUs,
-    deleteAboutUs,
-    getAboutUsBySlug,
-    getAboutUsById,} = require('../controller/aboutUs');
-const image = require('../middleware/imgUpload');
+const express = require('express');
+const router = express.Router();
+const aboutUs = require('../controller/aboutUs');
+const { uploadLogo } = require('../middleware/logoUpload');
 
-router.post('/add', image, createAboutUs);
-router.get('/get', getAboutUs);
-router.put('/update', image, updateAboutUs);
-router.delete('/delete', deleteAboutUs);
-router.get('/getById', getAboutUsById);
-router.get('/getBySlug', getAboutUsBySlug);
+// Create Stats (with image upload)
+router.post('/addStats', uploadLogo, aboutUs.createStats);
 
-module.exports = router; 
+// Get All Stats
+router.get('/getAll', aboutUs.getAllStats);
+
+// Get Stats by ID
+router.get('/:id', aboutUs.getStatsById);
+
+router.put('/:id', uploadLogo, aboutUs.updateStats);
+// Delete Stats by ID
+router.delete('/deleteStats/:id', aboutUs.deleteStats);
+
+module.exports = router;

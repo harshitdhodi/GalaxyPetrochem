@@ -1,14 +1,11 @@
 import { CalendarIcon, ClockIcon, MailIcon, PhoneIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useGetAllBlogsExceptLatestQuery, useGetBlogsByCategoryQuery, useGetLatestBlogQuery } from '@/slice/blog/blog';
-import React, { useEffect, useState } from 'react';
-import Footer from '../componets/home/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function BlogPage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
 
   const [blogCard, setBlogCard] = useState(null);
   const [contactInfo, setContactInfo] = useState(null);
@@ -73,15 +70,17 @@ export default function BlogPage() {
           <div className="lg:w-2/3">
           {!slug && (
               <>
-                <h2 className="text-3xl text-main font-bold mt-8 mb-10 pb-2 border-b-2 border-secondary">
+            <div className='py-10'>
+            <h2 className="text-4xl md:text-4xl  font-bold  text-[#985d97] pb-2 bg-clip-text ">
                   Latest from the Blog
                 </h2>   
-
+                <div className="h-1 mt-1 w-[20%]  bg-[#e84c20]"></div>
+            </div>
                 {/* Featured Post - Latest Blog */}
                 {latestBlog && (
                   <div className="bg-white transform transition-transform duration-100 hover:scale-105 hover:shadow-md hover:shadow-main_light shadow-lg shadow-main_light/50 rounded-lg h-[60vh] border border-gray-200 mb-12 overflow-hidden">
-                    <div className="md:flex ">
-                      <div className="md:w-2/5 p-5 lg:w-[80%] h-[50vh]">
+                    <div className="md:flex gap-6">
+                      <div className="md:w-2/5  lg:w-[70%] h-[40vh] lg:h-[60vh]">
                         <img
                           src={`/api/image/download/${latestBlog.image}`}
                           alt="Featured blog post img"
@@ -107,7 +106,7 @@ export default function BlogPage() {
                           <span>{latestBlog.readTime} min read</span>
                         </div>
                         <Link to={`/blog/${latestBlog.slug}`}>
-                          <button className="btn bg-main text-white hover:bg-[#1299ca] px-8 py-2 rounded">
+                          <button className="btn bg-primary shadow-md shadow-black/40 text-white  px-8 py-2 rounded">
                             Read More
                           </button>
                         </Link>
@@ -119,9 +118,13 @@ export default function BlogPage() {
             )}
 
             {/* Recent Posts */}
-            <h3 className="text-2xl text-main font-bold mt-12 mb-8 pb-2 border-b-2 border-main_light">
-              {slug ? `Blogs in "${slug}"` : 'Recent Posts'}
-            </h3>
+            <div className='py-10'>
+            <h2 className="text-2xl md:text-3xl  font-bold   pb-2 bg-clip-text text-[#985d97]">
+            {slug ? `Blogs in "${slug}"` : 'Recent Posts'}
+                </h2>   
+                <div className="h-1 mt-1 w-[20%]  bg-[#e84c20]"></div>
+            </div>
+           
             <div className="grid gap-6 md:grid-cols-2">
               {blogsToShow &&
                 blogsToShow.map((post, index) => (
@@ -148,7 +151,7 @@ export default function BlogPage() {
                         <span>{new Date(post.date).toLocaleDateString()}</span>
                       </div>
                       <Link to={`/blog/${post.slug}`}>
-                        <button className="btn m-2 mb-3 bg-main text-white hover:bg-[#1299ca] px-8 py-2 rounded">
+                        <button className="btn m-2 mb-3 bg-primary shadow-md shadow-black/60 text-white hover:bg-[#1299ca] px-8 py-2 rounded">
                           Read More
                         </button>
                       </Link>
@@ -160,11 +163,11 @@ export default function BlogPage() {
 
           {/* Sidebar */}
           <div className="lg:w-1/3 mt-8 lg:mt-10">
-            <div className="sticky top-[30%] mb-8 xl:p-7">
+            <div className="sticky top-[28%] mb-8 xl:p-7">
               {/* Share Your Thoughts Card */}
               {blogCard && (
                 <div
-                  className="bg-main py-10 px-5 shadow-lg hover:shadow-md hover:shadow-main_light shadow-main/50 border "
+                  className="bg-custom-gradient py-10 px-5 shadow-lg hover:shadow-md hover:shadow-main_light shadow-main/50 border "
                   dangerouslySetInnerHTML={{ __html: blogCard.blogCard }}
                 />
               )}
@@ -172,7 +175,7 @@ export default function BlogPage() {
               {/* Contact Card */}
               {contactInfo && (
                 <div className="mt-5">
-                  <div className="bg-main flex flex-col gap-4 shadow-lg hover:shadow-md hover:shadow-main shadow-main/50 border border-gray-200 p-10">
+                  <div className="bg-custom-gradient flex flex-col gap-4 shadow-lg hover:shadow-md hover:shadow-main shadow-main/50 border border-gray-200 p-10">
                     <div className="card-header">
                       <h3 className="card-title text-2xl font-bold text-[#ffffff]">Get in Touch</h3>
                     </div>

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import callIcon from "../../../assets/call-icon.png";
-import emailIcon from "../../../assets/email-us.png";
 import contactImg from "../../../assets/contact.png";
 import { Link } from 'react-router-dom';
 import { Mail, PhoneCall } from 'lucide-react';
@@ -46,25 +44,24 @@ export default function LeftSection() {
   const imageUrl = contactInfo.photo?.[0] ? `/api/image/download/${contactInfo.photo[0]}` : contactImg;
 
   return (
-    <div className="px-6 py-8 space-y-6 bg-white rounded-xl shadow-sm">
-      <h1 className="text-3xl font-bold text-main border-b border-gray-300 pb-4">Contact Us</h1>
-
+    <div className="px-6  space-y-6 bg-white rounded-xl shadow-sm">
+ 
       <div className="space-y-5">
-        <div className="bg-main p-4 rounded-lg border-l-8 border-secondary shadow-md ">
+        <div className="bg-custom-gradient p-4 rounded-lg shadow-md ">
           <h3 className="font-semibold text-white text-lg">Corporate Office</h3>
           <p className="text-white mt-2">{contactInfo.address || "Address not available"}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Display mobile numbers */}
-          <div className="bg-main p-4 rounded-lg border-l-8 border-secondary shadow-md ">
+          <div className="bg-custom-gradient p-4 rounded-lg  shadow-md ">
             <div className="flex gap-3 items-center mb-4">
               <div className="bg-blue-100 p-2 rounded-full">
                 <PhoneCall className="w-6 h-6 text-primary" />
               </div>
               <span className="font-semibold text-white text-lg">Call Us</span>
             </div>
-            <div className="space-y-2 pl-2 border-l-2 border-secondary">
+            <div className="space-y-2 pl-2 border-l-2 border-primary">
               {contactInfo.mobiles?.length > 0 ? (
                 contactInfo.mobiles.map((mobile, index) => (
                   <p key={index} className="text-white hover:text-white transition-colors duration-200">
@@ -80,14 +77,14 @@ export default function LeftSection() {
           </div>
 
           {/* Display emails */}
-          <div className="bg-main p-4 rounded-lg border-l-8 border-secondary shadow-md">
+          <div className="bg-custom-gradient p-4 rounded-lg  shadow-md">
             <div className="flex gap-3 items-center mb-4">
               <div className="bg-indigo-100 p-2 rounded-full">
                 <Mail className="w-6 h-6 text-primary" />
               </div>
               <h2 className="text-lg font-semibold text-white">Email Us</h2>
             </div>
-            <div className="space-y-2 pl-2 border-l-2 border-secondary">
+            <div className="space-y-2 pl-2 border-l-2 border-primary">
               {contactInfo.emails?.length > 0 ? (
                 contactInfo.emails.map((email, index) => (
                   <Link
@@ -113,7 +110,7 @@ export default function LeftSection() {
             title="Google Map"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29918.121500557725!2d72.87812756524369!3d20.39256926676659!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0d035a3377e53%3A0x68b46ced9811a463!2sChala%2C%20Vapi%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1743237467420!5m2!1sen!2sin"
             width="100%"
-            height="300"
+            height="410"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"

@@ -95,12 +95,13 @@ const CareerInfoForm = () => {
                 [{ list: 'ordered' }, { list: 'bullet' }],
                 ['bold', 'italic', 'underline', 'blockquote'],
                 [{ align: [] }],
-                ['link', 'image', 'video'],
                 ['clean']
               ]
             }}
-            formats={['header', 'font', 'list', 'bold', 'italic', 'underline', 'blockquote', 'align', 'link', 'image', 'video']}
-          />
+            formats={[  'header',
+              'bold', 'italic', 'underline', 'strike',
+              'list', 'bullet']}
+          /> 
         </Form.Item>
         <Form.Item label="Image" name="image">
           {imageUrl && <Image width={200} src={imageUrl} alt="Career Info Image" />}
