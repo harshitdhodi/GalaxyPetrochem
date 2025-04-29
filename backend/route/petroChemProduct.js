@@ -10,6 +10,8 @@ router.get("/", productController.getAllProducts);
 router.get("/brandId", productController.getProductsByBrandId);
 router.get("/getBySlug",  productController.getProductBySlug);
 router.get("/getRecentProductsByCategorySlug", productController.getRecentProductsByCategorySlug);
+// router.get("/getRecentProducts", productController.getRecentProducts);
+router.get("/filterProduct", productController.filterProducts);
 router.get("/:id", productController.getProductById);
 router.put("/:id", productController.updateProduct);
 router.delete("/:id", productController.deleteProduct);

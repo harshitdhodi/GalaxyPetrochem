@@ -75,9 +75,9 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
         <div className="flex flex-col lg:flex-row justify-center">
           {/* Featured Products Section */}
           <div className="flex-1 w-full">
-            <h2 className="text-4xl md:text-5xl font-bold pb-4 bg-gradient-to-r from-[#f18061] via-[#2860da] to-[#9e5d94] bg-clip-text text-transparent">Featured Products</h2>
-            <div className="h-2 mt-1 w-[20%] bg-[#e84c20] mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 justify-center sm:justify-start">
+            <h2 className="text-4xl md:text-4xl font-bold pb-2 text-[#9c5d95] bg-clip-text">Featured Products</h2>
+            <div className="h-1 w-[15%] bg-[#9c5d95] mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-2 xl:grid-cols-3 gap-6 justify-center sm:justify-start">
               {isLoading ? (
                 // Skeleton loaders for products
                 Array(6)
@@ -137,7 +137,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
           <div className="w-full lg:w-[30%]  md:w-[100%]  flex flex-col md:flex-row lg:flex-col justify-center items-center">
             {/* Forthcoming Events */}
             <div className="py-4 mt-20 pl-4 ">
-              <h2 className="text-lg font-bold mb-4 px-4 text-blue-600 shadow-lg  w-fit py-1 bg-blue-50 rounded-full">Forthcoming Events</h2>
+              <h2 className="text-lg font-bold mb-4 px-4 text-[#9c5d95] shadow-lg  w-fit py-1 bg-blue-50 rounded-full">Forthcoming Events</h2>
               {isLoading ? (
                 <EventSkeleton />
               ) : (
@@ -161,7 +161,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                   ) : (
                     catalogues && catalogues.map((catalogue, index) => (
                       <div key={index} className="group relative">
-                        <h3 className="text-xl md:text-2xl text-gray-600 font-bold mb-4">{catalogue.title}</h3>
+                        <h3 className="text-xl md:text-2xl text-[#9c5d95] font-bold mb-4">{catalogue.title}</h3>
                         <div className="relative overflow-hidden inline-block">
                           <img
                             src={`/api/image/download/${catalogue.image}`}
@@ -171,13 +171,13 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                             onError={(e) => { e.target.onerror = null; e.target.src = defaultImage; }}
                           />
                         </div>
-                        <Button 
-                          className="w-[75%] mt-5  transition-all duration-300 transform group-hover:translate-y-0 flex items-center justify-center"
+                        <button 
+                          className="w-[70%] mt-5  transition-all duration-300 bg-[#e84c20] text-white py-2 rounded-md transform group-hover:translate-y-0 flex items-center justify-center"
                           onClick={() => window.open(`/api/image/pdf/view/${catalogue.catalogue}`, '_blank')}
                         >
                           <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">DOWNLOAD</span>
                           <ArrowRight className="ml-2 h-4 w-4 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300" />
-                        </Button>
+                        </button>
                       </div>
                     ))
                   )}

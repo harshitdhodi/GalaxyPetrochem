@@ -130,8 +130,9 @@ import CompanyForm from './websiteBackend/copanyInfo/CompanyInfoForm';
 import TestimonialManager from './websiteBackend/testimonial/testimonial';
 import ProductForm from './petrochemProduct/ProductForm';
 import UpdatePetrochemicalProduct from './petrochemProduct/product-form/EditProductForm';
-import CreateIndustryForm from './websiteBackend/experties/IndustryExpertyForm';
 import IndustryManager from './websiteBackend/experties/IndustryManager';
+import MissionVisionForm from './websiteBackend/missionVision/MissionVisionForm';
+import EditAboutUsForm from './websiteBackend/aboutus/EditAboutUs';
 
 // Auth Components
 const PrivateRoute = ({ children }) => {
@@ -229,6 +230,7 @@ function App() {
               )
             },
             { path: '/industry-experties', element: <Suspense fallback={<LoadingFallback />}><IndustryManager /></Suspense> },
+            { path: '/mission-vision', element: <Suspense fallback={<LoadingFallback />}><MissionVisionForm /></Suspense> },
 
             { path: '/products-table', element: <Suspense fallback={<LoadingFallback />}><ProductTable /></Suspense> },
 
@@ -294,7 +296,7 @@ function App() {
             // About Us Routes
             { path: 'about-us-table', element: <Suspense fallback={<LoadingFallback />}><AboutUsTable /></Suspense> },
             { path: 'about-us-form', element: <Suspense fallback={<LoadingFallback />}><AboutUsForm /></Suspense> },
-            { path: 'edit-about-us-form/:id', element: <Suspense fallback={<LoadingFallback />}><AboutUsForm /></Suspense> },
+            { path: 'edit-about-us-form/:id', element: <Suspense fallback={<LoadingFallback />}><EditAboutUsForm /></Suspense> },
 
             // Banner Routes
             { path: 'banner-table', element: <Suspense fallback={<LoadingFallback />}><BannerTable /></Suspense> },

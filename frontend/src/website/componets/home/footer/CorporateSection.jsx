@@ -7,12 +7,17 @@ export default function CorporateSection({ navigate }) {
       <ul className="sm:space-y-3 flex sm:block gap-8 justify-start text-sm">
         <li>
           <ScrollLink to="/introduction" className="hover:text-gray-200" navigate={navigate}>
-            Introduction
+            About Us
           </ScrollLink>
         </li>
         <li>
           <ScrollLink to="/vision-mission" className="hover:text-gray-200" navigate={navigate}>
-            Vision & Mission
+            Blogs
+          </ScrollLink>
+        </li>
+        <li>
+          <ScrollLink to="/vision-mission" className="hover:text-gray-200" navigate={navigate}>
+            Brands
           </ScrollLink>
         </li>
       </ul>

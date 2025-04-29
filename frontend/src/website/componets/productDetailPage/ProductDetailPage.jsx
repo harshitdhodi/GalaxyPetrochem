@@ -167,7 +167,7 @@ export default function ProductDetailPage() {
         </>
       )}
       <RecentProduct />
-      <MadeInIndia name={productData?.name} />
+      {/* <MadeInIndia name={productData?.name} /> */}
     </div>
   );
 }

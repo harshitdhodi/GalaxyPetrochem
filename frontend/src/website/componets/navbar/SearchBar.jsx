@@ -22,7 +22,7 @@ export default function SearchBar() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/product/filterProduct?search=${encodeURIComponent(searchTerm)}`);
+        const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(searchTerm)}`);
         if (!response.ok) {
           throw new Error("Failed to fetch chemicals.");
         }
@@ -68,7 +68,7 @@ export default function SearchBar() {
     <div className="relative w-full">
       {/* Search Icon for Mobile */}
       <button 
-        className="md:hidden p-2 bg-primary  text-white rounded-full fixed top-5 right-16 z-50"
+        className="md:hidden p-2 bg-[#E95821]  text-white rounded-full fixed top-5 right-16 z-50"
         onClick={() => setShowSearchModal(true)}
       >
         <svg
@@ -166,7 +166,7 @@ export default function SearchBar() {
               />
               <button 
                 onClick={handleSearch}
-                className="px-4 bg-primary text-white rounded-r-full"
+                className="px-4 bg-[#E95821] text-white rounded-r-full"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

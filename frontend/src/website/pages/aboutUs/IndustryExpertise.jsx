@@ -1,26 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 export default function IndustryExpertise() {
+  const [expertiseData, setExpertiseData] = useState([]);
+  const [heading, setHeading] = useState('');
+  const [subHeading, setSubHeading] = useState('');
   const [hoveredCard, setHoveredCard] = useState(null);
+
+  useEffect(() => {
+    const fetchExpertiseData = async () => {
+      try {
+        const response = await axios.get('/api/industry/getAll');
+        console.log('Expertise data:', response.data);
+
+        if (response.data.length > 0) {
+          const data = response.data[0];
+          setHeading(data.heading);
+          setSubHeading(data.subHeading);
+          setExpertiseData(data.items || []);
+        }
+      } catch (error) {
+        console.error('Error fetching expertise data:', error);
+      }
+    };
+
+    fetchExpertiseData();
+  }, []);
+
+  const colors = [
+    { borderColor: 'border-blue-600', bgColor: 'bg-blue-600' },
+    { borderColor: 'border-teal-600', bgColor: 'bg-teal-600' },
+    { borderColor: 'border-cyan-600', bgColor: 'bg-cyan-600' },
+    { borderColor: 'border-emerald-600', bgColor: 'bg-emerald-600' },
+  ];
+
+  function getBorderColor(index) {
+    return colors[index % colors.length].borderColor;
+  }
+
+  function getBgColor(index) {
+    return colors[index % colors.length].bgColor;
+  }
 
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-6 max-w-[80rem]">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Industry Expertise</h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto mb-8"></div>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            With decades of experience in petrochemical processing, our expertise spans the entire value chain,
-            delivering innovative solutions for the most complex challenges.
-          </p>
+          <h2 className="text-4xl font-bold text-[#985d97] mb-4">{heading}</h2>
+          <div className="w-24 h-1 bg-[#e95821] mx-auto mb-4"></div>
+          <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">{subHeading}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {expertiseData.map((item, index) => (
             <ExpertiseCard
-              key={index}
-              item={item}
+              key={item._id}
+              item={{
+                number: String(index + 1).padStart(2, '0'), // 01, 02, 03, etc.
+                title: item.name.trim(),
+                description: item.description,
+                borderColor: getBorderColor(index),
+                bgColor: getBgColor(index),
+                textColor: '', // optional if you want to add
+              }}
               isHovered={hoveredCard === index}
               onMouseEnter={() => setHoveredCard(index)}
               onMouseLeave={() => setHoveredCard(null)}
@@ -58,7 +101,6 @@ function ExpertiseCard({ item, isHovered, onMouseEnter, onMouseLeave }) {
   );
 }
 
-// Define PropTypes for ExpertiseCard
 ExpertiseCard.propTypes = {
   item: PropTypes.shape({
     number: PropTypes.string.isRequired,
@@ -66,66 +108,9 @@ ExpertiseCard.propTypes = {
     description: PropTypes.string.isRequired,
     borderColor: PropTypes.string.isRequired,
     bgColor: PropTypes.string.isRequired,
-    textColor: PropTypes.string.isRequired,
+    textColor: PropTypes.string, // optional
   }).isRequired,
   isHovered: PropTypes.bool.isRequired,
   onMouseEnter: PropTypes.func.isRequired,
   onMouseLeave: PropTypes.func.isRequired,
 };
-
-const expertiseData = [
-  {
-    number: '01',
-    title: 'Refining Technology',
-    description:
-      'Advanced catalytic cracking and hydroprocessing technologies that maximize yield and product quality while reducing energy consumption and environmental impact.',
-    borderColor: 'border-blue-600',
-    bgColor: 'bg-blue-600',
-    textColor: 'text-blue-600',
-  },
-  {
-    number: '02',
-    title: 'Polymer Engineering',
-    description:
-      'Cutting-edge polymerization processes and catalyst systems that enable the production of high-performance plastics with enhanced properties for demanding applications.',
-    borderColor: 'border-teal-600',
-    bgColor: 'bg-teal-600',
-    textColor: 'text-teal-600',
-  },
-  {
-    number: '03',
-    title: 'Process Optimization',
-    description:
-      'Digital twin technology and advanced analytics to optimize plant operations, reduce downtime, and enhance overall efficiency throughout the production lifecycle.',
-    borderColor: 'border-cyan-600',
-    bgColor: 'bg-cyan-600',
-    textColor: 'text-cyan-600',
-  },
-  {
-    number: '04',
-    title: 'Sustainable Chemistry',
-    description:
-      'Development of bio-based feedstocks, carbon capture technologies, and circular economy solutions to reduce environmental impact and advance sustainability goals.',
-    borderColor: 'border-emerald-600',
-    bgColor: 'bg-emerald-600',
-    textColor: 'text-emerald-600',
-  },
-  {
-    number: '05',
-    title: 'Safety & Compliance',
-    description:
-      'Industry-leading safety protocols, environmental management systems, and regulatory compliance expertise across global operations to protect personnel and communities.',
-    borderColor: 'border-blue-600',
-    bgColor: 'bg-blue-600',
-    textColor: 'text-blue-600',
-  },
-  {
-    number: '06',
-    title: 'Supply Chain Integration',
-    description:
-      'End-to-end supply chain solutions from feedstock procurement to finished product delivery, optimized for reliability, resilience and cost-effectiveness.',
-    borderColor: 'border-teal-600',
-    bgColor: 'bg-teal-600',
-    textColor: 'text-teal-600',
-  },
-];

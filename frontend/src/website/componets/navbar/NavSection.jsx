@@ -63,13 +63,13 @@ const NavSection = ({
                     >
                         <NavLink 
                             href="/blogs"
-                            className={() => `block py-2 px-4 hover:text-secondary transition-colors ${isBlogActive ? "text-primary" : ""}`}
+                            className={() => `block py-2 px-4  transition-colors ${isBlogActive ? "text-primary" : ""}`}
                         >
                             Blogs
                         </NavLink>
                         <div
                             className={`
-                                absolute left-0 w-64 bg-main text-white shadow-lg z-50 font-normal
+                                absolute left-0 w-64 bg-[#2b60d8] text-white shadow-lg z-50 font-normal
                                 transition-all duration-200 ease-in-out
                                 ${blogDropdownOpen 
                                     ? 'opacity-100 translate-y-0' 

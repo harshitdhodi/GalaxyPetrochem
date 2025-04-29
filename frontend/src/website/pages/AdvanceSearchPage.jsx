@@ -12,7 +12,7 @@ const AdvanceSearch = () => {
             <h2 className="text-3xl mt-8 font-bold text-gray-700">
                 Advance Search
             </h2>
-            <div className=" bg-secondary w-[6%] h-1 "></div>
+            <div className=" bg-[#e85920] w-[6%] h-1 "></div>
         </div>
       <SearchSections/>
       </div>

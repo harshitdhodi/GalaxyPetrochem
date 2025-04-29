@@ -71,7 +71,7 @@ export default function BlogPage() {
           {!slug && (
               <>
             <div className='py-10'>
-            <h2 className="text-4xl md:text-4xl  font-bold  bg-gradient-to-r from-[#e84c20] via-[#2860da] to-[#9e5d94] pb-2 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-4xl  font-bold  text-[#985d97] pb-2 bg-clip-text ">
                   Latest from the Blog
                 </h2>   
                 <div className="h-1 mt-1 w-[20%]  bg-[#e84c20]"></div>
@@ -119,7 +119,7 @@ export default function BlogPage() {
 
             {/* Recent Posts */}
             <div className='py-10'>
-            <h2 className="text-2xl md:text-3xl  font-bold  bg-gradient-to-r from-[#e84c20] via-[#2860da] to-[#9e5d94] pb-2 bg-clip-text text-transparent">
+            <h2 className="text-2xl md:text-3xl  font-bold   pb-2 bg-clip-text text-[#985d97]">
             {slug ? `Blogs in "${slug}"` : 'Recent Posts'}
                 </h2>   
                 <div className="h-1 mt-1 w-[20%]  bg-[#e84c20]"></div>

@@ -18,18 +18,22 @@ const ContactPage = () => {
         ) : (
           <Banner imageUrl={banners && banners.length > 0 ? `/api/image/download/${banners[0].image}` : img} />
         )}
+         {/* Breadcrumb below the banner */}
+                <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
+                  <nav className="text-[#fff] text-md font-semibold">
+                    <Link to="/">
+                      <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Home</span>
+                    </Link>
+                    <span className="mx-2 text-white">&gt;</span>
+                    <Link to="#">
+                      <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Contact Us</span>
+                    </Link>
+                  </nav>
+                </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-4 mb-10">
-        <nav className="py-2 border-b mb-8 border-gray-200 px-6">
-          <div className="flex items-center space-x-2 text-sm">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">
-              Home
-            </Link>
-            <span className="text-gray-400">&raquo;</span>
-            <span className="text-primary">Contact Us</span>
-          </div>
-        </nav>
+      <div className="max-w-7xl mx-auto mt-16 py-4 mb-10">
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
        <div className='col-span-1'>
        <LeftSection />

@@ -18,9 +18,6 @@ function capitalizeWords(str) {
 export default function CategoryCards({ categories }) {
   const [visibleCategories, setVisibleCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  console.log("Received Categories:", categories); // Debugging data
-
   // Optimize initial render by limiting visible cards
   useEffect(() => {
     if (categories?.length) {
@@ -56,10 +53,10 @@ export default function CategoryCards({ categories }) {
   return (
     <>
       <div className="w-[76rem] mx-auto flex flex-col justify-start">
-        <h2 className="text-4xl md:text-5xl font-bold pb-4 bg-gradient-to-r from-[#f18061] via-[#2860da] to-[#9e5d94] bg-clip-text text-transparent">
+        <h2 className="text-4xl md:text-4xl mt-4 font-bold pb-2 text-[#9c5d95]">
           Our Products Category
         </h2>
-        <div className="h-2 mt-1 w-[20%] bg-[#e84c20]"></div>
+        <div className="h-1 w-[15%] bg-[#9c5d95]"></div>
       </div>
 
       <div className="w-full mt-7 flex flex-col justify-center items-center overflow-x-auto pb-6">
@@ -67,8 +64,9 @@ export default function CategoryCards({ categories }) {
           {loading
             ? [...Array(8)].map((_, i) => <SkeletonCard key={i} />)
             : visibleCategories.map((category, index) => (
-              <div
+              <Link
                 key={category._id}
+                to={`/${category.slug}`}
                 className="group relative aspect-[3/3] overflow-hidden w-full sm:w-auto rounded-md"
               >
                 {/* Image Container */}
@@ -83,18 +81,14 @@ export default function CategoryCards({ categories }) {
                 />
 
                 {/* Overlay */}
-                <div className="absolute bg-blue-500/10 hover:bg-amber-700/10  inset-0"></div>
+                <div className="absolute bg-blue-500/10 hover:bg-amber-700/10 inset-0"></div>
 
-
-                {/* Hover Button (hidden by default, appears on hover) */}
-                <Link
-                  to={`/${category.slug}`}
-                  className="absolute bottom-0 left-0 transform -translate-y-1/2 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center"
-                >
+                {/* Hover Button */}
+                <div className="absolute bottom-0 left-0 transform -translate-y-1/2 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center">
                   {category.category}
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </div>
+                </div>
+              </Link>
             ))}
         </div>
       </div>
