@@ -113,7 +113,6 @@ export default function NavbarComp({ categories }) {
             <div className="w-full">
               <SearchBar />
             </div>
-        
             <Button
               variant="ghost"
               className="text-main  hover:bg-transparent p-2"

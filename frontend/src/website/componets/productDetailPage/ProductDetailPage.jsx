@@ -17,7 +17,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
-  const { slug } = useParams();
+  const { slug ,categorySlug } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -121,6 +121,7 @@ export default function ProductDetailPage() {
             chemicals={productData?.categoryId?.category}
             slug={productData?.categoryId?.slug}
             categorySlug={productData?.name}
+            subCategorySlug={categorySlug}
           />
           <div className="lg:flex gap-12">
             <ImageSection images={images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />

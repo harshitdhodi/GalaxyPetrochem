@@ -14,4 +14,4 @@ router.get('/getLatestBlog',blogController.getLatestBlog);
 router.get('/getAllBlogsExceptLatest',blogController.getAllBlogsExceptLatest);
 router.get('/getBlogBySlug',blogController.getBlogBySlug)
 module.exports = router;
- 
+  

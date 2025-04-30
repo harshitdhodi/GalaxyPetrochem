@@ -76,9 +76,9 @@ export const blogApi = createApi({
 
     // Get all blogs except the latest one
     getAllBlogsExceptLatest: builder.query({
-      query: () => '/getAllBlogsExceptLatest',  // Route for fetching all blogs except the latest one
+      query: (slug) => `/getAllBlogsExceptLatest?slug=${slug}`, // Pass slug as a parameter
       providesTags: ['Blog'],
-    }),
+  }),
   }),
 });
 

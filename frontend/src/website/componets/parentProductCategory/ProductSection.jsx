@@ -47,7 +47,7 @@ console.log("Products in ProductSection:", subcategories); // Debugging line
         </div>
       </div>
       <Link to={`/${slug}`}>
-        <button className="mt-6 bg-red-600 float-start hover:bg-red-700 text-white font-bold py-2 px-5 rounded transition-colors">
+        <button className="mt-6 bg-[#e95821] float-start hover:bg-[#e95821] text-white font-bold py-2 px-5 rounded transition-colors">
           VIEW MORE
         </button>
       </Link>
