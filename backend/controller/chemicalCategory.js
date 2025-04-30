@@ -859,4 +859,43 @@ const getAllCategoriesWithProducts = async (req, res) => {
 };
 
 
-module.exports = { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug,getAllCategoriesWithProducts, fetchCategoryUrlmetaById, getSpecificCategoryById };
+const getAllCategories = async (req, res) => {
+  try {
+    const categories = await ProductCategory.find().lean();
+
+    if (!categories.length) {
+      return res.status(404).json({ message: 'No categories found' });
+    }
+
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+const getAllSubcategories = async (req, res) => {
+  try {
+    const categories = await ProductCategory.find().lean();
+
+    if (!categories.length) {
+      return res.status(404).json({ message: 'No categories found' });
+    }
+
+    const result = categories.map(category => ({
+      categoryId: category._id,
+      categoryName: category.name,
+      categorySlug: category.slug,
+      subCategories: category.subCategories || []
+    }));
+
+    res.status(200).json({ data: result });
+  } catch (error) {
+    console.error('Error fetching subcategories with categories:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+
+
+module.exports = { insertCategory,getAllCategories,getAllSubcategories, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory,fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq, fetchCategoryUrlPriorityFreqById,fetchCategoryUrlmeta, editCategoryUrlmeta ,getSpecificSubcategoryBySlug,getAllCategoriesWithProducts, fetchCategoryUrlmetaById, getSpecificCategoryById };

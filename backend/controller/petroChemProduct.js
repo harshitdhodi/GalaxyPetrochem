@@ -232,3 +232,18 @@ exports.filterProducts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getAllProductImages = async (req, res) => {
+  try {
+    const images = await Product.find({}, { images: 1 }); // Include only images field
+
+    if (!images.length) {
+      return res.status(404).json({ message: "No product images found" });
+    }
+
+    res.status(200).json({ images });
+  } catch (error) {
+    console.error("Error fetching product images:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};

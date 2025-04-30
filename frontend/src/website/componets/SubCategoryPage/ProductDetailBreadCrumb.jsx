@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-export default function ProductDetailBreadcrumb({ chemicals = '', slug = '', categorySlug = ''}) {
-  console.log(slug)
+export default function ProductDetailBreadcrumb({subCategorySlug, chemicals = '', slug = '', categorySlug = ''}) {
+  console.log(subCategorySlug)
   return (
     <nav className="pt-5 sm:text-xs md:text-sm  lg:text-base text-md pb-3 w-full mb-5 py-2 ">
       <ul className="flex gap-2 flex-wrap">
@@ -25,6 +25,17 @@ export default function ProductDetailBreadcrumb({ chemicals = '', slug = '', cat
               className="text-[#000] hover:text-[#000]"
             >
               {chemicals.charAt(0).toUpperCase() + chemicals.slice(1).toLowerCase()}
+            </Link>
+          </li>
+        )}
+         {categorySlug && <li className="text-[#000]">&gt;</li>}
+        {subCategorySlug && (
+          <li>
+            <Link 
+              to={`/${slug}/${subCategorySlug}`} 
+              className="text-[#000] hover:text-[#000]"
+            >
+              {subCategorySlug.charAt(0).toUpperCase() + subCategorySlug.slice(1).toLowerCase()}
             </Link>
           </li>
         )}

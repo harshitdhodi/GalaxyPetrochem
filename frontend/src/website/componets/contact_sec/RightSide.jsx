@@ -86,13 +86,12 @@ export default function RightSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Country
-            </label>
-            <Input name="country" />
-          </div>
-
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Email<span className="text-red-500">*</span>
+          </label>
+          <Input required name="email" type="email" />
+        </div>
           <div>
             <label className="block text-sm font-medium mb-1">
               Phone
@@ -101,12 +100,7 @@ export default function RightSection() {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Email<span className="text-red-500">*</span>
-          </label>
-          <Input required name="email" type="email" />
-        </div>
+     
 
         <div className='mb-3'>
           <label className="block text-sm font-medium mb-1">

@@ -11,13 +11,13 @@ const app = express();
 require('dotenv').config();  
 const cookieParser = require('cookie-parser');
 const { generateAllSitemaps } = require('./route/sitemap');
-
+const handleDynamicRoutes = require('./route/serverMeta');
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
-
+app.use(handleDynamicRoutes);  
 // Custom image optimization route (Cache removed)
 app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;

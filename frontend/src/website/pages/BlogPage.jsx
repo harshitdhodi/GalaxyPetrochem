@@ -151,7 +151,7 @@ export default function BlogPage() {
                         <span>{new Date(post.date).toLocaleDateString()}</span>
                       </div>
                       <Link to={`/blog/${post.slug}`}>
-                        <button className="btn m-2 mb-3 bg-primary shadow-md shadow-black/60 text-white hover:bg-[#1299ca] px-8 py-2 rounded">
+                        <button className="btn m-2 mb-3 bg-primary shadow-md shadow-black/60 text-white  px-8 py-2 rounded">
                           Read More
                         </button>
                       </Link>
