@@ -8,7 +8,7 @@ export default function LogoSection({ navigate }) {
         <Link to="/" className="inline-block">
           <img
             src={Logo}
-            alt="Vihani Enterprise Logo"
+            alt="Logo"
             className="h-16 w-auto"
           />
         </Link>
