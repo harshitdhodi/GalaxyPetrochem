@@ -2,10 +2,38 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio');
-const axios = require('axios'); // For HTTP requests
-const Meta = require('../model/staticMeta'); // Adjust path as needed
+const axios = require('axios');
+const Meta = require('../model/staticMeta');
 
 const router = express.Router();
+
+// Helper function to fetch product metadata
+async function fetchProductMeta(slug, metaInfo, res) {
+  try {
+    const productResponse = await axios.get(`http://localhost:3036/api/petrochemProduct/getbySlug?slug=${slug}`);
+    console.log('Product API response:', productResponse.data);
+    const product = productResponse.data;
+
+    if (product && Array.isArray(product) && product.length > 0) {
+      const productData = product[0];
+      return {
+        ...metaInfo,
+        title: productData.metaTitle || productData.name || metaInfo.title,
+        description: productData.metaDescription || productData.name || metaInfo.description,
+        keywords: productData.metaKeyword || productData.name || metaInfo.keywords,
+        ogImage: productData.images?.[0]?.url ? `/Uploads/${productData.images[0].url}` : metaInfo.ogImage,
+      };
+    } else {
+      console.log('Invalid product data:', product);
+      res.status(404).send('Product not found');
+      return null;
+    }
+  } catch (apiError) {
+    console.error('Product API error:', apiError.message, apiError.response?.data);
+    res.status(404).send('Product not found');
+    return null;
+  }
+}
 
 router.get('*', async (req, res, next) => {
   if (
@@ -49,70 +77,38 @@ router.get('*', async (req, res, next) => {
     }
 
     if (!isStaticPage && currentPath !== 'home') {
-      // Split path to check for category, subcategory, or product
       const pathSegments = currentPath.split('/');
       const isCategoryPath = pathSegments.length === 1;
       const isSubCategoryPath = pathSegments.length === 2 && pathSegments[0] === 'industrial-oils';
-      const isProductPath = pathSegments.length === 2 && pathSegments[0] !== 'industrial-oils';
+
+      // Validate if the first segment is a valid subcategory for product paths
+      let isValidSubCategory = false;
+      let subCategorySlug = pathSegments[0];
+      if (pathSegments.length === 2 && pathSegments[0] !== 'industrial-oils') {
+        try {
+          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getAllCategories`);
+          const categories = categoryResponse.data.categories || [];
+          isValidSubCategory = categories.some(cat =>
+            cat.subCategories.some(subCat => subCat.slug === subCategorySlug)
+          );
+        } catch (apiError) {
+          console.error('Error validating subcategory:', apiError.message);
+        }
+      }
+
+      const isProductPath = pathSegments.length === 2 && pathSegments[0] !== 'industrial-oils' && isValidSubCategory;
       let category = null;
       let subCategory = null;
-      let product = null;
 
-      // Handle product paths (e.g., /hydraulic-oils/enklo)
+      // Handle product paths (e.g., /hydraulic-oils/Enklo-68)
       if (isProductPath) {
-        const subCategorySlug = pathSegments[0];
         const productSlug = pathSegments[1];
-
-        // First, try to fetch the product
-        try {
-          const productResponse = await axios.get(`http://localhost:3036/api/petrochemProduct/getbySlug?slug=${productSlug}`);
-          product = productResponse.data;
-          console.log('product from API:', product);
-
-          if (product && product.success && product.data) {
-            metaInfo = {
-              ...metaInfo,
-              title: product.data.metatitle || product.data.name || metaInfo.title,
-              description: product.data.metadescription || product.data.description || metaInfo.description,
-              keywords: product.data.metakeywords || product.data.name || metaInfo.keywords,
-              ogImage: product.data.photo?.[0] ? `/Uploads/${product.data.photo[0]}` : metaInfo.ogImage,
-            };
-          }
-        } catch (apiError) {
-          console.error('Error fetching product from API:', apiError.message);
-        }
-
-        // If no valid product data, fetch subcategory metadata
-        if (!product || !product.success || !product.data) {
-          try {
-            const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getAllCategories`);
-            const categories = categoryResponse.data.categories || [];
-            console.log('categories from API:', categories);
-
-            for (const cat of categories) {
-              const foundSubCategory = cat.subCategories.find(subCat => subCat.slug === subCategorySlug);
-              if (foundSubCategory) {
-                category = cat;
-                subCategory = foundSubCategory;
-                break;
-              }
-            }
-            console.log('category found:', category);
-            console.log('subCategory found:', subCategory);
-
-            if (subCategory) {
-              const detailsText = subCategory.details ? subCategory.details.replace(/<[^>]*>/g, '').trim() : '';
-              metaInfo = {
-                ...metaInfo,
-                title: subCategory.metatitle || subCategory.category || metaInfo.title,
-                description: subCategory.metadescription || detailsText || metaInfo.description,
-                keywords: subCategory.metakeywords || subCategory.category || metaInfo.keywords,
-                ogImage: subCategory.photo ? `/Uploads/${subCategory.photo}` : metaInfo.ogImage,
-              };
-            }
-          } catch (apiError) {
-            console.error('Error fetching categories from API:', apiError.message);
-          }
+        const updatedMetaInfo = await fetchProductMeta(productSlug, metaInfo, res);
+        console.log('Updated metaInfo from product:', updatedMetaInfo);
+        if (updatedMetaInfo) {
+          metaInfo = updatedMetaInfo;
+        } else {
+          return; // Response already sent by fetchProductMeta
         }
       }
 
@@ -124,11 +120,9 @@ router.get('*', async (req, res, next) => {
         try {
           const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${categorySlug}`);
           category = categoryResponse.data.category;
-          console.log('category from API:', category);
 
           if (category) {
             subCategory = category.subCategories.find(subCat => subCat.slug === subCategorySlug);
-            console.log('subCategory found:', subCategory);
 
             if (subCategory) {
               const detailsText = subCategory.details ? subCategory.details.replace(/<[^>]*>/g, '').trim() : '';
@@ -139,7 +133,7 @@ router.get('*', async (req, res, next) => {
                 keywords: subCategory.metakeywords || subCategory.category || metaInfo.keywords,
                 ogImage: subCategory.photo ? `/Uploads/${subCategory.photo}` : metaInfo.ogImage,
               };
-JET4            }
+            }
           }
         } catch (apiError) {
           console.error('Error fetching category from API:', apiError.message);
@@ -151,7 +145,6 @@ JET4            }
         try {
           const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${currentPath}`);
           category = categoryResponse.data.category;
-          console.log('category from API:', category);
 
           if (category) {
             const subCategoryNames = category.subCategories.map(subCat => subCat.category).join(', ');
@@ -168,28 +161,9 @@ JET4            }
           console.error('Error fetching category from API:', apiError.message);
         }
       }
-
-      // Handle single-segment product paths (e.g., /enklo)
-      if (!category && !subCategory && isCategoryPath) {
-        try {
-          const productResponse = await axios.get(`http://localhost:3036/api/petrochemProduct/getbySlug?slug=${currentPath}`);
-          product = productResponse.data;
-          console.log('product from API:', product);
-
-          if (product && product.success && product.data) {
-            metaInfo = {
-              ...metaInfo,
-              title: product.data.metatitle || product.data.name || metaInfo.title,
-              description: product.data.metadescription || product.data.description || metaInfo.description,
-              keywords: product.data.metakeywords || product.data.name || metaInfo.keywords,
-              ogImage: product.data.photo?.[0] ? `/Uploads/${product.data.photo[0]}` : metaInfo.ogImage,
-            };
-          }
-        } catch (apiError) {
-          console.error('Error fetching product from API:', apiError.message);
-        }
-      }
     }
+
+    console.log('Final metaInfo:', metaInfo);
 
     const escapeHtml = (str) =>
       str ? String(str).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"') : '';

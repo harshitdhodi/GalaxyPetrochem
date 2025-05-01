@@ -23,7 +23,7 @@ app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;
   const { w = 1200, q = 80, device = 'desktop' } = req.query;
   const imagePath = path.join(__dirname, 'public', 'download', filename);
-
+ 
   try {
     if (!fs.existsSync(imagePath)) return res.status(404).send('Image not found');
 
@@ -125,7 +125,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// MongoDB Connection 
+// MongoDB Connection  
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
