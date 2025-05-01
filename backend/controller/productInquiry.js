@@ -94,7 +94,7 @@ exports.createInquiry = async (req, res) => {
 </head>
 <body>
     <div class="container">
-        <h2>OSTECH</h2>
+        <h2>Galaxy Petrochemicals</h2>
         <p class="centered-text">New Inquiry!!</p>
         <p><span class="field">Name:</span> ${newInquiry.name}</p>
         <p><span class="field">Email:</span> ${newInquiry.email}</p>

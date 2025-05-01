@@ -93,6 +93,7 @@ function InquiryForm({ productName, onClose }) {
               <input
                 type="text"
                 value={phone}
+                maxLength={10}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
                 required

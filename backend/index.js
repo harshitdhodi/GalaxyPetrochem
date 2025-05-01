@@ -144,7 +144,7 @@ app.listen(PORT, () => {
   });
   console.log(`Server running on port ${PORT}`);
   // generateAllSitemaps(); // Generate sitemaps on startup
-});
+}); 
 // SMTP Connection Test
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({

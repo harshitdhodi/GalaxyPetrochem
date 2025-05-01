@@ -261,7 +261,7 @@ const ProductForm = () => {
         }
 
         setTimeout(() => {
-          navigate("/products");
+          navigate("/products-table");
         }, 2000);
       } else {
         setMessage({ type: "error", text: data.message || "An error occurred" });

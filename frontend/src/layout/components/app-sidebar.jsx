@@ -24,26 +24,26 @@ const menuData = [
       { title: "Category", icon: ChartNoAxesGanttIcon, url: "/chemical-category" }
     ]
   },
-  {
-    title: "Supplier",
-    icon: TruckIcon,
-    children: [
-      { title: "List", icon: List, url: "/supplier-table" },
-      { title: "Add New", icon: PlusSquare, url: "/supplier-form" },
-      { title: "Chemical Mapping ", icon: ArrowLeftRightIcon, url: "/chemical-mapping" },
-      { title: "Search Chemicals", icon: Flower, url: "/chemical-search" }
-    ]
-  },
-  {
-    title: "Customer",
-    icon: UsersRoundIcon,
-    children: [
-      { title: "List", icon: List, url: "/customer-table" },
-      { title: "Add New", icon: PlusSquare, url: "/customer-form" },
-      { title: "Chemical Mapping ", icon: ArrowLeftRightIcon, url: "/customer-chemical-mapping" },
+  // {
+  //   title: "Supplier",
+  //   icon: TruckIcon,
+  //   children: [
+  //     { title: "List", icon: List, url: "/supplier-table" },
+  //     { title: "Add New", icon: PlusSquare, url: "/supplier-form" },
+  //     { title: "Chemical Mapping ", icon: ArrowLeftRightIcon, url: "/chemical-mapping" },
+  //     { title: "Search Chemicals", icon: Flower, url: "/chemical-search" }
+  //   ]
+  // },
+  // {
+  //   title: "Customer",
+  //   icon: UsersRoundIcon,
+  //   children: [
+  //     { title: "List", icon: List, url: "/customer-table" },
+  //     { title: "Add New", icon: PlusSquare, url: "/customer-form" },
+  //     { title: "Chemical Mapping ", icon: ArrowLeftRightIcon, url: "/customer-chemical-mapping" },
 
-    ]
-  },
+  //   ]
+  // },
   {
     title: "Email",
     icon: UsersRoundIcon,
