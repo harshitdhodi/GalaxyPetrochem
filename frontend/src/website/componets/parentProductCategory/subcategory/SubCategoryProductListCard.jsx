@@ -24,11 +24,11 @@ function SubCategoryProductListCard({ product, categorySlug, subCategorySlug }) 
             {/* Product Image */}
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="flex-shrink-0 border bg-[#2b60d9]">
-                    <div className="w-64 h-64 rounded-full m-4 border overflow-hidden">
+                    <div className="w-64 h-64 rounded-full m-4 border bg-white overflow-hidden">
                         <img
                             src={product?.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : '/placeholder.svg'}
                             alt={product?.images?.[0]?.altText || product.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                         />
                     </div>
                 </div>
@@ -36,8 +36,8 @@ function SubCategoryProductListCard({ product, categorySlug, subCategorySlug }) 
 
             {/* Product Info */}
             <div className="flex flex-col px-4 gap-2">
-                <h3 className="text-xl font-bold text-[#0a3161]">{product?.name || 'Product Name'}</h3>
-                <p className="text-sm text-gray-500">{product?.tagline || 'High-Performance Product'}</p>
+                <h3 className="text-xl font-bold text-[#0a3161] pb-2">{product?.name || 'Product Name'}</h3>
+                {/* <p className="text-sm text-gray-500">{product?.tagline || 'High-Performance Product'}</p> */}
             </div>
 
             {/* Action Button */}

@@ -135,7 +135,7 @@ export default function BlogPage() {
                     <img
                       src={`/api/image/download/${post.image}`}
                       alt={`${post.title} cover img`}
-                      className="w-full h-[60%] object-contain px-6
+                      className="w-full h-[60%] object-cover p-6
                        rounded-t-lg transition-opacity duration-300 hover:opacity-90"
                     />
                     <div className="card-header px-4 mt-3">

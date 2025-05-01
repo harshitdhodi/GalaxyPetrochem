@@ -16,7 +16,7 @@ const getCategoriesData = async () => {
 const getRecentProductsData = async () => {
   try {
     return await Product.find()
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(6)
       .populate("brandId categoryId subCategoryId");
   } catch (error) {

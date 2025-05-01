@@ -169,6 +169,13 @@ const menuData = [
         ]
       },
       {
+        title: "Testimonial Table",
+        icon: FileQuestion,
+        children: [
+          { title: "List", icon: List, url: "/testimonial-table" },
+        ]
+      },
+      {
         title: "Meta Info",
         icon: FileQuestion,
         children: [
