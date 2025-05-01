@@ -14,8 +14,8 @@ const { generateAllSitemaps } = require('./route/sitemap');
 const handleDynamicRoutes = require('./route/serverMeta');
 app.use(cookieParser());
 app.use(express.json());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: '1000mb' }));
+app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
 app.use(handleDynamicRoutes);  
 // Custom image optimization route (Cache removed)

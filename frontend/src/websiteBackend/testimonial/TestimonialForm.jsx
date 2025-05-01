@@ -68,7 +68,7 @@ const TestimonialForm = ({ selected, setSelected, fetchTestimonials }) => {
   return (
     <form onSubmit={handleSubmit} className="p-4 border rounded shadow">
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {['altName', 'imgTitle', 'name', 'designation', 'company', 'rating', 'message'].map((field) => (
+      {[ 'name', 'designation', 'company', 'rating', 'message','altName', 'imgTitle', ].map((field) => (
         <input
           key={field}
           type="text"

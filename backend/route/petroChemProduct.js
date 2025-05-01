@@ -14,7 +14,7 @@ router.get("/getRecentProductsByCategorySlug", productController.getRecentProduc
 // router.get("/getRecentProducts", productController.getRecentProducts);
 router.get("/filterProduct", productController.filterProducts);
 router.get("/:id", productController.getProductById);
-router.put("/:id", productController.updateProduct);
+router.put("/:id",upload, productController.updateProduct);
 router.delete("/:id", productController.deleteProduct);
 
 module.exports = router;

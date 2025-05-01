@@ -11,6 +11,7 @@ function SubCategoryProductList() {
     const [categoryData, setCategoryData] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showMore, setShowMore] = useState(false);
 
     useEffect(() => {
         const fetchCategory = async () => {
@@ -32,15 +33,24 @@ function SubCategoryProductList() {
         fetchCategory();
     }, [slug]);
 
+    const getShortDescription = (htmlString) => {
+        const temp = document.createElement("div");
+        temp.innerHTML = htmlString;
+        const text = temp.textContent || temp.innerText || "";
+        const shortLength = Math.floor(text.length * 0.2);
+        return text.substring(0, shortLength) + "...";
+    };
+
     return (
         <>
             <div className="relative">
-                {/* Banner */}
                 <Banner imageUrl={banner} />
-
-                {/* Breadcrumb below the banner */}
                 <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-                    <Breadcrumb subcategoryName={categoryData?.category} subCategorySlug={categoryData?.slug} categorySlug={categorySlug} />
+                    <Breadcrumb
+                        subcategoryName={categoryData?.category}
+                        subCategorySlug={categoryData?.slug}
+                        categorySlug={categorySlug}
+                    />
                 </div>
             </div>
 
@@ -50,12 +60,25 @@ function SubCategoryProductList() {
                 </h1>
                 <div className="h-1 w-24 bg-[#0a3161] mb-6"></div>
 
-                <p
-                    className="text-gray-700 mb-10"
-                    dangerouslySetInnerHTML={{
-                        __html: categoryData?.details || "Explore our range of industrial oils and lubricants.",
-                    }}
-                ></p>
+                <div className="text-gray-700 mb-4">
+                    {categoryData?.details && (
+                        <>
+                            <p
+                                dangerouslySetInnerHTML={{
+                                    __html: showMore
+                                        ? categoryData.details
+                                        : getShortDescription(categoryData.details),
+                                }}
+                            ></p>
+                            <button
+                                onClick={() => setShowMore(!showMore)}
+                                className="text-blue-600 underline mt-2 inline-block"
+                            >
+                                {showMore ? "See Less" : "See More"}
+                            </button>
+                        </>
+                    )}
+                </div>
 
                 {loading ? (
                     <p>Loading products...</p>

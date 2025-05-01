@@ -33,7 +33,7 @@ const SlideshowImages = ({
   }
 
   return (
-    <div className="relative w-full min-w-[300px] max-w-[1920px] h-[35vh] min-h-[250px] max-h-[800px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] mx-auto overflow-hidden">
+    <div className="relative w-full min-w-[300px] max-w-[1920px] h-[35vh] min-h-[250px] max-h-[800px] sm:h-[50vh] md:h-[60vh] lg:h-[65vh] mx-auto overflow-hidden">
       {imageSource.map((item, index) => {
         const isActive = index === activeIndex;
         const imagePath = item?.image ? `/api/image/download/${item.image}` : "";

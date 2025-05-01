@@ -14,7 +14,7 @@ export default function BrandsPage() {
   const [banners, setBanners] = useState([]);
   const productsRef = useRef(null);
   const path = location.pathname.replace(/^\//, "") || "introduction";
-const navigate = useNavigate();
+  const navigate = useNavigate();
   // Fetch brands from /api/brand/
   useEffect(() => {
     const fetchBrands = async () => {
@@ -49,6 +49,7 @@ const navigate = useNavigate();
       const fetchProducts = async () => {
         try {
           const response = await axios.get(`/api/petrochemProduct/brandId?brandId=${selectedBrand}`);
+          console.log(response.data);
           setProducts(response.data || []);
         } catch (error) {
           console.error("Failed to fetch products:", error);
@@ -80,7 +81,7 @@ const navigate = useNavigate();
   const handleProductClick = (slug) => {
     navigate(`/blogs/${slug}`);
   };
-  
+
   // Determine brand card color
   const getBrandColor = (index) => {
     const colors = ["#e84c20", "#2294d6", "#9c5f96"];
@@ -95,17 +96,17 @@ const navigate = useNavigate();
       ) : (
         <Banner imageUrl={banner} />
       )}
-  <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-          <nav className="text-[#fff] text-md font-semibold">
-            <Link to={'/'}>
-              <span className="text-[12px] bg-gray-600 px-2 font- rounded-md sm:text-[15px] text-white">Home</span>
-            </Link>
-            <span className="mx-2 text-white">&gt;</span>
-            <Link>
-              <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Brands</span>
-            </Link>
-          </nav>
-        </div>
+      <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
+        <nav className="text-[#fff] text-md font-semibold">
+          <Link to={'/'}>
+            <span className="text-[12px] bg-gray-600 px-2 font- rounded-md sm:text-[15px] text-white">Home</span>
+          </Link>
+          <span className="mx-2 text-white">&gt;</span>
+          <Link>
+            <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Brands</span>
+          </Link>
+        </nav>
+      </div>
       {/* Brands Section */}
       <section className="w-[80rem] mx-auto px-4 py-12">
         <div className="flex items-center mb-8">
@@ -178,13 +179,19 @@ const navigate = useNavigate();
                 <div className="p-5">
                   <div className="flex flex-col items-center">
                     <div className="w-24 h-24 relative mb-4">
-                      <Image
-                        src={`/api/image/download/${product.images[0].url}`}
-                        alt={product.name}
-                        width={100}
-                        height={96}
-                        className="object-cover"
-                      />
+                      {product.images && product.images.length > 0 ? (
+                        <Image
+                          src={`/api/image/download/${product.images[0].url}`}
+                          alt={product.name}
+                          width={100}
+                          height={96}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">No Image</span>
+                        </div>
+                      )}
                     </div>
                     <h3 className="text-center font-medium">{product.name}</h3>
                     <p className="text-sm text-gray-500 mt-1 text-center">
@@ -194,7 +201,6 @@ const navigate = useNavigate();
                 </div>
               </div>
             ))}
-
           </div>
         </section>
       )}

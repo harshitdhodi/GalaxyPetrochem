@@ -121,14 +121,107 @@ exports.getProductById = async (req, res) => {
 // UPDATE
 exports.updateProduct = async (req, res) => {
   try {
-    const updates = req.body;
-    const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
-    res.json({ message: "Product updated", product });
+    // Extract form data from req.body
+    const {
+      categorySlug,
+      subCategorySlug,
+      slug,
+      name,
+      tagline,
+      specifiction,
+      details,
+      tableInfo,
+      brandId,
+      categoryId,
+      subCategoryId,
+      metaTitle,
+      metaDescription,
+      metaKeyword,
+      metaSchema,
+    } = req.body;
+
+    console.log("Files received:", req.files);
+    // console.log("Form data:", req.body);
+
+    // Prepare updates object
+    const updates = {
+      categorySlug,
+      subCategorySlug,
+      slug,
+      name,
+      tagline,
+      specifiction,
+      details,
+      tableInfo,
+      brandId,
+      categoryId,
+      subCategoryId,
+      metaTitle,
+      metaDescription,
+      metaKeyword,
+      metaSchema,
+    };
+
+    // Handle multiple image files with metadata
+    if (req.files && req.files.images) {
+      const images = [];
+      req.files.images.forEach((file, index) => {
+        // Get the specific alt text and title for this image
+        const altText = req.body[`altText${index}`] || "";
+        const title = req.body[`imgTitle${index}`] || "";
+        
+        images.push({
+          url: file.filename,
+          altText: altText,
+          title: title,
+        });
+      });
+      updates.images = images; // Replace existing images with new ones
+    }
+
+    // Handle PDF file
+    if (req.files?.pdf?.[0]?.filename) {
+      updates.pdf = req.files.pdf[0].filename;
+    }
+
+    // Handle MSDS file
+    if (req.files?.msds?.[0]?.filename) {
+      updates.msds = req.files.msds[0].filename;
+    }
+
+    // Update the product in the database
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Return response similar to createProduct
+    res.status(200).json({
+      message: "Product updated successfully",
+      product: {
+        id: product._id,
+        name: product.name,
+        slug: product.slug,
+        images: product.images,
+        files: {
+          pdf: product.pdf,
+          msds: product.msds,
+        },
+      },
+    });
   } catch (error) {
+    console.error("Error updating product:", error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
     res.status(500).json({ error: error.message });
   }
 };
-
 // DELETE
 exports.deleteProduct = async (req, res) => {
   try {

@@ -4,7 +4,7 @@ import axios from "axios";
 
 const RecentProduct = () => {
   const [recentProducts, setRecentProducts] = useState([]);
-  const { slug } = useParams();
+  const {categorySlug, slug } = useParams();
 
   useEffect(() => {
     const fetchRecentProducts = async () => {
@@ -31,7 +31,7 @@ const RecentProduct = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {recentProducts.map((product) => (
             <Link
-              to={`/${product.slug}`}
+              to={`/${categorySlug}/${product.slug}`}
               key={product._id}
               className="group bg-white overflow-hidden shadow-lg hover:shadow-balck/70 hover:shadow-2xl 
               transition-all duration-300 transform hover:-translate-y-1"
@@ -39,7 +39,7 @@ const RecentProduct = () => {
               <div className="flex flex-col h-full">
                 <div className="relative  bg-gray-50">
                   <div className="flex-shrink-0 border bg-[#2b60d9]">
-                    <div className="w-52 h-52 ml-9 rounded-full m-4  border overflow-hidden">
+                    <div className="w-52 h-52 ml-9 rounded-full m-4 bg-white  border overflow-hidden">
                       <img
                         src={product.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : "/placeholder.jpg"}
                         alt={product.images?.[0]?.altText || product.name}

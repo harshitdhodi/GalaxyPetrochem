@@ -20,6 +20,16 @@ export default function ProductDetailPage() {
   const { slug ,categorySlug } = useParams();
   const navigate = useNavigate();
 
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
+const truncateHTML = (html, percentage = 0.9) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  const text = div.textContent || div.innerText || "";
+  const wordCount = Math.floor(text.split(" ").length * percentage);
+  return text.split(" ").slice(0, wordCount).join(" ") + "...";
+};
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
@@ -142,29 +152,38 @@ export default function ProductDetailPage() {
             </div>
           </div>
           <div className="mt-12 bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-lg shadow-md border border-blue-200">
-            <h2 className="text-2xl font-semibold mb-6 text-blue-900 border-b border-blue-200 pb-3">Product Description</h2>
-            <div
-              className="text-gray-700 bg-transparent leading-relaxed prose prose-sm max-w-none
-    prose-headings:text-blue-900 
-    prose-p:text-gray-600 
-    prose-strong:text-blue-800
-    prose-ul:list-disc 
-    prose-ul:pl-5
-    prose-li:my-1
-    prose-a:text-blue-600 
-    prose-a:hover:text-blue-800"
-              style={{ backgroundColor: "transparent" }} // Ensure no background is applied
-              dangerouslySetInnerHTML={{
-                __html: productData?.details || "No description available for this product.",
-              }}
-            />
-            <div
-              className="bg-transparent leading-relaxed prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: productData?.tableInfo || "No description available for this product.",
-              }}
-            />
-          </div>
+  <h2 className="text-2xl font-semibold mb-6 text-blue-900 border-b border-blue-200 pb-3">Product Description</h2>
+
+  {/* Description */}
+  <div
+    className="text-gray-700 leading-relaxed prose prose-sm max-w-none"
+    dangerouslySetInnerHTML={{
+      __html: showFullDescription
+        ? productData?.details || "No description available."
+        : truncateHTML(productData?.details || ""),
+    }}
+  />
+
+  {/* Table Info */}
+  {showFullDescription && productData?.tableInfo && (
+    <div
+      className="bg-transparent leading-relaxed prose prose-sm max-w-none mt-4"
+      dangerouslySetInnerHTML={{
+        __html: productData?.tableInfo,
+      }}
+    />
+  )}
+
+  {/* Toggle Button */}
+  {(productData?.details?.length > 0 || productData?.tableInfo?.length > 0) && (
+    <button
+      onClick={() => setShowFullDescription((prev) => !prev)}
+      className="mt-4 text-blue-700 hover:text-blue-900 font-medium underline"
+    >
+      {showFullDescription ? "See Less" : "See More"}
+    </button>
+  )}
+</div>
         </>
       )}
       <RecentProduct />

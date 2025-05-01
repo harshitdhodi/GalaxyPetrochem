@@ -89,10 +89,10 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                     key={index}
                     className="group overflow-hidden w-full lg:w-[250px] lg:h-[250px] h-[300px] md:w-full md:h-[250px] border rounded-md hover:shadow-lg transition-all duration-300 relative"
                   >
-                    <div className="h-full flex flex-col  items-center justify-between">
+                    <div className="h-full flex flex-col items-center justify-between">
                       {/* Product Image */}
-                      <div className="relative w-full pb-5  flex items-center justify-center overflow-hidden">
-                        {product.images?.length > 0 && product.images[0]?.photo ? (
+                      <div className="relative w-full pb-5 flex items-center justify-center overflow-hidden">
+                        {product.images?.length > 0 && product.images[0]?.url ? (
                           <img
                             alt={product.name}
                             className="object-cover lg:mt-5 w-auto max-w-full max-h-full transition-transform duration-300 group-hover:scale-105"
@@ -107,25 +107,21 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                           <img
                             alt={product.name}
                             className="object-contain mt-16 w-full h-full transition-transform duration-300 group-hover:scale-105"
-                            src={`/api/image/download/${product.images[0].url}`}
+                            src={defaultImage}
                             loading="lazy"
                           />
                         )}
                         
-                        {/* Overlay with view button that slides in from left */}
-                        <div className="absolute inset-0 hover:bg-[#e84c20]/10 bg-blue-600/10  group-hover:bg-opacity-30 transition-all duration-300 flex items-end justify-baseline">
+                        {/* Overlay with view button */}
+                        <div className="absolute inset-0 hover:bg-[#e84c20]/10 bg-blue-600/10 group-hover:bg-opacity-30 transition-all duration-300 flex items-end justify-baseline">
                           <Link
                             to={`/${product.slug}`}
-                            className="px-4 py-2 bg-[#e84c20] rounded-r-lg text-white  flex items-center space-x-2 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-0 group-hover:opacity-100"
+                            className="px-4 py-2 bg-[#e84c20] rounded-r-lg text-white flex items-center space-x-2 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-0 group-hover:opacity-100"
                           >
-                      
                             <span>{product.name}</span>
                           </Link>
                         </div>
                       </div>
-
-              
-                    
                     </div>
                   </div>
                 ))

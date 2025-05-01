@@ -28,7 +28,7 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
   }
 
   return (
-    <div className="mt-12 bg-gradient-to-r from-blue-50 to-blue-100 p-5 shadow-md">
+    <div className="mt-5 bg-gradient-to-r from-blue-50 to-blue-100 p-5 shadow-md">
       <h2 className="text-xl font-semibold mb-6 text-blue-900 border-b border-blue-200 pb-3">
         {name} MSDS (Material Safety Data Sheet) or SDS, COA and Specs
       </h2>
