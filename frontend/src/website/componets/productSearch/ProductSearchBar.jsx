@@ -75,8 +75,8 @@ export default function ProductSearchBar() {
         </div>
 
         <Table>
-          <TableHeader className="bg-main">
-            <TableRow>
+          <TableHeader className="bg-main ">
+            <TableRow className="text-white bg-blue-700 hover:bg-blue-700" >
               <TableHead className="text-white">Product Name</TableHead>
               <TableHead className="text-white">Category</TableHead>
               <TableHead className="text-white">Sub Category</TableHead>
@@ -116,7 +116,6 @@ export default function ProductSearchBar() {
         </Table>
       </div>
     </div>
-    <Footer/>
     </>
   );
 }

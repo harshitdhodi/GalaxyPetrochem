@@ -11,12 +11,17 @@ const LogoForm = () => {
         headerLogoAltName: '',
         favIcon: null,
         favIconName: '',
-        favIconAltName: ''
+        favIconAltName: '',
+        footerLogo: null,
+        footerLogoName: '',
+        footerLogoAltName: '',
+        footerLogoDescription: ''
     });
 
     const [preview, setPreview] = useState({
         headerLogo: null,
-        favIcon: null
+        favIcon: null,
+        footerLogo: null
     });
 
     useEffect(() => {
@@ -26,11 +31,15 @@ const LogoForm = () => {
                 headerLogoName: existingLogo.headerLogoName || '',
                 headerLogoAltName: existingLogo.headerLogoAltName || '',
                 favIconName: existingLogo.favIconName || '',
-                favIconAltName: existingLogo.favIconAltName || ''
+                favIconAltName: existingLogo.favIconAltName || '',
+                footerLogoName: existingLogo.footerLogoName || '',
+                footerLogoAltName: existingLogo.footerLogoAltName || '',
+                footerLogoDescription: existingLogo.footerLogoDescription || ''
             }));
             setPreview({
                 headerLogo: existingLogo.headerLogo ? `/api/logo/download/${existingLogo.headerLogo}` : null,
-                favIcon: existingLogo.favIcon ? `/api/logo/download/${existingLogo.favIcon}` : null
+                favIcon: existingLogo.favIcon ? `/api/logo/download/${existingLogo.favIcon}` : null,
+                footerLogo: existingLogo.footerLogo ? `/api/logo/download/${existingLogo.footerLogo}` : null
             });
         }
     }, [existingLogo]);
@@ -77,7 +86,8 @@ const LogoForm = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {[
                         { label: 'Header Logo', name: 'headerLogo', previewKey: 'headerLogo' },
-                        { label: 'Favicon', name: 'favIcon', previewKey: 'favIcon' }
+                        { label: 'Favicon', name: 'favIcon', previewKey: 'favIcon' },
+                        { label: 'Footer Logo', name: 'footerLogo', previewKey: 'footerLogo' }
                     ].map(({ label, name, previewKey }) => (
                         <div key={name} className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                             <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
@@ -110,6 +120,15 @@ const LogoForm = () => {
                                 placeholder={`${label} Alt Name`} 
                                 className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                             />
+                            {name === 'footerLogo' && (
+                                <textarea
+                                    name="footerLogoDescription"
+                                    value={formData.footerLogoDescription}
+                                    onChange={handleInputChange}
+                                    placeholder="Footer Logo Description"
+                                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                                />
+                            )}
                         </div>
                     ))}
                     
