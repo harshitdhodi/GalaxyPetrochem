@@ -1,57 +1,57 @@
 import React, { useMemo } from 'react';
 
-export default function ProductInfo({tagline, productDetails, name, price, categorySlug }) {
+export default function ProductInfo({ tagline, productDetails, name, price, categorySlug }) {
   // Process the HTML content using useMemo to avoid unnecessary re-processing
   const { extractedPContent, remainingContent } = useMemo(() => {
     // Create a temporary div to parse HTML content
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = productDetails;
 
-    // Find the first <p> before a <table>
+    // Find the first <p> tag
     const firstP = tempDiv.querySelector('p');
-    const firstTable = tempDiv.querySelector('table');
-
     let extractedPContent = '';
-    
-    if (firstP && (!firstTable || firstP.compareDocumentPosition(firstTable) & Node.DOCUMENT_POSITION_FOLLOWING)) {
-      // Save the content, but don't manipulate the DOM element
+
+    if (firstP) {
+      // Extract the content of the first <p> tag
       extractedPContent = firstP.innerHTML;
-      
-      // Remove the extracted <p> from productDetails
+
+      // Remove the extracted <p> tag from the remaining content
       firstP.remove();
     }
 
     return {
       extractedPContent,
-      remainingContent: tempDiv.innerHTML
+      remainingContent: tempDiv.innerHTML,
     };
   }, [productDetails]);
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-[#2e60d7] ">
-        {name} 
+      <h1 className="text-2xl font-bold text-[#2e60d7]">
+        {name}
       </h1>
       <p className="text-lg font-bold mb-4 text-[#3a6ada]">
-      {tagline}
-      
+        {tagline}
       </p>
 
-      {/* Apply styles directly to the container for the extracted paragraph */}
+      {/* Render the extracted paragraph content */}
       {extractedPContent && (
-        <p className="extracted-paragraph text-md text-gray-900" dangerouslySetInnerHTML={{ __html: extractedPContent }} />
+        <p
+          className="extracted-paragraph text-md text-gray-900"
+          dangerouslySetInnerHTML={{ __html: extractedPContent }}
+        />
       )}
 
-      {/* <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
-        <div 
+      {/* Render the remaining content */}
+      {remainingContent && (
+        <div
           className="custom-product-details overflow-x-auto w-full"
-          dangerouslySetInnerHTML={{ __html: remainingContent }} 
+          dangerouslySetInnerHTML={{ __html: remainingContent }}
         />
-      </div> */}
+      )}
 
       {/* Using global styles instead of scoped styles */}
       <style jsx global>{`
-        
         .custom-product-details table {
           width: max-content;
           min-width: 100%;

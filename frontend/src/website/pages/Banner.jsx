@@ -9,7 +9,7 @@ export function Banner({ imageUrl }) {
         alt="Banner"
         className="w-full h-full object-fill"
       />
-      
+       
       {/* Overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-30"></div>
     </div>

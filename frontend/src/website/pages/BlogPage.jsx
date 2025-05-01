@@ -105,7 +105,7 @@ export default function BlogPage() {
                           <ClockIcon className="ml-4 mr-2 h-4 w-4" />
                           <span>{latestBlog.readTime} min read</span>
                         </div>
-                        <Link to={`/blog/${latestBlog.slug}`}>
+                        <Link to={`/${latestBlog.slug}`}>
                           <button className="btn bg-primary shadow-md shadow-black/40 text-white  px-8 py-2 rounded">
                             Read More
                           </button>
@@ -150,7 +150,7 @@ export default function BlogPage() {
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         <span>{new Date(post.date).toLocaleDateString()}</span>
                       </div>
-                      <Link to={`/blog/${post.slug}`}>
+                      <Link to={`/${post.slug}`}>
                         <button className="btn m-2 mb-3 bg-primary shadow-md shadow-black/60 text-white  px-8 py-2 rounded">
                           Read More
                         </button>
