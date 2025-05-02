@@ -340,3 +340,21 @@ exports.getAllProductImages = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+exports.getAllSlugs = async (req, res) => {
+  try {
+    // Fetch only the 'slug' field from all documents
+    const slugs = await Product.find({}, { slug: 1, _id: 0 });
+
+    res.status(200).json({
+      success: true,
+      slugs: slugs.map((item) => item.slug), // Return an array of slugs
+    });
+  } catch (error) {
+    console.error("Error fetching slugs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch slugs",
+    });
+  }
+};

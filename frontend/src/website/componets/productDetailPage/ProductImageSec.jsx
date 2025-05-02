@@ -25,7 +25,7 @@ export default function ImageSection({ images, selectedImage, setSelectedImage }
             <img
               src={img.url ? `/api/image/download/${img.url}` : "https://via.placeholder.com/150x150?text=No+Thumbnail"}
               alt={img.alt || `Thumbnail ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </button>
         ))}

@@ -134,7 +134,10 @@ const truncateHTML = (html, percentage = 0.9) => {
             subCategorySlug={categorySlug}
           />
           <div className="lg:flex gap-12">
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
             <ImageSection images={images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
+           
+            </div>
             <div className="w-full">
               <ProductInfo
                 productDetails={productDetails}

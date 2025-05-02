@@ -20,10 +20,10 @@ function SubCategoryProductListCard({ product, categorySlug, subCategorySlug }) 
     };
 
     return (
-        <div className="border rounded-lg shadow-md  flex flex-col gap-4 bg-white hover:shadow-lg transition-shadow cursor-pointer" onClick={handleViewDetails} >
+        <div className="border  shadow-md  flex flex-col gap-4 bg-white hover:shadow-lg transition-shadow cursor-pointer" onClick={handleViewDetails} >
             {/* Product Image */}
             <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-shrink-0 border bg-[#2b60d9]">
+                <div className="flex-shrink-0 border m-1 w-[97%]  bg-[#2b60d9]">
                     <div className="w-64 h-64 rounded-full m-4 border bg-white overflow-hidden">
                         <img
                             src={product?.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : '/placeholder.svg'}
