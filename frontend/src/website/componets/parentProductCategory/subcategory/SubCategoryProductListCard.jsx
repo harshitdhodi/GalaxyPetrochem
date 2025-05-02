@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 
 function SubCategoryProductListCard({ product, categorySlug, subCategorySlug }) {
-    console.log("SubCategoryProductListCard");
+    // console.log("SubCategoryProductListCard");
     const navigate = useNavigate();
-    console.log("SubCategoryProductListCard", categorySlug, subCategorySlug, product);
+    // console.log("SubCategoryProductListCard", categorySlug, subCategorySlug, product);
     const handleViewDetails = () => {
         if (product?.slug) {
             navigate(`/${subCategorySlug}/${product.slug}`);

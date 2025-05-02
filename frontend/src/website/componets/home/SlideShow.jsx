@@ -61,7 +61,8 @@ const Slideshow = () => {
     } else if (Array.isArray(banners) && banners.length > 0) {
       const lcpImage = banners[0];
       if (lcpImage) {
-        const imagePath = `/api/image/download/${lcpImage.photo || lcpImage.image}`;
+        const imagePath = `/api/image/download/${lcpImage.photo || lcpImage.image}?v=${Date.now()}`;
+
 
         const link = document.createElement("link");
         link.rel = "preload";

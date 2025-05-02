@@ -83,7 +83,7 @@ export default function NavbarComp({ categories }) {
   // Optimized LogoComponent with inline SVG or image fallback
   const LogoComponent = React.memo(({ src, alt, title }) => {
     return (
-      
+
       <img
         src={src}
         alt={alt}
@@ -98,7 +98,7 @@ export default function NavbarComp({ categories }) {
   });
 
   return (
-    <> 
+    <>
       <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
         <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -106,8 +106,8 @@ export default function NavbarComp({ categories }) {
           </Link>
           <div className="w-1/2 md:flex md:mt-0 gap-5 hidden ">
             <SearchBar />
-      
-          <GoogleTranslate />
+
+            <GoogleTranslate />
           </div>
           <div className="flex items-center md:hidden">
             <div className="w-full">
@@ -136,126 +136,111 @@ export default function NavbarComp({ categories }) {
 
         {/* Mobile Menu with CSS Animation */}
         <div
-          className={`
-            md:hidden fixed top-0 left-0 right-0 w-full z-[80]
-            transition-all duration-300 ease-in-out
-            ${
-              mobileMenuOpen
-                ? "opacity-100 h-screen"
-                : "opacity-0 h-0 pointer-events-none overflow-hidden"
-            }
-          `}
-        >
-          {/* Backdrop */}
-          <div
-            className="fixed bg-black bg-opacity-50 z-[75]"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+  className={`
+    md:hidden fixed top-0 left-0 right-0 w-full z-[80]
+    transition-opacity duration-300 ease-in-out
+    ${mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
+  `}
+>
+  {/* Backdrop */}
+  <div
+    className="fixed bg-black bg-opacity-50 z-[75]"
+    onClick={() => setMobileMenuOpen(false)}
+  />
 
-          {/* Menu Content */}
-          <div className="relative h-[100vh] w-full px-4 pb-2 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94]">
-            <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img
-                  src={logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""}
-                  alt="Company Logo"
-                  width="150" // Explicit width for mobile logo
-                  height="50" // Adjust based on actual aspect ratio
-                  className="h-auto w-[150px]"
-                  fetchpriority="high"
-                />
-              </Link>
-              <button
-                variant="ghost"
-                className="text-main_light  hover:bg-transparent p-1 border"
+  {/* Menu Content */}
+  <div className="relative h-[100vh] w-full px-4 pb-2 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] z-[80]">
+    <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
+      <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+        <img
+          src={logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""}
+          alt="Company Logo"
+          width="150"
+          height="50"
+          className="h-auto w-[150px]"
+          fetchpriority="high"
+        />
+      </Link>
+      <button
+        variant="ghost"
+        className="text-main_light hover:bg-transparent p-1 border"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <X className="h-6 w-6" />
+      </button>
+    </div>
+
+    <Link
+      to="/"
+      className={`block py-2 text-white ${isHomeActive ? "text-primary" : ""}`}
+      onClick={() => setMobileMenuOpen(false)}
+    >
+      Home
+    </Link>
+    <Link
+      to="/about-us"
+      className="block py-2 text-white"
+      onClick={() => setMobileMenuOpen(false)}
+    >
+      About Us
+    </Link>
+
+    {/* Products Dropdown */}
+    <div>
+      <div className="flex items-center justify-between">
+        <Link
+          to="/products"
+          className="block py-2 text-white"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Products
+        </Link>
+        {/* <button
+          className="py-2 text-white"
+          onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+        >
+          {categoryDropdownOpen ? "▲" : "▼"}
+        </button> */}
+      </div>
+      {/* {categoryDropdownOpen && (
+        <div className="pl-4 space-y-2 bg-white rounded-md shadow-md z-[90] relative">
+          {categories?.length > 0 ? (
+            categories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/${category.slug}`}
+                className="block py-1 text-main text-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <Link
-              to="/"
-              className={`block py-2 text-white  ${isHomeActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/corporate"
-              className="block py-2 text-white "
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Corporate
-            </Link>
-
-            {/* Products Dropdown */}
-            <div>
-              <button
-                className="block w-full text-left py-2 text-white "
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              >
-                <Link to={'/products'}>
-                Products
-                </Link>
-             
-              </button>
-              {categoryDropdownOpen && (
-                <div className="pl-4 space-y-2 bg-white rounded-md shadow-md">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      to={`/${category.slug}`}
-                      className="block py-1 text-main text-md "
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Link
-              to="/worldwide"
-              className="block py-2 text-white "
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Worldwide
-            </Link>
-            <Link
-              to="/careers"
-              className="block py-2 text-white "
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Careers
-            </Link>
-            <Link
-              to="/events"
-              className="block py-2 text-white "
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Events
-            </Link>
-            <Link
-              to="/contact-us"
-              className={`block py-2 text-white  ${isContactActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-            <Button
-              variant="ghost"
-              className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
-              onClick={() => {
-                navigate("/advance-search");
-                setMobileMenuOpen(false);
-              }}
-            >
-              Advanced Search
-            </Button>
-          </div>
+                {category.name}
+              </Link>
+            ))
+          ) : (
+            <p className="py-1 text-main text-md">No categories available</p>
+          )}
         </div>
+      )} */}
+    </div>
+
+    <Link
+      to="/contact-us"
+      className={`block py-2 text-white ${isContactActive ? "text-primary" : ""}`}
+      onClick={() => setMobileMenuOpen(false)}
+    >
+      Contact Us
+    </Link>
+    <Button
+      variant="ghost"
+      className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
+      onClick={() => {
+        navigate("/advance-search");
+        setMobileMenuOpen(false);
+      }}
+    >
+      Advanced Search
+    </Button>
+  </div>
+</div>
       </header>
 
       <main className="w-full mb-10 mx-auto overflow-x-hidden">

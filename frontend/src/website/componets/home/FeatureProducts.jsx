@@ -91,7 +91,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                   >
                     <div className="h-full flex flex-col items-center justify-between">
                       {/* Product Image */}
-                      <div className="relative w-full pb-5 flex items-center justify-center overflow-hidden">
+                      <div className="relative w-full py-12 sm:pb-5 flex items-center justify-center overflow-hidden">
                         {product.images?.length > 0 && product.images[0]?.url ? (
                           <img
                             alt={product.name}
@@ -132,7 +132,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
           {/* Sidebar Section */}
           <div className="w-full lg:w-[30%]  md:w-[100%]  flex flex-col md:flex-row lg:flex-col justify-center items-center">
             {/* Forthcoming Events */}
-            <div className="py-4 mt-20 pl-4 ">
+            <div className="py-4 mt-8 sm:mt-20 pl-4 ">
               <h2 className="text-lg font-bold mb-4 px-4 text-[#9c5d95] shadow-lg  w-fit py-1 bg-blue-50 rounded-full">Forthcoming Events</h2>
               {isLoading ? (
                 <EventSkeleton />
