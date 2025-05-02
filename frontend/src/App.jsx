@@ -236,7 +236,7 @@ function App() {
 
             { path: '/products/add', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },
             { path: '/products/edit/:id', element: <Suspense fallback={<LoadingFallback />}><UpdatePetrochemicalProduct /></Suspense> },
-
+ 
             { path: '/brands-list', element: <Suspense fallback={<LoadingFallback />}><BrandsList /></Suspense> },
             { path: 'testimonial-table', element: <Suspense fallback={<LoadingFallback />}><TestimonialManager /></Suspense> },
             { path: '/company-info-form', element: <Suspense fallback={<LoadingFallback />}><CompanyForm /></Suspense> },

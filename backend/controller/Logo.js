@@ -2,11 +2,12 @@ const Logo = require('../model/Logo');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+
 // Add new logo
 const addLogo = async (req, res) => {
     try {
-        if (!req.files || !req.files.headerLogo || !req.files.favIcon) {
-            return res.status(400).json({ success: false, message: 'Both headerLogo and favIcon are required' });
+        if (!req.files || !req.files.headerLogo || !req.files.favIcon || !req.files.footerLogo) {
+            return res.status(400).json({ success: false, message: 'headerLogo, favIcon, and footerLogo are required' });
         }
 
         // Check if a logo already exists
@@ -22,7 +23,11 @@ const addLogo = async (req, res) => {
             headerLogoAltName: req.body.headerLogoAltName || '',
             favIcon: req.files.favIcon[0].filename,
             favIconName: req.body.favIconName || '',
-            favIconAltName: req.body.favIconAltName || ''
+            favIconAltName: req.body.favIconAltName || '',
+            footerLogo: req.files.footerLogo[0].filename,
+            footerLogoName: req.body.footerLogoName || '',
+            footerLogoAltName: req.body.footerLogoAltName || '',
+            footerLogoDescription: req.body.footerLogoDescription || ''
         });
 
         res.status(201).json({ success: true, data: logo, message: 'Logo added successfully' });
@@ -42,10 +47,14 @@ const updateLogo = async (req, res) => {
         const updatedLogo = {
             headerLogo: req.files?.headerLogo ? req.files.headerLogo[0].filename : logo.headerLogo,
             favIcon: req.files?.favIcon ? req.files.favIcon[0].filename : logo.favIcon,
+            footerLogo: req.files?.footerLogo ? req.files.footerLogo[0].filename : logo.footerLogo,
             headerLogoName: req.body.headerLogoName ?? logo.headerLogoName,
             headerLogoAltName: req.body.headerLogoAltName ?? logo.headerLogoAltName,
             favIconName: req.body.favIconName ?? logo.favIconName,
-            favIconAltName: req.body.favIconAltName ?? logo.favIconAltName
+            favIconAltName: req.body.favIconAltName ?? logo.favIconAltName,
+            footerLogoName: req.body.footerLogoName ?? logo.footerLogoName,
+            footerLogoAltName: req.body.footerLogoAltName ?? logo.footerLogoAltName,
+            footerLogoDescription: req.body.footerLogoDescription ?? logo.footerLogoDescription
         };
 
         // Update database
@@ -59,8 +68,6 @@ const updateLogo = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
-
 
 // Get logo
 const getLogo = async (req, res) => {
@@ -79,7 +86,6 @@ const getLogo = async (req, res) => {
     }
 };
 
-
 // Delete logo
 const deleteLogo = async (req, res) => {
     try {
@@ -94,6 +100,7 @@ const deleteLogo = async (req, res) => {
 
         deleteFile(logo.headerLogo);
         deleteFile(logo.favIcon);
+        deleteFile(logo.footerLogo);
 
         res.status(200).json({ success: true, message: 'Logo deleted successfully' });
 
@@ -107,5 +114,4 @@ module.exports = {
     updateLogo,
     getLogo,
     deleteLogo
-    
 };

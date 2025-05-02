@@ -11,7 +11,7 @@ exports.createTestimonial = async (req, res) => {
         name,
         designation,
         company,
-        rating,
+        rating, 
         message
       } = req.body;
   

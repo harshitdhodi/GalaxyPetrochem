@@ -39,11 +39,11 @@ const RecentProduct = () => {
               <div className="flex flex-col h-full">
                 <div className="relative  bg-gray-50">
                   <div className="flex-shrink-0 border bg-[#2b60d9]">
-                    <div className="w-52 h-52 ml-9 rounded-full m-4 bg-white  border overflow-hidden">
+                    <div className="w-52 h-52 ml-9 rounded-full m-4 p-9 bg-white  border overflow-hidden">
                       <img
                         src={product.images?.[0]?.url ? `/api/image/download/${product.images[0].url}` : "/placeholder.jpg"}
                         alt={product.images?.[0]?.altText || product.name}
-                        className="w-full h-full  object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full  object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                   </div>

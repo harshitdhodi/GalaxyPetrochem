@@ -17,13 +17,113 @@ app.use(express.json());
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
+
+app.get('/sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'sitemap.xml');
+
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/sitemap1.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'sitemap1.xml');
+
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/blog-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'blog-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/category-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'category-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/chemical-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'chemical-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/subcategory-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'subcategory-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/product-image-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'subcategory-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
 app.use(handleDynamicRoutes);  
 // Custom image optimization route (Cache removed)
 app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;
   const { w = 1200, q = 80, device = 'desktop' } = req.query;
   const imagePath = path.join(__dirname, 'public', 'download', filename);
-
+ 
   try {
     if (!fs.existsSync(imagePath)) return res.status(404).send('Image not found');
 
@@ -44,6 +144,8 @@ app.get('/images/:filename', async (req, res) => {
     res.status(500).send('Image processing failed');
   }
 });
+
+
 
 // Static file serving with no caching
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -125,7 +227,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// MongoDB Connection 
+// MongoDB Connection  
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,

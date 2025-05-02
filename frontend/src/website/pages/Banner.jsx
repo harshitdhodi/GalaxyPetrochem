@@ -11,7 +11,7 @@ export function Banner({ imageUrl }) {
       />
        
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+      {/* <div className="absolute inset-0 bg-black bg-opacity-30"></div> */}
     </div>
   );
 }

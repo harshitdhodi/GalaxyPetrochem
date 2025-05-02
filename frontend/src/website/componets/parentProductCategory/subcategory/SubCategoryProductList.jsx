@@ -7,7 +7,7 @@ import banner from "../../../../assets/petrochemical.webp";
 import SubCategoryProductListCard from "./SubCategoryProductListCard";
 
 function SubCategoryProductList() {
-    const { slug ,categorySlug } = useParams();
+    const { slug, categorySlug } = useParams();
     const [categoryData, setCategoryData] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,6 +32,26 @@ function SubCategoryProductList() {
 
         fetchCategory();
     }, [slug]);
+
+    // 👇 Set dynamic meta title and description
+    useEffect(() => {
+        if (categoryData) {
+            document.title = categoryData.metatitle || categoryData.category || "Industrial Oils";
+
+            const description = categoryData.metadescription || getShortDescription(categoryData.details || "");
+            updateMetaTag("description", description);
+        }
+    }, [categoryData]);
+
+    const updateMetaTag = (name, content) => {
+        let tag = document.querySelector(`meta[name="${name}"]`);
+        if (!tag) {
+            tag = document.createElement("meta");
+            tag.setAttribute("name", name);
+            document.head.appendChild(tag);
+        }
+        tag.setAttribute("content", content);
+    };
 
     const getShortDescription = (htmlString) => {
         const temp = document.createElement("div");
