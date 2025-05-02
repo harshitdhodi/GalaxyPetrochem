@@ -12,7 +12,24 @@ function SubCategoryProductList() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showMore, setShowMore] = useState(false);
-
+    const [banners, setBanners] = useState([]);
+    const [isBannerLoading, setIsBannerLoading] = useState(true);
+    const path = location.pathname.replace(/^\//, "") || "introduction";
+    useEffect(() => {
+        const fetchBanner = async () => {
+          try {
+            const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${slug}`);
+           console.log(response.data)
+            setBanners(response.data || []);
+          } catch (error) {
+            console.error("Failed to fetch banner:", error);
+          } finally {
+            setIsBannerLoading(false);
+          }
+        };
+    
+        fetchBanner();
+      }, [path]);
     useEffect(() => {
         const fetchCategory = async () => {
             try {
@@ -64,7 +81,11 @@ function SubCategoryProductList() {
     return (
         <>
             <div className="relative">
-                <Banner imageUrl={banner} />
+                {banners && banners.length > 0 ? (
+                       <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
+                     ) : (
+                     "  not find any banner"
+                     )}
                 <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
                     <Breadcrumb
                         subcategoryName={categoryData?.category}

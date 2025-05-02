@@ -162,44 +162,44 @@ export default function BlogPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:w-1/3 mt-8 lg:mt-10">
-            <div className="sticky top-[28%] mb-8 xl:p-7">
-              {/* Share Your Thoughts Card */}
-              {blogCard && (
-                <div
-                  className="bg-custom-gradient py-10 px-5 shadow-lg hover:shadow-md hover:shadow-main_light shadow-main/50 border "
-                  dangerouslySetInnerHTML={{ __html: blogCard.blogCard }}
-                />
-              )}
+         <div className="lg:w-1/3 mt-8 lg:mt-10">
+  <div className="sticky  mb-8 xl:p-7">
+    {/* Share Your Thoughts Card */}
+    {blogCard && (
+      <div
+        className="bg-custom-gradient py-10 px-5 shadow-lg hover:shadow-md hover:shadow-main_light shadow-main/50 border"
+        dangerouslySetInnerHTML={{ __html: blogCard.blogCard }}
+      />
+    )}
 
-              {/* Contact Card */}
-              {contactInfo && (
-                <div className="mt-5">
-                  <div className="bg-custom-gradient flex flex-col gap-4 shadow-lg hover:shadow-md hover:shadow-main shadow-main/50 border border-gray-200 p-10">
-                    <div className="card-header">
-                      <h3 className="card-title text-2xl font-bold text-[#ffffff]">Get in Touch</h3>
-                    </div>
-                    <div className="card-content flex flex-col gap-2">
-                      {contactInfo.mobiles.map((mobile, index) => (
-                        <div className="flex items-center" key={index}>
-                          <PhoneIcon className="h-6 w-6 mr-2 text-[#ffffff]" />
-                          <span className="text-lg text-[#ffffff]">{mobile}</span>
-                        </div>
-                      ))}
-                      {contactInfo.emails.map((email, index) => (
-                        <div className="flex items-center" key={index}>
-                          <MailIcon className="h-6 text-[#ffffff] w-6 mr-2" />
-                          <Link to={`mailto:${email}`} className="text-lg text-[#ffffff] hover:underline">
-                            {email}
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+    {/* Contact Card */}
+    {contactInfo && (
+      <div className="mt-5">
+        <div className="bg-custom-gradient flex flex-col gap-4 shadow-lg hover:shadow-md hover:shadow-main shadow-main/50 border border-gray-200 p-10">
+          <div className="card-header">
+            <h3 className="card-title text-2xl font-bold text-[#ffffff]">Get in Touch</h3>
           </div>
+          <div className="card-content flex flex-col gap-2">
+            {contactInfo.mobiles.map((mobile, index) => (
+              <div className="flex items-center" key={index}>
+                <PhoneIcon className="h-6 w-6 mr-2 text-[#ffffff]" />
+                <span className="text-lg text-[#ffffff]">{mobile}</span>
+              </div>
+            ))}
+            {contactInfo.emails.map((email, index) => (
+              <div className="flex items-center" key={index}>
+                <MailIcon className="h-6 text-[#ffffff] w-6 mr-2" />
+                <Link to={`mailto:${email}`} className="text-lg text-[#ffffff] hover:underline">
+                  {email}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
         </div>
       </div>
     </div>

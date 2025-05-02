@@ -17,7 +17,8 @@ function SubCategoryProduct() {
     useEffect(() => {
         const fetchBanner = async () => {
             try {
-                const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${path}`);
+                const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${slug}`);
+                console.log(response.data)
                 setBanners(response.data || []);
             } catch (error) {
                 console.error("Failed to fetch banner:", error);
@@ -67,7 +68,8 @@ function SubCategoryProduct() {
                 {banners && banners.length > 0 ? (
                     <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
                 ) : (
-                    <Banner imageUrl={banner} />
+                    // <Banner imageUrl={banner} />
+                    "images"
                 )}
 
                 {/* Breadcrumb below the banner */}

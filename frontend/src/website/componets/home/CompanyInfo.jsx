@@ -22,7 +22,7 @@ export default function CompanyInfo() {
   if (!aboutData) return null; // or a loading spinner
 
   return (
-    <section className="relative w-full py-16 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <section className="relative w-full sm:py-16 overflow-hidden bg-gradient-to-b from-white to-gray-50">
       {/* Decorative elements */}
       <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-100 opacity-20 -mr-32 -mb-32"></div>
       <div className="absolute top-1/4 left-0 w-32 h-32 rounded-full bg-purple-100 opacity-20 -ml-16"></div>
@@ -45,7 +45,7 @@ export default function CompanyInfo() {
               </div>
 
               {/* Stats overlay */}
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-xl shadow-lg shadow-blue-400 p-4 z-30 transition-transform duration-300 group-hover:translate-y-2">
+              <div className="sm:absolute mb-6 mt-2 sm:mb-0 sm:mt-0 -bottom-6 -right-6 bg-white rounded-xl shadow-lg shadow-blue-400 p-4 z-30 transition-transform duration-300 group-hover:translate-y-2">
                 <div className="flex gap-4">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-[#e84c20]">{aboutData?.years}+ </p>

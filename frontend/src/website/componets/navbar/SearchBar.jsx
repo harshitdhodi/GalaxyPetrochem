@@ -8,6 +8,7 @@ export default function SearchBar() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [isSticky, setIsSticky] = useState(false); // New state for sticky behavior
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
@@ -27,7 +28,7 @@ export default function SearchBar() {
           throw new Error("Failed to fetch chemicals.");
         }
         const data = await response.json();
-        
+
         setChemicals(data || []);
         setShowSuggestions(data.length > 0);
       } catch (err) {
@@ -42,6 +43,16 @@ export default function SearchBar() {
     const debounceTimer = setTimeout(fetchChemicals, 300);
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollThreshold = window.innerHeight * 0.2; // 20% of the viewport height
+      setIsSticky(window.scrollY > scrollThreshold);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleChemicalSelect = (chemical) => {
     setShowSuggestions(false);
@@ -67,8 +78,10 @@ export default function SearchBar() {
   return (
     <div className="relative w-full">
       {/* Search Icon for Mobile */}
-      <button 
-        className="md:hidden p-2 bg-[#E95821]  text-white rounded-full fixed top-5 right-16 z-50"
+      <button
+        className={`p-2 bg-[#E95821] sm:hidden text-white rounded-full fixed z-50 ${
+          isSticky ? "top-5 right-16" : "top-5 right-16"
+        }`}
         onClick={() => setShowSearchModal(true)}
       >
         <svg
@@ -100,7 +113,7 @@ export default function SearchBar() {
             className="w-full px-4 py-2 rounded-l-full focus:outline-none"
             placeholder="Search products..."
           />
-          <button 
+          <button
             onClick={handleSearch}
             className="px-4 bg-primary text-white rounded-r-full"
           >
@@ -144,7 +157,7 @@ export default function SearchBar() {
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Search Products</h2>
-              <button 
+              <button
                 onClick={() => setShowSearchModal(false)}
                 className="text-2xl font-bold"
               >
@@ -164,7 +177,7 @@ export default function SearchBar() {
                 className="w-full px-4 py-2 rounded-l-full focus:outline-none"
                 placeholder="Search products..."
               />
-              <button 
+              <button
                 onClick={handleSearch}
                 className="px-4 bg-[#E95821] text-white rounded-r-full"
               >
