@@ -57,7 +57,7 @@ export default function HomeBlogCom() {
 
           </div> 
           <p className='py-3 text-gray-400 font-semibold flex lg:pr-3 flex-wrap gap-2'>
-          Explore Fresh Perspectives on Products and Industry Innovations.
+          {/* Explore Fresh Perspectives on Products and Industry Innovations. */}
             <Link to="/blogs" className='flex items-center gap-2 text-[#9c5d95] font-semibold'>
               View All <ArrowRight className="" />
             </Link>

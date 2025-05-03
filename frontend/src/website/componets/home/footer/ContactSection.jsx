@@ -31,14 +31,14 @@ export default function ContactSection({ contactInfo, navigate }) {
               )}
             </p>
           </div>
-          <div className="flex  gap-4 text-gray-300 mt-6">
+          {/* <div className="flex  gap-4 text-gray-300 mt-6">
             <ScrollLink to="/privacy-policy" className="hover:text-gray-200" navigate={navigate}>
               Privacy Policy
             </ScrollLink>
             <ScrollLink to="/terms-and-conditions" className="hover:text-gray-200" navigate={navigate}>
               Terms & Conditions
             </ScrollLink>
-          </div>
+          </div> */}
         </div>
       ) : (
         <LoadingContactInfo />

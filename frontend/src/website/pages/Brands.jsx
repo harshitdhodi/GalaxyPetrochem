@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Image } from "antd";
 import { Banner } from "./Banner";
 import axios from "axios";
 import banner from "../.././assets/petrochemical.webp";
@@ -130,7 +129,7 @@ export default function BrandsPage() {
               <div className="p-5">
                 <div className="flex flex-col items-center">
                   <div className="w-24 h-24 relative mb-4">
-                    <Image
+                    <img
                       src={`/api/logo/download/${brand.photo}`}
                       alt={brand.name}
                       width={96}
@@ -168,7 +167,7 @@ export default function BrandsPage() {
                   <div className="flex flex-col items-center">
                     <div className="w-24  h-24 relative mb-4">
                       {product.images && product.images.length > 0 ? (
-                        <Image
+                        <img
                           src={`/api/image/download/${product.images[0].url}`}
                           alt={product.name}
                           width={100}

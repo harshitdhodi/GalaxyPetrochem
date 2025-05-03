@@ -79,7 +79,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
             <div className="h-1 w-[25%] bg-[#9c5d95]"></div>
 
           </div> <p className='py-3 text-gray-400 font-semibold flex flex-wrap gap-2'>
-            Explore Fresh Perspectives on Products and Industry Innovations.
+            {/* Explore Fresh Perspectives on Products and Industry Innovations. */}
             <Link to="/products" className='flex items-center gap-2 text-[#9c5d95] font-semibold'>
               View All <ArrowRight className="" />
             </Link>
@@ -131,11 +131,12 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
           </div>
 
           {/* Product Name */}
-          <div className="absolute inset-0 hover:bg-[#e84c20]/10 bg-blue-600/10 group-hover:bg-opacity-30 transition-all duration-300 flex items-end justify-baseline">
-            <span className="px-4 py-2 bg-[#e84c20] rounded-r-lg text-white flex items-center space-x-2 transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
-              {product.name}
-            </span>
-          </div>
+        {/* Product Name */}
+<div className="absolute inset-0 hover:bg-[#e84c20]/10 bg-blue-600/10 group-hover:bg-opacity-30 transition-all duration-300 flex items-end justify-baseline">
+  <span className="px-4 py-2 bg-[#e84c20] group-hover:bg-[#995d96] rounded-r-lg text-white flex items-center space-x-2 transform translate-x-0 transition-transform duration-300 opacity-100">
+    {product.name}
+  </span>
+</div>
         </div>
       </Link>
     ))
