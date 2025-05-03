@@ -13,7 +13,7 @@ export default function Hello() {
   const validSubCategoryPaths = ['/industrial-oils', '/greases'];
   const isSubCategoryPath = validSubCategoryPaths.includes(path);
 
-  const isBlogPath = blogData?.some(blog => path === `/blog/${blog.slug}`);
+  const isBlogPath = blogData?.some(blog => path === `/${blog.slug}`);
 
   useEffect(() => {
     if (isLoading) {

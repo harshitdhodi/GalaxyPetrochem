@@ -91,22 +91,27 @@ export default function BrandsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Banner */}
-      {banners && banners.length > 0 ? (
-        <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
-      ) : (
-        <Banner imageUrl={banner} />
-      )}
-      <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-        <nav className="text-[#fff] text-md font-semibold">
-          <Link to={'/'}>
-            <span className="text-[12px] bg-gray-600 px-2 font- rounded-md sm:text-[15px] text-white">Home</span>
-          </Link>
-          <span className="mx-2 text-white">&gt;</span>
-          <Link>
-            <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Brands</span>
-          </Link>
-        </nav>
-      </div>
+       <div className="relative">
+              {/* Banner */}
+              {banners && banners.length > 0 ? (
+                <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
+              ) : (
+                <Banner imageUrl={banner} />
+              )}
+      
+              {/* Breadcrumb - centered horizontally, below the title */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+                <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
+                  <Link to="/">
+                    <span className="    text-[12px] sm:text-[15px]">Home</span>
+                  </Link>
+                  <span className="mx-2">/</span>
+                  <Link to="#">
+                    <span className="    text-[12px] sm:text-[15px]">Brands</span>
+                  </Link>
+                </nav>
+              </div>
+            </div>
       {/* Brands Section */}
       <section className="w-[80rem] mx-auto px-4 py-12">
         <div className="flex items-center mb-8">
@@ -118,8 +123,9 @@ export default function BrandsPage() {
           {brands.map((brand, index) => (
             <div
               key={brand._id}
-              className="relative overflow-hidden bg-white rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
-              style={{ borderTop: `4px solid ${getBrandColor(index)}` }}
+              className="relative cursor-pointer overflow-hidden bg-white rounded-lg shadow-md transition-all hover:shadow-blue-300 shadow-blue-200 duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+
+              onClick={(e) => handleViewProducts(e, brand._id)}
             >
               <div className="p-5">
                 <div className="flex flex-col items-center">
@@ -134,24 +140,6 @@ export default function BrandsPage() {
                   </div>
                   <h3 className="text-center font-medium">{brand.name}</h3>
 
-                  <div className="mt-3 w-full">
-                    <button
-                      className="w-full text-sm py-1 px-3 rounded bg-gray-100 hover:bg-gray-200 transition-colors duration-300 flex items-center justify-center"
-                      style={{ color: getBrandColor(index) }}
-                      onClick={(e) => handleViewProducts(e, brand._id)}
-                    >
-                      <span>View Products</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 ml-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -172,20 +160,20 @@ export default function BrandsPage() {
             {products.map((product, index) => (
               <div
                 key={product._id}
-                className="relative overflow-hidden bg-white rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl cursor-pointer"
-                style={{ borderTop: `4px solid ${getBrandColor(index)}` }}
+                className="relative overflow-hidden bg-white rounded-lg shadow-md shadow-blue-200 hover:shadow-blue-300 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg  cursor-pointer"
+                // style={{ borderTop: `4px solid ${getBrandColor(index)}` }}
                 onClick={() => handleProductClick(product.slug)}
               >
                 <div className="p-5">
                   <div className="flex flex-col items-center">
-                    <div className="w-24 h-24 relative mb-4">
+                    <div className="w-24  h-24 relative mb-4">
                       {product.images && product.images.length > 0 ? (
                         <Image
                           src={`/api/image/download/${product.images[0].url}`}
                           alt={product.name}
                           width={100}
-                          height={96}
-                          className="object-cover"
+                          height={100}
+                          className="object-cover w-[100px] h-[100px] rounded-md"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">

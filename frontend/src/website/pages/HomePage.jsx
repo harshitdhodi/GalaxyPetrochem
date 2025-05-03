@@ -5,6 +5,7 @@ import Slideshow from '../componets/home/SlideShow';
 import CompanyInfo from '../componets/home/CompanyInfo.jsx';
 import axios from 'axios';
 import TestimonialSection from './component/Testimonial.jsx';
+import HomeBlogCom from './component/HomeMainBlogCom';
 
 const HomePage = () => {
   const [homeData, setHomeData] = useState({
@@ -59,6 +60,7 @@ const HomePage = () => {
           <CategoryCards categories={homeData.category} />
           <FeaturedProducts recentProducts={homeData.recentProducts} catalogues={homeData.catalogue} />
           <TestimonialSection />
+          <HomeBlogCom />
         </>
       )}
     </div>

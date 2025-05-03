@@ -24,7 +24,7 @@ export function MissionVision() {
 
   if (!data) {
     return (
-      <section className="py-16 px-6 flex items-center justify-center min-h-screen relative text-white">
+      <section className="py-16 px-6 flex  items-center justify-center min-h-screen relative text-white">
         {/* Background Image with Overlay for Loading State */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-black/50 z-10"></div>
@@ -46,37 +46,36 @@ export function MissionVision() {
   }
 
   return (
-    <section className="py-16 px-6 min-h-screen relative">
-      {/* Background Image with Overlay for MissionVision Section */}
+    <section className="relative min-h-screen flex items-center justify-center px-4 py-16">
+      {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-black/80 z-10"></div>
+        <div className="absolute inset-0 bg-black/80 z-10" />
         <img
           src={image}
           alt="Background"
-          className="w-full h-full object-cover" // Changed to object-cover
+          className="w-full h-full object-cover"
           onError={(e) => {
-            e.target.src = "https://via.placeholder.com/1920x1080?text=Background+Image"; // Fallback image
+            e.target.src = "https://via.placeholder.com/1920x1080?text=Background+Image";
             console.error("Failed to load background image");
           }}
         />
       </div>
 
-      {/* Content Section */}
-      <div className="container mx-auto max-w-5xl relative z-20">
+      {/* Centered Content */}
+      <div className="relative z-20 w-full max-w-6xl text-white text-center">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold tracking-tight mt-8 mb-3 text-white">
+        <div className="mb-12 xl:-mt-12">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
             {data.heading || "Our Mission & Vision"}
           </h2>
-          <div className="h-1 w-24 bg-[#7d5ea7] mx-auto rounded-full mb-6"></div>
-          <p className="text-white max-w-2xl mx-auto">
+          <div className="h-1 w-24 bg-[#7d5ea7] mx-auto rounded-full mb-4"></div>
+          <p className="max-w-2xl mx-auto text-sm sm:text-base">
             {data.subHeading || "Guiding principles that drive our organization toward excellence and innovation"}
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Mission Card */}
+        <div className="grid gap-8 md:grid-cols-2">
           <Card
             icon={<Target className="h-6 w-6 text-white" />}
             title={data.missionTitle || "Our Mission"}
@@ -87,7 +86,7 @@ export function MissionVision() {
             expandedContent={
               <>
                 <h4 className="font-semibold text-white mb-3">Key Mission Pillars:</h4>
-                <ul className="space-y-3">
+                <ul className="space-y-3 text-left">
                   {(data.missionPoints || []).map((point, index) => (
                     <li key={`mission-${index}`} className="flex items-start">
                       <div className="h-5 w-5 rounded-full bg-blue-600/30 flex items-center justify-center mt-0.5 mr-3">
@@ -102,35 +101,21 @@ export function MissionVision() {
             theme="blue"
           />
 
-          {/* Vision Card */}
           <Card
             icon={<Compass className="h-6 w-6 text-white" />}
             title={data.visionTitle || "Our Vision"}
             description={data.visionDescription || ""}
             expanded={visionExpanded}
             setExpanded={setVisionExpanded}
-            buttonText="Discover our future goals"
-            expandedContent={
-              <>
-                <h4 className="font-semibold text-white mb-3">Strategic Vision 2030:</h4>
-                <div className="space-y-4">
-                  {(data.visionPoints || []).map((point, index) => (
-                    <div key={`vision-${index}`}>
-                      <div className="flex items-center">
-                       
-                        <p className="font-medium text-white">{point}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            }
+            buttonText=""
+            expandedContent={<></>}
             theme="teal"
           />
         </div>
       </div>
     </section>
   );
+
 }
 
 function Card({ icon, title, description, expanded, setExpanded, buttonText, expandedContent, theme }) {
@@ -149,23 +134,7 @@ function Card({ icon, title, description, expanded, setExpanded, buttonText, exp
           <h3 className="text-2xl font-bold text-white">{title}</h3>
         </div>
         <p className="text-white leading-relaxed mb-6">{description}</p>
-        <div className="pt-4 border-t border-white/10">
-          <button
-            className={`inline-flex items-center font-medium ${buttonColor}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              console.log(`Toggling ${title}: ${!expanded}`);
-              setExpanded(!expanded);
-            }}
-          >
-            {buttonText}
-            {expanded ? (
-              <ArrowUpCircle className="ml-2 h-4 w-4" />
-            ) : (
-              <ArrowDownCircle className="ml-2 h-4 w-4" />
-            )}
-          </button>
-        </div>
+
         {expanded && (
           <div className="mt-6 pt-6 border-t border-white/10 text-white animate-fadeIn">
             {expandedContent}
