@@ -16,7 +16,7 @@ export default function BlogPage() {
   const [isBannerLoading, setIsBannerLoading] = useState(true);
 
   const path = location.pathname.replace(/^\//, "") || "introduction";
-console.log(path)
+  console.log(path)
   const { data: allBlogs, isLoading: loadingAll } = useGetAllBlogsExceptLatestQuery();
   const { data: categoryBlogs, isLoading: loadingCategory } = useGetBlogsByCategoryQuery(selectedCategory, {
     skip: !selectedCategory,
@@ -38,10 +38,11 @@ console.log(path)
   }, [slug, categories]);
 
   // Fetch banner
-  useEffect(() => {  
+  useEffect(() => {
     const fetchBanner = async () => {
       try {
-        const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${slug}`);
+        const pageSlug = slug || path; // Use slug if present, otherwise path
+        const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${pageSlug}`);
         setBanners(response.data || []);
       } catch (error) {
         console.error("Failed to fetch banner:", error);
@@ -49,8 +50,10 @@ console.log(path)
         setIsBannerLoading(false);
       }
     };
+
     fetchBanner();
-  }, [path]);
+  }, [slug, path]); // Add both as dependencies
+
 
   const blogs = selectedCategory ? categoryBlogs : allBlogs;
   const isLoading = loadingAll || loadingCategory;
@@ -117,7 +120,8 @@ console.log(path)
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blogs?.map((blog) => (
               <Link to={`/${blog.slug}`} key={blog._id}>
-                <div className="bg-white border rounded-lg shadow hover:shadow-lg transition p-4">
+              <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
+
                   <img
                     src={`/api/image/download/${blog.image}`}
                     alt={blog.title}

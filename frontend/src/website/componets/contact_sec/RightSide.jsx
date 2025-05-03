@@ -94,15 +94,15 @@ export default function RightSection() {
           <Textarea name="address" rows={3} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1  md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm mt-3 font-medium mb-1">
               Email<span className="text-red-500">*</span>
             </label>
             <Input required name="email" type="email" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm mt-3 font-medium mb-1">
               Phone
             </label>
             <Input
@@ -115,14 +115,14 @@ export default function RightSection() {
           </div>
         </div>
 
-        <div className="mb-3">
-          <label className="block text-sm font-medium mb-1">
+        <div className="mb-3 ">
+          <label className="block text-sm mt-3 font-medium mb-1">
             Your Message<span className="text-red-500">*</span>
           </label>
           <Textarea required name="message" rows={4} />
         </div>
 
-        <div className="w-full mb-3">
+        <div className="w-full  mb-3">
           <ReCAPTCHA
             ref={recaptchaRef} // Attach the ref to the ReCAPTCHA component
             sitekey={import.meta.env.VITE_SITE_KEY}
@@ -130,7 +130,7 @@ export default function RightSection() {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 pb-10 ">
           <Button
             type="submit"
             className="w-1/4 mt-3 bg-primary hover:bg-[#ee451b]"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { Breadcrumb } from "../../category_subcategory/BreadCrumb";
 import { Banner } from "../../Banner";
@@ -17,19 +17,19 @@ function SubCategoryProductList() {
     const path = location.pathname.replace(/^\//, "") || "introduction";
     useEffect(() => {
         const fetchBanner = async () => {
-          try {
-            const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${slug}`);
-           console.log(response.data)
-            setBanners(response.data || []);
-          } catch (error) {
-            console.error("Failed to fetch banner:", error);
-          } finally {
-            setIsBannerLoading(false);
-          }
+            try {
+                const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${slug}`);
+                console.log(response.data)
+                setBanners(response.data || []);
+            } catch (error) {
+                console.error("Failed to fetch banner:", error);
+            } finally {
+                setIsBannerLoading(false);
+            }
         };
-    
+
         fetchBanner();
-      }, [path]);
+    }, [path]);
     useEffect(() => {
         const fetchCategory = async () => {
             try {
@@ -80,7 +80,7 @@ function SubCategoryProductList() {
 
     return (
         <>
-            <div className="relative">
+            {/* <div className="relative">
                 {banners && banners.length > 0 ? (
                        <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
                      ) : (
@@ -93,9 +93,25 @@ function SubCategoryProductList() {
                         categorySlug={categorySlug}
                     />
                 </div>
-            </div>
+            </div> */}
+            <div className="relative">
+                {/* Banner */}
+                {banners && banners.length > 0 ? (
+                    <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
+                ) : (
+                    <Banner imageUrl={banner} />
+                )}
 
-            <div className="container mx-auto px-4 pb-8 max-w-7xl">
+                {/* Breadcrumb - centered horizontally, below the title */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+                    <Breadcrumb
+                        subcategoryName={categoryData?.category}
+                        subCategorySlug={categoryData?.slug}
+                        categorySlug={categorySlug}
+                    />
+                </div>
+            </div>
+            <div className="container mx-auto px-4 mt-5 pb-8 max-w-7xl">
                 <h1 className="text-4xl font-bold text-[#0a3161] mb-4">
                     {categoryData?.category || "INDUSTRIAL OILS"}
                 </h1>

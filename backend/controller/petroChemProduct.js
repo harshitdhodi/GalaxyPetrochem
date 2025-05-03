@@ -283,7 +283,7 @@ exports.getRecentProductsByCategorySlug = async (req, res) => {
       slug: { $ne: slug } // Exclude the current product
     })
       .sort({ createdAt: -1 }) // Most recent first
-      .limit(5)
+      .limit(6)
       .populate("brandId categoryId subCategoryId");
 
     res.json(recentProducts);
