@@ -11,13 +11,13 @@ export default function Breadcrumb({ chemicals = '', slug = '', categorySlug = '
             Home
           </Link>
         </li>
-        <li className="text-[#ffff]">&gt;</li>
+        <li className="text-[#ffff]">/</li>
         <li>
           <Link to="/products" className="text-[#ffff] hover:text-[#ffff]">
             Products
           </Link>
         </li>
-        {chemicals && <li className="text-secondary">&gt;</li>}
+        {chemicals && <li className="text-secondary">/</li>}
         {chemicals && ( 
           <li>
             <Link 
@@ -28,7 +28,7 @@ export default function Breadcrumb({ chemicals = '', slug = '', categorySlug = '
             </Link>
           </li>
         )}
-        {categorySlug && <li className="text-[#ffff]">&gt;</li>}
+        {categorySlug && <li className="text-[#ffff]">/</li>}
         {categorySlug && (
           <li>
             <span className="text-[#ffff]"> {categorySlug?.charAt(0)?.toUpperCase() + categorySlug?.slice(1)}</span>

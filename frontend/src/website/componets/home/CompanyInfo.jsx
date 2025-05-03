@@ -81,8 +81,8 @@ export default function CompanyInfo() {
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
-                to={"/contact-us"}
-                className="inline-flex h-12 items-center justify-center rounded-lg bg-[#e84c20] px-8 text-base font-medium text-white shadow-lg shadow-[#e84c20]/20 transition-all duration-300  hover:shadow-[#e84c20]/30 hover:translate-y-[-2px] focus:ring-2 focus:ring-[#e84c20] focus:ring-offset-2"
+                to={"/products"}
+                className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-[#fff] px-8 text-base font-medium text-gray-700  shadow-[#e84c20]/20 transition-all duration-300  hover:shadow-[#e84c20]/30 hover:text-white hover:bg-[#e84c20] hover:translate-y-[-2px] "
               >
                 Our Products
               </Link>

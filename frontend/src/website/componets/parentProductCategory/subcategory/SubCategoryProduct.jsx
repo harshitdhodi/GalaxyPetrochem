@@ -66,19 +66,19 @@ function SubCategoryProduct() {
             <div className="relative">
                 {/* Banner */}
                 {banners && banners.length > 0 ? (
-                    <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
+                    <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={categoryData?.category} />
                 ) : (
                     // <Banner imageUrl={banner} />
                     "images"
                 )}
 
                 {/* Breadcrumb below the banner */}
-                <div className="container mx-auto px-4 max-w-7xl -mt-12 relative z-10">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
                     <Breadcrumb categorySlug={categoryData?.category} slug={slug} />
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 pb-8 max-w-7xl">
+            <div className="container mx-auto px-4 mt-5 pb-8 max-w-7xl">
 
                 <h1 className="text-4xl font-bold text-[#0a3161] mb-4">
                     {categoryData?.category || "INDUSTRIAL OILS"}
@@ -96,7 +96,7 @@ function SubCategoryProduct() {
                 {loading ? (
                     <p>Loading products...</p>
                 ) : categoryData?.subCategories?.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         {categoryData.subCategories.map((sub, index) => (
                             <SubCategoryProductCard
                             slug={slug}

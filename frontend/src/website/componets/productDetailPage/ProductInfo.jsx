@@ -1,40 +1,31 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 export default function ProductInfo({ tagline, productDetails, name, price, categorySlug }) {
-  // Process the HTML content using useMemo to avoid unnecessary re-processing
-  const { extractedPContent, remainingContent } = useMemo(() => {
-    // Create a temporary div to parse HTML content
+  const [expanded, setExpanded] = useState(false);
+
+  const { extractedPContent, previewContent, remainingContent } = useMemo(() => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = productDetails;
 
-    // Find the first <p> tag
     const firstP = tempDiv.querySelector('p');
     let extractedPContent = '';
-
     if (firstP) {
-      // Extract the content of the first <p> tag
       extractedPContent = firstP.innerHTML;
-
-      // Remove the extracted <p> tag from the remaining content
       firstP.remove();
     }
 
+    const remainingHtml = tempDiv.innerHTML;
+    const charLimit = Math.floor(remainingHtml.length * 0.65);
+
     return {
       extractedPContent,
-      remainingContent: tempDiv.innerHTML,
+      previewContent: remainingHtml.slice(0, charLimit),
+      remainingContent: remainingHtml.slice(charLimit),
     };
   }, [productDetails]);
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-[#2e60d7]">
-        {name}
-      </h1>
-      <p className="text-lg font-bold mb-4 text-[#3a6ada]">
-        {tagline}
-      </p>
-
-      {/* Render the extracted paragraph content */}
       {extractedPContent && (
         <p
           className="extracted-paragraph text-md text-gray-900"
@@ -42,25 +33,28 @@ export default function ProductInfo({ tagline, productDetails, name, price, cate
         />
       )}
 
-      {/* Render the remaining content */}
+      <div
+        className="custom-product-details overflow-x-auto w-full text-gray-800"
+        dangerouslySetInnerHTML={{
+          __html: expanded ? previewContent + remainingContent : previewContent,
+        }}
+      />
+
       {remainingContent && (
-        <div
-          className="custom-product-details overflow-x-auto w-full"
-          dangerouslySetInnerHTML={{ __html: remainingContent }}
-        />
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className="text-blue-600 mt-2 font-semibold border-blue-600 border-b focus:outline-none"
+        >
+          {expanded ? 'See Less' : 'See More'}
+        </button>
       )}
 
-      {/* Using global styles instead of scoped styles */}
       <style jsx global>{`
         .custom-product-details table {
           width: max-content;
           min-width: 100%;
           table-layout: fixed;
           border-collapse: collapse;
-        }
-        .custom-product-details {
-          max-width: 100%;
-          overflow-x-auto;
         }
         .custom-product-details tr:nth-child(odd) {
           background-color: #f5f9ff !important;

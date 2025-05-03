@@ -12,25 +12,27 @@ const ContactPage = () => {
 
   return (
     <>
-      <div>
-        {isBannerLoading ? (
-          <div>Loading banner...</div>
-        ) : (
-          <Banner imageUrl={banners && banners.length > 0 ? `/api/image/download/${banners[0].image}` : img} />
-        )}
-         {/* Breadcrumb below the banner */}
-                <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-                  <nav className="text-[#fff] text-md font-semibold">
-                    <Link to="/">
-                      <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Home</span>
-                    </Link>
-                    <span className="mx-2 text-white">&gt;</span>
-                    <Link to="#">
-                      <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Contact Us</span>
-                    </Link>
-                  </nav>
-                </div>
-      </div>
+     <div className="relative">
+          {/* Banner */}
+          {banners && banners.length > 0 ? (
+            <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
+          ) : (
+           "no image"
+          )}
+  
+          {/* Breadcrumb - centered horizontally, below the title */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+            <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
+              <Link to="/">
+                <span className="text-[12px] sm:text-[15px]">Home</span>
+              </Link>
+              <span className="mx-2">/</span>
+              <Link to="#">
+                <span className="    text-[12px] sm:text-[15px]">Contact Us</span>
+              </Link>
+            </nav>
+          </div>
+        </div>
 
       <div className="max-w-7xl mx-auto mt-16 py-4 mb-10">
         

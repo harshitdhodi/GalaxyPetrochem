@@ -49,7 +49,8 @@ const SlideshowImages = ({
               src={imagePath}
               alt={item.title || `Slide ${index + 1}`}
               ref={index === 0 ? lcpImageRef : null}
-              className="w-full h-full object-left-top sm:object-fill"
+              className="w-full h-full object-cover object-center"
+
               loading={index === 0 ? "eager" : "lazy"}
               fetchPriority={index === 0 ? "high" : "low"}
               decoding={index === 0 ? "sync" : "async"}
