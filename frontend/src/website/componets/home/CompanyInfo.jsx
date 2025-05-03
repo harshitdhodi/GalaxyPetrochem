@@ -22,17 +22,17 @@ export default function CompanyInfo() {
   if (!aboutData) return null; // or a loading spinner
 
   return (
-    <section className="relative w-full sm:py-16 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <section className="relative w-full sm:py-10 overflow-hidden bg-gradient-to-b from-white to-gray-50">
       {/* Decorative elements */}
       <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-100 opacity-20 -mr-32 -mb-32"></div>
       <div className="absolute top-1/4 left-0 w-32 h-32 rounded-full bg-purple-100 opacity-20 -ml-16"></div>
 
-      <div className="max-w-[80rem] mx-auto px-6 relative z-10">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
+      <div className="max-w-[78rem] mx-auto pb-10  relative z-10">
+        <div className="grid items-start gap-16 lg:grid-cols-2">
           {/* Image section */}
           <div className="flex justify-center w-full order-2 lg:order-1">
             <div className="relative w-full group">
-              <div className="relative w-full  overflow-hidden rounded-md hover:shadow-[0_20px_50px_rgba(8,112,184,0.3)] transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(8,112,184,0.5)]">
+              <div className="relative w-full mt-1 overflow-hidden rounded-md hover:shadow-[0_20px_50px_rgba(8,112,184,0.3)] transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(8,112,184,0.5)]">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-purple-700/20 z-10 mix-blend-multiply"></div>
                 <div className="w-full  h-full">
                   <img
@@ -65,22 +65,16 @@ export default function CompanyInfo() {
           </div>
 
           {/* Content section */}
-          <div className="flex flex-col justify-center space-y-8 order-1 lg:order-2">
+          <div className="flex flex-col mt-8 sm:mt-0 justify-center  order-1 lg:order-2">
             <div>
-              {/* <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-4">
-                <Clock className="w-4 h-4 mr-2" />
-                Established {aboutData?.establishedYear || "N/A"}
-              </div> */}
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl text-[#e84c20] mb-4 leading-tight">
-         
-                <span className="text-gray-600">{aboutData?.highlight || ""}</span>
-              </h2>
+      
               <p
                 className="text-xl text-gray-600 leading-relaxed"
                 dangerouslySetInnerHTML={{
                   __html: aboutData?.details || "Company description goes here.",
                 }}
               />
+            
             </div>
 
            
@@ -88,13 +82,13 @@ export default function CompanyInfo() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
                 to={"/contact-us"}
-                className="inline-flex h-12 items-center justify-center rounded-lg bg-[#e84c20] px-8 text-base font-medium text-white shadow-lg shadow-[#e84c20]/20 transition-all duration-300 hover:bg-[#e83720] hover:shadow-[#e84c20]/30 hover:translate-y-[-2px] focus:ring-2 focus:ring-[#e84c20] focus:ring-offset-2"
+                className="inline-flex h-12 items-center justify-center rounded-lg bg-[#e84c20] px-8 text-base font-medium text-white shadow-lg shadow-[#e84c20]/20 transition-all duration-300  hover:shadow-[#e84c20]/30 hover:translate-y-[-2px] focus:ring-2 focus:ring-[#e84c20] focus:ring-offset-2"
               >
-                Contact Us
+                Our Products
               </Link>
               <Link
                 to={"/brands"}
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-gray-200 bg-white px-8 text-base font-medium text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 hover:translate-y-[-2px] focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 group"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-gray-200 hover:bg-[#e84c20] bg-white px-8 text-base font-medium text-gray-700 shadow-sm transition-all duration-300  hover:text-white  hover:translate-y-[-2px] focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 group"
               >
                 Our Brands
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

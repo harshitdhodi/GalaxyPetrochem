@@ -17,6 +17,7 @@ function ParentProductCategory() {
     const fetchBanner = async () => {
       try {
         const response = await axios.get(`/api/banner/getByPageSlug?pageSlug=${path}`);
+        console.log(response.data);
         setBanners(response.data || []);
       } catch (error) {
         console.error("Failed to fetch banner:", error);
@@ -54,34 +55,34 @@ function ParentProductCategory() {
       <div className="relative">
         {/* Banner */}
         {banners && banners.length > 0 ? (
-          <Banner imageUrl={`/api/image/download/${banners[0].image}`} />
+          <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
         ) : (
           <Banner imageUrl={banner} />
         )}
 
-        {/* Breadcrumb below the banner */}
-        <div className="container mx-auto px-4 max-w-7xl -mt-8 relative z-10">
-          <nav className="text-[#fff] text-md font-semibold">
+        {/* Breadcrumb - centered horizontally, below the title */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+          <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
             <Link to="/">
-              <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Home</span>
+              <span className="    text-[12px] sm:text-[15px]">Home</span>
             </Link>
-            <span className="mx-2 text-white">&gt;</span>
+            <span className="mx-2">/</span>
             <Link to="#">
-              <span className="text-[12px] bg-gray-600 px-2 rounded-md sm:text-[15px] text-white">Product</span>
+              <span className="    text-[12px] sm:text-[15px]">Product</span>
             </Link>
           </nav>
         </div>
       </div>
-
+    
       <div className="container mx-auto px-4 max-w-7xl pt-10">
         <h2 className="text-4xl text-[#0a3161] font-bold mb-3">Our Categories</h2>
       </div>
-      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 pb-8 max-w-7xl gap-10">
+      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 pb-8 max-w-7xl lg:gap-10">
         {allCategories.length === 0 ? (
           <p>No categories found.</p>
         ) : (
           allCategories.map((category, i) => (
-            <div key={i} className="mb-14">
+            <div key={i} >
               <ProductSection
                 title={category.category}
                 image={`/api/logo/download/${category.photo}`}

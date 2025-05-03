@@ -33,7 +33,7 @@ const SlideshowImages = ({
   }
 
   return (
-    <div className="relative w-full min-w-[300px] max-w-[1920px] h-[35vh] min-h-[250px] max-h-[800px] sm:h-[50vh] md:h-[60vh] lg:h-[65vh] mx-auto overflow-hidden">
+    <div className="relative w-full min-w-[300px] max-w-[1920px]  min-h-[250px] max-h-[800px] sm:h-[50vh] md:h-[60vh] lg:h-[65vh] mx-auto overflow-hidden">
       {imageSource.map((item, index) => {
         const isActive = index === activeIndex;
         const imagePath = item?.image ? `/api/image/download/${item.image}` : "";
@@ -49,7 +49,7 @@ const SlideshowImages = ({
               src={imagePath}
               alt={item.title || `Slide ${index + 1}`}
               ref={index === 0 ? lcpImageRef : null}
-              className="w-full h-full object-fill"
+              className="w-full h-full object-left-top sm:object-fill"
               loading={index === 0 ? "eager" : "lazy"}
               fetchPriority={index === 0 ? "high" : "low"}
               decoding={index === 0 ? "sync" : "async"}

@@ -25,32 +25,19 @@ const storage = multer.diskStorage({
         cb(null, dir);
     },
     filename: function (req, file, cb) {
-        // Use different naming for PDFs vs images
-        if (file.mimetype === 'application/pdf') {
-            const fileName = `catalog_${Date.now()}.pdf`;
-            cb(null, fileName);
-        } else {
-            const fileName = `${file.fieldname}_${Date.now()}.webp`;
-            cb(null, fileName);
-        }
+        // Preserve the original file extension and name
+        const ext = path.extname(file.originalname).toLowerCase();
+        const fileName = `${file.fieldname}_${Date.now()}${ext}`;
+        cb(null, fileName);
     }
 });
 
 // Strengthen file filter with additional mime type checking
 const fileFilter = (req, file, cb) => {
-    const allowedImageTypes = /jpeg|jpg|png|gif|webp/;
     const allowedImageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const allowedPdfMimeType = 'application/pdf';
     
-    if (file.mimetype === allowedPdfMimeType) {
-        cb(null, true);
-        return;
-    }
-
-    const mimeType = allowedImageMimeTypes.includes(file.mimetype);
-    const extName = allowedImageTypes.test(path.extname(file.originalname).toLowerCase());
-
-    if (mimeType && extName) {
+    if (file.mimetype === allowedPdfMimeType || allowedImageMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
         cb(new Error('Invalid file type. Only JPEG, PNG, GIF, WebP images and PDF files are allowed.'));
@@ -61,11 +48,11 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: { 
-        fileSize: MAX_PDF_SIZE  // Use larger size limit to accommodate PDFs
+        fileSize: MAX_FILE_SIZE  // Use the appropriate size limit for images
     },
     fileFilter: fileFilter
 }).fields([
-    { name: 'image', maxCount: MAX_FILES },  // Changed from 'images' to 'image' to match controller
+    { name: 'image', maxCount: MAX_FILES },
     { name: 'catalog', maxCount: 1 },
     { name: 'photo', maxCount: MAX_FILES },
 ]);

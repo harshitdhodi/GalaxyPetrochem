@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'; // Import PropTypes
 import { useParams, useNavigate } from 'react-router-dom'; // To get the slug from the URL and navigate
 import { useGetBlogBySlugQuery, useGetAllBlogsExceptLatestQuery } from '@/slice/blog/blog';
+import { Calendar, Calendar1 } from 'lucide-react';
 
 const RecentPostCard = ({ title, image, date, slug }) => {
     const navigate = useNavigate(); // Initialize the navigate function
@@ -30,7 +31,10 @@ const RecentPostCard = ({ title, image, date, slug }) => {
                 <h3 className="font-semibold hover:border-b text-lg mb-2 group relative">
                     {title}
                 </h3>
-                <p className="text-gray-600 text-sm">{date}</p>
+              <div className='flex items-center gap-2'>
+              <Calendar className='text-gray-600 w-4 h-4'/>
+              <p className="text-gray-600 text-sm">{date}</p>
+              </div>
             </div>
         </div>
     );
