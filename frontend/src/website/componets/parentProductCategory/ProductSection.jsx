@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 function ProductSection({ title, image, subcategories, slug }) {
@@ -14,10 +15,8 @@ function ProductSection({ title, image, subcategories, slug }) {
           <h2 className="text-2xl font-bold text-[#0a3161] mb-2">{title}</h2>
           <div className="h-1 w-16 bg-[#0a3161] "></div>
         </div>
-        <Link to={`/${slug}`}>
-          <button className="mt-6 bg-[#e95821] float-start hover:bg-[#e95821] text-white font-bold py-2 px-5 rounded transition-colors">
-            VIEW MORE
-          </button>
+        <Link className='flex items-center gap-2 text-[#e95821] font-semibold' to={`/${slug}`}>
+          View All <ArrowRight className="" />
         </Link>
       </div>
       <div className="flex  gap-6">

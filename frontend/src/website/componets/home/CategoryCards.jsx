@@ -54,7 +54,7 @@ export default function CategoryCards({ categories }) {
     <>
       <div className="sm:w-[81rem] px-6 mx-auto flex flex-col justify-start">
         <h2 className="text-3xl md:text-4xl py-5 font-bold pb-2 text-[#9c5d95]">
-          Our Products Category
+         We Deal's in
         </h2>
         <div className="h-1 w-[15%] bg-[#9c5d95]"></div>
       </div>
@@ -84,7 +84,7 @@ export default function CategoryCards({ categories }) {
                 <div className="absolute bg-blue-500/10 hover:bg-amber-700/10 inset-0"></div>
 
                 {/* Hover Button */}
-                <div className="absolute bottom-0 left-0 transform -translate-y-1/2 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center">
+                <div className="absolute bottom-0 left-0 transform group-hover:bg-[#995d96]  -translate-y-1/2 translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center">
                   {category.category}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </div>

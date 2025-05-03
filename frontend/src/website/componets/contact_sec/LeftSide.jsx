@@ -108,7 +108,7 @@ export default function LeftSection() {
         <div className="relative overflow-hidden rounded-md shadow-lg">
           <iframe
             title="Google Map"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29918.121500557725!2d72.87812756524369!3d20.39256926676659!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0d035a3377e53%3A0x68b46ced9811a463!2sChala%2C%20Vapi%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1743237467420!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.436321742793!2d72.9233878!3d20.364892199999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0cd408afbac0b%3A0x1d061ea33ce12c36!2sGALAXY%20PETROCHEMICALS!5e0!3m2!1sen!2sin!4v1746276172969!5m2!1sen!2sin"
             width="100%"
             height="410"
             style={{ border: 0 }}

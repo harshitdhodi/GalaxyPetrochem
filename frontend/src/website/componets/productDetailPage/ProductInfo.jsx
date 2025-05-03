@@ -26,6 +26,9 @@ export default function ProductInfo({ tagline, productDetails, name, price, cate
 
   return (
     <>
+      <h1 className="text-2xl pb-2 font-bold text-[#2e60d7]">
+        {name}
+      </h1>
       {extractedPContent && (
         <p
           className="extracted-paragraph text-md text-gray-900"

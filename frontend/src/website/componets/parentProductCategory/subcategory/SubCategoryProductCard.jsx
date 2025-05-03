@@ -1,3 +1,4 @@
+import { ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function SubCategoryProductCard({ title, image, products, slug, subCategorySlug }) {
@@ -20,12 +21,12 @@ function SubCategoryProductCard({ title, image, products, slug, subCategorySlug 
                 <h2 className="text-2xl font-bold text-[#0a3161] pb-2">{title}</h2>
                 <div className="h-1 w-16 bg-[#0a3161]"></div>
                 </div>
-                <button
-                    className="mt-6 bg-[#e95821] float-start hover:bg-[#eb4e10] text-white font-bold py-2 px-5 rounded transition-colors"
+                <p
+                    className='flex items-center gap-2 text-[#e85920] font-semibold'
                     onClick={handleViewMore}
                 >
-                    VIEW MORE
-                </button>
+                     View All <ArrowRight className="" />
+                </p>
             </div>
            
             <div className="flex flex-col md:flex-row gap-6">
