@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import JoditEditor from "jodit-react";
@@ -11,25 +11,25 @@ const EditCategory = () => {
   const [altText, setAltText] = useState("");
   const [imgtitle, setImgtitle] = useState("");
   const editor = useRef(null);
-  const [details, setDetails] = useState("")
+  const [details, setDetails] = useState("");
   const [currentPhoto, setCurrentPhoto] = useState("");
   const [slug, setSlug] = useState("");
   const [metatitle, setMetatitle] = useState("");
   const [metadescription, setMetadescription] = useState("");
   const [metakeywords, setMetakeywords] = useState("");
-  const [metalanguage, setMetalanguage] = useState("")
-  const [metacanonical, setMetacanonical] = useState("")
-  const [metaschema, setMetaschema] = useState("")
-  const [otherMeta, setOthermeta] = useState("")
-  const [url, setUrl] = useState()
-  const [changeFreq, setChangeFreq] = useState()
-  const [priority, setPriority] = useState(0)
+  const [metalanguage, setMetalanguage] = useState("");
+  const [metacanonical, setMetacanonical] = useState("");
+  const [metaschema, setMetaschema] = useState("");
+  const [otherMeta, setOthermeta] = useState("");
+  const [url, setUrl] = useState();
+  const [changeFreq, setChangeFreq] = useState();
+  const [priority, setPriority] = useState(0);
   const [status, setStatus] = useState("active");
+  const activeInputRef = useRef(null); // Track focused input
 
   useEffect(() => {
     const fetchData = async () => {
       let urls = "";
-
       if (categoryId && subCategoryId && subSubCategoryId) {
         urls = `/api/chemicalCategory/getSpecificSubSubcategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}&subSubCategoryId=${subSubCategoryId}`;
       } else if (categoryId && subCategoryId) {
@@ -40,25 +40,41 @@ const EditCategory = () => {
 
       try {
         const response = await axios.get(urls, { withCredentials: true });
-        const { category, details,
-          photo, alt, imgtitle, slug, metatitle, metadescription, metakeywords, metalanguage, metacanonical, metaschema, otherMeta, changeFreq, priority } = response.data;
+        const {
+          category,
+          details,
+          photo,
+          alt,
+          imgtitle,
+          slug,
+          metatitle,
+          metadescription,
+          metakeywords,
+          metalanguage,
+          metacanonical,
+          metaschema,
+          otherMeta,
+          changeFreq,
+          priority,
+          status,
+        } = response.data;
 
         setCategory(category);
         setCurrentPhoto(photo);
         setAltText(alt);
-        setImgtitle(imgtitle)
+        setImgtitle(imgtitle);
         setSlug(slug);
         setStatus(status);
         setDetails(details);
         setMetatitle(metatitle);
-        setMetadescription(metadescription)
+        setMetadescription(metadescription);
         setMetakeywords(metakeywords);
         setMetalanguage(metalanguage);
         setMetacanonical(metacanonical);
         setMetaschema(metaschema);
         setOthermeta(otherMeta);
-        setChangeFreq(changeFreq)
-        setPriority(priority)
+        setChangeFreq(changeFreq);
+        setPriority(priority);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -92,27 +108,39 @@ const EditCategory = () => {
     setUrl(generateUrl());
   }, [slug, categoryId, subCategoryId]);
 
+  // Debounced slug generation
   useEffect(() => {
-    setSlug(category.replace(/\s+/g, '-')
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/--+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '')
-    );
-  }, [category])
+    const handler = setTimeout(() => {
+      setSlug(
+        category
+          .replace(/\s+/g, "-")
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/--+/g, "-")
+          .replace(/^-+/, "")
+          .replace(/-+$/, "")
+      );
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [category]);
 
   useEffect(() => {
-    setSlug(slug.toLowerCase()
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/--+/g, '-')
-    );
-  }, [slug])
+    const handler = setTimeout(() => {
+      setSlug((prevSlug) =>
+        prevSlug
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/--+/g, "-")
+      );
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [slug]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Define URLs based on your category levels
     let urls = "";
     if (categoryId && subCategoryId && subSubCategoryId) {
       urls = `/api/chemicalCategory/updatesubsubcategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}&subSubCategoryId=${subSubCategoryId}`;
@@ -123,8 +151,6 @@ const EditCategory = () => {
     }
 
     const formData = new FormData();
-
-    // Append all fields
     formData.append("category", category);
     formData.append("alt", altText);
     formData.append("imgtitle", imgtitle);
@@ -141,13 +167,12 @@ const EditCategory = () => {
     formData.append("priority", priority);
     formData.append("status", status);
     formData.append("details", details);
-    // Ensure file is being passed
-    if (photo) {
-      console.log('Photo file:', photo);
-      console.log('Photo file name:', photo.name);
-      console.log('Photo file type:', photo.type);
-      console.log('Photo file size:', photo.size);
 
+    if (photo) {
+      console.log("Photo file:", photo);
+      console.log("Photo file name:", photo.name);
+      console.log("Photo file type:", photo.type);
+      console.log("Photo file size:", photo.size);
       formData.append("photo", photo);
     }
 
@@ -155,16 +180,89 @@ const EditCategory = () => {
       const response = await axios.put(urls, formData, {
         withCredentials: true,
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       navigate("/chemical-category");
     } catch (error) {
       console.error("Error updating data:", error.response ? error.response.data : error.message);
-      // Optionally, show an error message to the user
       alert(error.response ? error.response.data.error : "An error occurred");
     }
   };
+
+  // Handle input changes and stop event propagation
+  const handleInputChange = (setter) => (e) => {
+    e.stopPropagation(); // Prevent event from reaching JoditEditor
+    const input = e.target;
+    const value = e.target.value;
+    setter(value);
+    // Restore focus if lost
+    if (document.activeElement !== input) {
+      setTimeout(() => {
+        input.focus();
+      }, 0);
+    }
+  };
+
+  // Memoize JoditEditor to prevent unnecessary re-renders
+  const joditEditor = useMemo(
+    () => (
+      <JoditEditor
+        ref={editor}
+        value={details}
+        tabIndex={-1} // Prevent focus via tab
+        onBlur={(newContent) => {
+          console.log("JoditEditor onBlur triggered");
+          setDetails(newContent);
+        }}
+        config={{
+          readonly: false,
+          toolbarSticky: false,
+          autofocus: false, // Explicitly disable autofocus
+          uploader: {
+            insertImageAsBase64URI: true,
+          },
+          buttons: [
+            "bold",
+            "italic",
+            "underline",
+            "strikethrough",
+            "|",
+            "ul",
+            "ol",
+            "|",
+            "font",
+            "fontsize",
+            "brush",
+            "paragraph",
+            "|",
+            "image",
+            "table",
+            "link",
+            "|",
+            "align",
+            "undo",
+            "redo",
+          ],
+          style: {
+            backgroundColor: "white",
+          },
+          events: {
+            afterPaste: (event) => {
+              const editorContent = event.editor.editor;
+              const pastedElements = editorContent.querySelectorAll("*");
+              pastedElements.forEach((element) => {
+                if (!element.style.backgroundColor) {
+                  element.style.backgroundColor = "white";
+                }
+              });
+            },
+          },
+        }}
+      />
+    ),
+    [details]
+  );
 
   return (
     <form onSubmit={handleSubmit} className="p-4">
@@ -173,14 +271,15 @@ const EditCategory = () => {
         <label htmlFor="category" className="block font-semibold mb-2">
           Category
         </label>
-        <input
-          type="text"
+        <textarea
           id="category"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setCategory)}
+          className="w-full p-2 border rounded"
+          rows="3"
           required
-        />
+          ref={activeInputRef}
+        ></textarea>
       </div>
       <div className="mb-8">
         <label htmlFor="photo" className="block font-semibold mb-2">Photo</label>
@@ -189,10 +288,9 @@ const EditCategory = () => {
           name="photo"
           id="photo"
           onChange={handlePhotoChange}
-          className="border rounded focus:outline-none"
+          className="border rounded"
           accept="image/*"
         />
-
         {(photo || currentPhoto) && (
           <div className="mt-2 w-56 relative group">
             <img
@@ -203,98 +301,47 @@ const EditCategory = () => {
             <button
               type="button"
               onClick={handleDeleteImage}
-              className="absolute top-4 right-2 bg-red-500 text-white rounded-md p-1 size-6 flex items-center justify-center hover:bg-red-600 focus:outline-none"
+              className="absolute top-4 right-2 bg-red-500 text-white rounded-md p-1 size-6 flex items-center justify-center hover:bg-red-600"
             >
               X
             </button>
             <div className="mb-4">
               <label htmlFor="alt" className="block font-semibold mb-2">Alternative Text</label>
-              <input
-                type="text"
+              <textarea
                 id="alt"
                 value={altText}
-                onChange={(e) => setAltText(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none"
+                onChange={handleInputChange(setAltText)}
+                className="w-full p-2 border rounded"
+                rows="3"
                 required
-              />
+              ></textarea>
             </div>
             <div className="mb-4">
               <label htmlFor="imgtitle" className="block font-semibold mb-2">Image Title Text</label>
-              <input
-                type="text"
+              <textarea
                 id="imgtitle"
                 value={imgtitle}
-                onChange={(e) => setImgtitle(e.target.value)}
-                className="w-full p-2 border rounded focus:outline-none"
+                onChange={handleInputChange(setImgtitle)}
+                className="w-full p-2 border rounded"
+                rows="3"
                 required
-              />
+              ></textarea>
             </div>
           </div>
         )}
       </div>
-      <JoditEditor
-  ref={editor}
-  value={details}
-  tabIndex={1}
-  onBlur={(newContent) =>
-    setDetails(newContent) // Update state on blur
-  }
-  config={{
-    readonly: false, // Enable editing
-    toolbarSticky: false,
-    uploader: {
-      insertImageAsBase64URI: true, // Allow image upload as Base64
-    },
-    buttons: [
-      "bold",
-      "italic",
-      "underline",
-      "strikethrough",
-      "|",
-      "ul",
-      "ol",
-      "|",
-      "font",
-      "fontsize",
-      "brush",
-      "paragraph",
-      "|",
-      "image",
-      "table",
-      "link",
-      "|",
-      "align",
-      "undo",
-      "redo",
-    ],
-    style: {
-      backgroundColor: "white", // Default background color
-    },
-    events: {
-      afterPaste: (event) => {
-        const editorContent = event.editor.editor;
-        const pastedElements = editorContent.querySelectorAll("*");
-
-        pastedElements.forEach((element) => {
-          if (!element.style.backgroundColor) {
-            element.style.backgroundColor = "white"; // Set default background color
-          }
-        });
-      },
-    },
-  }}
-/>
+      {joditEditor}
       <div className="mb-4 mt-4">
         <label htmlFor="slug" className="block font-semibold mb-2">
           Slug
         </label>
-        <input
-          type="text"
+        <textarea
           id="slug"
           value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
-        />
+          onChange={handleInputChange(setSlug)}
+          className="w-full p-2 border rounded"
+          rows="3"
+        ></textarea>
       </div>
       <div className="mb-4 mt-4">
         <label htmlFor="url" className="block font-semibold mb-2">
@@ -305,90 +352,90 @@ const EditCategory = () => {
           id="url"
           value={url}
           disabled
-          className="w-full p-2 border rounded focus:outline-none"
+          className="w-full p-2 border rounded"
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metatitle" className="block font-semibold mb-2">
           Meta Title
         </label>
         <textarea
-          id="meta"
+          id="metatitle"
           value={metatitle}
-          onChange={(e) => setMetatitle(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetatitle)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metadescription" className="block font-semibold mb-2">
           Meta Description
         </label>
         <textarea
-          id="meta"
+          id="metadescription"
           value={metadescription}
-          onChange={(e) => setMetadescription(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetadescription)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metakeywords" className="block font-semibold mb-2">
           Meta Keywords
         </label>
         <textarea
-          id="meta"
+          id="metakeywords"
           value={metakeywords}
-          onChange={(e) => setMetakeywords(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetakeywords)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metacanonical" className="block font-semibold mb-2">
           Meta Canonical
         </label>
         <textarea
-          id="meta"
+          id="metacanonical"
           value={metacanonical}
-          onChange={(e) => setMetacanonical(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetacanonical)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metalanguage" className="block font-semibold mb-2">
           Meta Language
         </label>
         <textarea
-          id="meta"
+          id="metalanguage"
           value={metalanguage}
-          onChange={(e) => setMetalanguage(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetalanguage)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="otherMeta" className="block font-semibold mb-2">
           Other Meta
         </label>
         <textarea
-          id="meta"
+          id="otherMeta"
           value={otherMeta}
-          onChange={(e) => setOthermeta(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setOthermeta)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="meta" className="block font-semibold mb-2">
+        <label htmlFor="metaschema" className="block font-semibold mb-2">
           Schema
         </label>
         <textarea
-          id="meta"
+          id="metaschema"
           value={metaschema}
-          onChange={(e) => setMetaschema(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          onChange={handleInputChange(setMetaschema)}
+          className="w-full p-2 border rounded"
           rows="3"
         ></textarea>
       </div>
@@ -404,7 +451,7 @@ const EditCategory = () => {
           step={0.01}
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          className="w-full p-2 border rounded"
         />
       </div>
       <div className="mb-4">
@@ -415,7 +462,7 @@ const EditCategory = () => {
           id="changeFreq"
           value={changeFreq}
           onChange={(e) => setChangeFreq(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          className="w-full p-2 border rounded"
         >
           <option value="">Select Change Frequency</option>
           <option value="always">Always</option>
@@ -434,7 +481,7 @@ const EditCategory = () => {
           id="status"
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="w-full p-2 border rounded focus:outline-none"
+          className="w-full p-2 border rounded"
         >
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>

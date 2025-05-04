@@ -71,7 +71,7 @@ export function NavLink({
       {isHovered && categories?.length > 0 && (
         <div
           className={`
-            absolute left-0 w-64 bg-[#2b5fd9] text-white shadow-lg z-50
+            absolute left-0 w-64 bg-[#2b5fd9]  text-white shadow-lg z-50
             transition-all duration-200 ease-in-out
             ${isHovered 
               ? 'opacity-100 translate-y-0' 
@@ -95,7 +95,7 @@ export function NavLink({
               {activeCategory === category && category.subCategories?.length > 0 && (
                 <div
                   className={`
-                    absolute left-full top-0 w-[40vh] bg-blue-600 text-white shadow-lg
+                    absolute left-full top-0 w-[50vh] bg-blue-600 text-white shadow-lg
                     transition-all duration-200 ease-in-out
                     ${activeCategory === category 
                       ? 'opacity-100 translate-x-0' 
