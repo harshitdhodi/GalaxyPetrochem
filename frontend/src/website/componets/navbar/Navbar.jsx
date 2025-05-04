@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Search, UserCircle, LogIn, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetAllCategoriesQuery } from "@/slice/blog/blogCategory";
 import SearchBar from "./SearchBar";
@@ -10,13 +10,9 @@ import NavSection from "./NavSection";
 import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const [mobileMenuState, setMobileMenuState] = useState({
-    open: false,
-    categoryDropdown: null,
-  });
+  const [openCategory, setOpenCategory] = useState(null);
 
   const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery();
 
@@ -34,6 +30,9 @@ export default function NavbarComp({ categories }) {
 
   const navigate = useNavigate();
 
+  // Log categories for debugging
+  console.log("Categories:", categories);
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollPercent =
@@ -47,14 +46,14 @@ export default function NavbarComp({ categories }) {
 
   const { data: logoData } = useGetLogoQuery();
 
-  // Preload the logo image with proper attributes
+  // Preload the logo image
   useEffect(() => {
     if (logoData?.headerLogo) {
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
       preloadLink.href = `/api/logo/download/${logoData.headerLogo}`;
       preloadLink.as = "image";
-      preloadLink.type = "image/svg+xml"; // Specify SVG type for better browser handling
+      preloadLink.type = "image/svg+xml";
       document.head.appendChild(preloadLink);
     }
   }, [logoData?.headerLogo]);
@@ -75,48 +74,47 @@ export default function NavbarComp({ categories }) {
     }
   }, [logoData?.favIcon]);
 
-  // Memoize the logo source to prevent recalculations
   const logoSrc = useMemo(() => {
     return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : "";
   }, [logoData?.headerLogo]);
 
-  // Optimized LogoComponent with inline SVG or image fallback
-  const LogoComponent = React.memo(({ src, alt, title }) => {
-    return (
+  const LogoComponent = React.memo(({ src, alt, title }) => (
+    <img
+      src={src}
+      alt={alt}
+      title={title}
+      width="150"
+      height="50"
+      loading="eager"
+      className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
+      fetchpriority="high"
+    />
+  ));
 
-      <img
-        src={src}
-        alt={alt}
-        title={title}
-        width="150" // Explicit width to prevent layout shift
-        height="50" // Adjust based on actual aspect ratio of your logo
-        loading="eager"
-        className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
-        fetchpriority="high" // Prioritize loading
-      />
-    );
-  });
+  const toggleCategory = (categoryId) => {
+    setOpenCategory(openCategory === categoryId ? null : categoryId);
+  };
 
   return (
     <>
-      <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
+      <header className={`w-full relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
         <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
           </Link>
-          <div className="w-1/2 md:flex md:mt-0 gap-5 hidden ">
+          <div className="hidden md:flex items-center gap-4 w-1/2 justify-end">
             <SearchBar />
-
-            <GoogleTranslate />
+            <div className="translate-container w-auto max-w-[120px]">
+              <GoogleTranslate />
+            </div>
           </div>
           <div className="flex items-center md:hidden">
-            <div className="w-full">
-              <SearchBar />
-            </div>
+            <SearchBar />
             <Button
               variant="ghost"
-              className="text-main  hover:bg-transparent p-2"
+              className="text-main hover:bg-transparent p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -134,116 +132,123 @@ export default function NavbarComp({ categories }) {
           setMobileMenuOpen={setMobileMenuOpen}
         />
 
-        {/* Mobile Menu with CSS Animation */}
+        {/* Mobile Menu */}
         <div
-  className={`
-    md:hidden fixed top-0 left-0 right-0 w-full z-[80]
-    transition-opacity duration-300 ease-in-out
-    ${mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
-  `}
->
-  {/* Backdrop */}
-  <div
-    className="fixed bg-black bg-opacity-50 z-[75]"
-    onClick={() => setMobileMenuOpen(false)}
-  />
-
-  {/* Menu Content */}
-  <div className="relative h-[100vh] w-full px-4 pb-2 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] z-[80]">
-    <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
-      <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-        <img
-          src={logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""}
-          alt="Company Logo"
-          width="150"
-          height="50"
-          className="h-auto w-[150px]"
-          fetchpriority="high"
-        />
-      </Link>
-      <button
-        variant="ghost"
-        className="text-main_light hover:bg-transparent p-1 border"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        <X className="h-6 w-6" />
-      </button>
-    </div>
-
-    <Link
-      to="/"
-      className={`block py-2 text-white ${isHomeActive ? "text-primary" : ""}`}
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      Home
-    </Link>
-    <Link
-      to="/about-us"
-      className="block py-2 text-white"
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      About Us
-    </Link>
-
-    {/* Products Dropdown */}
-    <div>
-      <div className="flex items-center justify-between">
-        <Link
-          to="/products"
-          className="block py-2 text-white"
-          onClick={() => setMobileMenuOpen(false)}
+          className={`md:hidden fixed top-0 left-0 w-full min-h-screen z-[80] transition-transform duration-300 ease-in-out ${
+            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
-          Products
-        </Link>
-        {/* <button
-          className="py-2 text-white"
-          onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-        >
-          {categoryDropdownOpen ? "▲" : "▼"}
-        </button> */}
-      </div>
-      {/* {categoryDropdownOpen && (
-        <div className="pl-4 space-y-2 bg-white rounded-md shadow-md z-[90] relative">
-          {categories?.length > 0 ? (
-            categories.map((category) => (
-              <Link
-                key={category.id}
-                to={`/${category.slug}`}
-                className="block py-1 text-main text-md"
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-[75]"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Menu Content */}
+          <div className="relative w-full min-h-screen h-auto flex-grow flex flex-col px-4 pb-4 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] bg-opacity-100 z-[80] box-sizing-border">
+            <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                <img
+                  src={logoSrc}
+                  alt="Company Logo"
+                  width="150"
+                  height="50"
+                  className="h-auto w-[150px]"
+                  fetchpriority="high"
+                />
+              </Link>
+              <Button
+                variant="ghost"
+                className="text-main_light hover:bg-transparent p-1 border"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {category.name}
-              </Link>
-            ))
-          ) : (
-            <p className="py-1 text-main text-md">No categories available</p>
-          )}
-        </div>
-      )} */}
-    </div>
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
 
-    <Link
-      to="/contact-us"
-      className={`block py-2 text-white ${isContactActive ? "text-primary" : ""}`}
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      Contact Us
-    </Link>
-    <Button
-      variant="ghost"
-      className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
-      onClick={() => {
-        navigate("/advance-search");
-        setMobileMenuOpen(false);
-      }}
-    >
-      Advanced Search
-    </Button>
-  </div>
-</div>
+            <Link
+              to="/"
+              className={`block py-2 text-white ${isHomeActive ? "text-primary" : ""}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about-us"
+              className="block py-2 text-white"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About Us
+            </Link>
+
+            {/* Products Dropdown */}
+            <div className="py-4">
+              <button
+                className="block w-full text-left py-2 text-white font-semibold"
+                onClick={() => toggleCategory("products")}
+                aria-expanded={openCategory === "products"}
+              >
+                Products
+              </button>
+              <div
+                className="ml-4 space-y-2 w-full py-2"
+                style={{ display: openCategory === "products" ? "block" : "none" }}
+              >
+                {categories?.map((category) => (
+                  <div key={category._id} className="w-full overflow-y-auto">
+                    <Link
+                      to={`/categories/${category.slug}`}
+                      className="block py-1 text-white font-medium"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {category.category}
+                    </Link>
+                    {category.subCategories?.length > 0 && (
+                      <div className="ml-4 space-y-1">
+                        {category.subCategories.map((sub) => (
+                          <Link
+                            key={sub._id}
+                            to={`/categories/${category.slug}/${sub.slug}`}
+                            className="block py-1 text-white text-sm"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            - {sub.category}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Link
+              to="/contact-us"
+              className={`block py-2 text-white ${isContactActive ? "text-primary" : ""}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact Us
+            </Link>
+            <div className="w-full flex justify-center py-4">
+              <div className="translate-container w-auto max-w-[140px]">
+                <GoogleTranslate />
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
+              onClick={() => {
+                navigate("/advance-search");
+                setMobileMenuOpen(false);
+              }}
+            >
+              Advanced Search
+            </Button>
+          </div>
+        </div>
       </header>
 
-      <main className="w-full mb-10 mx-auto overflow-x-hidden">
+      <main className="w-full mb-10 mx-auto">
         <Outlet />
       </main>
       <Footer />

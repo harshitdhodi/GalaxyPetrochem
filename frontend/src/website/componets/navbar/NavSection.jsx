@@ -34,21 +34,6 @@ const NavSection = ({
               About Us
             </NavLink>
 
-            {corporateDropdownOpen && (
-              <div
-                className="absolute left-0 mt-2 bg-white shadow-lg rounded-md z-50"
-                style={{ width: "300px" }}
-              >
-                <ul className="py-2">
-                  <li className="px-4 py-2 hover:bg-gray-100">
-                    <Link to="/subcategory-1" className="text-black">Subcategory 1</Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100">
-                    <Link to="/subcategory-2" className="text-black">Subcategory 2</Link>
-                  </li>
-                </ul>
-              </div>
-            )}
           </div>
 
           {/* Products */}
@@ -83,19 +68,6 @@ const NavSection = ({
               Blogs
             </NavLink>
 
-            {blogDropdownOpen && parsedBlogCategories?.length > 0 && (
-              <div className="absolute left-0 mt-2 bg-white shadow-lg rounded-md z-50 w-[300px]">
-                <ul className="py-2">
-                  {parsedBlogCategories.map((category) => (
-                    <li key={category.slug} className="px-4 py-2 hover:bg-gray-100">
-                      <Link to={`/blogs/${category.slug}`} className="text-black">
-                        {category.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
 
           {/* Contact */}

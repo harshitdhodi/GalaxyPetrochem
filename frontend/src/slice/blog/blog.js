@@ -30,21 +30,21 @@ export const blogApi = createApi({
       providesTags: ['Blog'],
     }),
 
-    // Get a blog by slug (newly added)
+    // Get a blog by slug
     getBlogBySlug: builder.query({
       query: (slug) => ({
         url: '/getBlogBySlug',
         params: { slug },
-      }), 
+      }),
       providesTags: ['Blog'],
     }),
 
     // Update a blog by ID
     updateBlog: builder.mutation({
       query: ({ id, formData }) => ({
-        url: `/update?id=${id}`,  // Pass the id in the query string
+        url: `/update?id=${id}`,
         method: 'PUT',
-        body: formData,  // Send the rest of the data in the request body
+        body: formData,
       }),
       invalidatesTags: ['Blog'],
     }),
@@ -63,22 +63,36 @@ export const blogApi = createApi({
     getBlogsByCategory: builder.query({
       query: (categoryId) => ({
         url: `/category?categoryId=${categoryId}`,
-      
       }),
       providesTags: ['Category'],
     }),
 
     // Get the latest blog
     getLatestBlog: builder.query({
-      query: () => '/getLatestBlog',  // Route for fetching the latest blog
+      query: () => '/getLatestBlog',
       providesTags: ['Blog'],
     }),
 
     // Get all blogs except the latest one
     getAllBlogsExceptLatest: builder.query({
-      query: (slug) => `/getAllBlogsExceptLatest?slug=${slug}`, // Pass slug as a parameter
+      query: (slug) => ({
+        url: '/getAllBlogsExceptLatest',
+        params: { slug },
+      }),
       providesTags: ['Blog'],
-  }),
+    }),
+
+    // Increment blog visits
+    incrementBlogVisits: builder.mutation({
+      query: ({ id, clientIP }) => ({
+        url: `/incrementBlogVisits`,
+        method: 'PUT',
+        params: { id, clientIP }, // sending as query parameters
+      }),
+    }),
+
+
+
   }),
 });
 
@@ -89,7 +103,8 @@ export const {
   useUpdateBlogMutation,
   useDeleteBlogMutation,
   useGetBlogsByCategoryQuery,
-  useGetLatestBlogQuery,  // Hook for getting the latest blog
-  useGetAllBlogsExceptLatestQuery,  // Hook for getting all blogs except the latest
-  useGetBlogBySlugQuery,  // Hook for getting a blog by slug
+  useGetLatestBlogQuery,
+  useGetAllBlogsExceptLatestQuery,
+  useGetBlogBySlugQuery,
+  useIncrementBlogVisitsMutation,
 } = blogApi;

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useGetBlogsByCategoryQuery, useGetAllBlogsExceptLatestQuery } from '@/slice/blog/blog';
+import { useGetBlogsByCategoryQuery, useGetAllBlogsQuery } from '@/slice/blog/blog';
 import { useGetAllCategoriesQuery } from '@/slice/blog/blogCategory';
 import { Banner } from './Banner';
 import banner from "../.././assets/petrochemical.webp";
 import axios from 'axios';
+import { Eye } from 'lucide-react';
 
 export default function BlogPage() {
   const { slug } = useParams(); // Get slug from URL
@@ -16,10 +17,14 @@ export default function BlogPage() {
   const [isBannerLoading, setIsBannerLoading] = useState(true);
 
   const path = location.pathname.replace(/^\//, "") || "introduction";
-  console.log(path)
-  const { data: allBlogs, isLoading: loadingAll } = useGetAllBlogsExceptLatestQuery();
+  console.log(path);
+
+  // Fetch blogs based on category or fetch all blogs if no category is selected
   const { data: categoryBlogs, isLoading: loadingCategory } = useGetBlogsByCategoryQuery(selectedCategory, {
     skip: !selectedCategory,
+  });
+  const { data: allBlogs, isLoading: loadingAllBlogs } = useGetAllBlogsQuery(undefined, {
+    skip: !!selectedCategory, // Skip fetching all blogs if a category is selected
   });
 
   // Update selected category when slug changes
@@ -54,9 +59,11 @@ export default function BlogPage() {
     fetchBanner();
   }, [slug, path]); // Add both as dependencies
 
+  const blogs = selectedCategory
+    ? Array.isArray(categoryBlogs) ? categoryBlogs : []
+    : Array.isArray(allBlogs) ? allBlogs : [];
 
-  const blogs = selectedCategory ? categoryBlogs : allBlogs;
-  const isLoading = loadingAll || loadingCategory;
+  const isLoading = loadingCategory || loadingAllBlogs;
 
   return (
     <>
@@ -85,7 +92,6 @@ export default function BlogPage() {
             )}
           </nav>
         </div>
-
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -109,8 +115,10 @@ export default function BlogPage() {
             ))}
           </div>
         ) : (
-          <><h2 className="text-2xl font-bold text-[#995d96] pb-2">Blogs in: "{categoryName}"</h2>
-            <div className="h-1 w-[5%] bg-[#9c5d95]  mb-6"></div></>
+          <>
+            <h2 className="text-2xl font-bold text-[#995d96] pb-2">Blogs in: "{categoryName}"</h2>
+            <div className="h-1 w-[5%] bg-[#9c5d95]  mb-6"></div>
+          </>
         )}
 
         {/* Blog Cards */}
@@ -120,18 +128,24 @@ export default function BlogPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blogs?.map((blog) => (
               <Link to={`/${blog.slug}`} key={blog._id}>
-              <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
-
+                <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
                   <img
                     src={`/api/image/download/${blog.image}`}
                     alt={blog.title}
                     className="h-48 w-full object-cover rounded mb-4"
                   />
                   <h3 className="text-xl font-semibold text-[#052852] mb-2">{blog.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{new Date(blog.date).toLocaleDateString()}</p>
-                  <p className="text-gray-700 mb-4 line-clamp-3">
+                  <div className="flex items-center justify-between ">
+                    <p className="text-sm text-gray-600 ">{new Date(blog.date).toLocaleDateString()}</p>
+                    <div className="flex text-gray-600 items-center gap-1">
+                      <Eye className="w-4 h-4 " />
+                      <p>{blog.visits}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 my-4 line-clamp-3">
                     {blog.details.replace(/<[^>]*>/g, '').slice(0, 120)}...
                   </p>
+
                   <a
                     href={`/${blog.slug}`}
                     className="inline-block bg-[#e84c20] text-white px-4 py-2 rounded hover:bg-[#c83e1b] transition"
