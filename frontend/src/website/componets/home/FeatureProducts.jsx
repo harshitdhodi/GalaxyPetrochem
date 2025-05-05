@@ -37,7 +37,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [event, setEvent] = useState(null);
-  console.log(catalogues, recentProducts)
+  console.log( recentProducts)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -81,7 +81,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
           </div> 
           <p className='py-3 text-gray-400 font-semibold flex flex-wrap gap-2'>
             {/* Explore Fresh Perspectives on Products and Industry Innovations. */}
-            <Link to="/products" className='flex items-center gap-2 text-[#9c5d95] font-semibold'>
+            <Link to="/products" className='sm:flex hidden items-center gap-2 text-[#9c5d95] font-semibold'>
               View All <ArrowRight className="" />
             </Link>
           </p>
@@ -104,7 +104,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                   recentProducts.map((product, index) => (
                     <Link
                       key={index}
-                      to={`/${product.subcategorySlug}/${product.slug}`} // Make the whole card clickable
+                      to={`/${product.subCategorySlug}/${product.slug}`} // Make the whole card clickable
                       className="group overflow-hidden w-full lg:w-[400px] lg:h-[350px] h-[300px] md:w-full md:h-[250px] border rounded-md hover:shadow-lg transition-all duration-300 relative"
                     >
                       <div className="h-full flex flex-col items-center justify-between">

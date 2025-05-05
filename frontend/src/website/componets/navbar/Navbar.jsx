@@ -149,133 +149,121 @@ export default function NavbarComp({ categories }) {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden fixed top-0 left-0 w-full h-screen z-[80] transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
-        >
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-[75]"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+  className={`md:hidden fixed top-0 left-0 w-full h-screen z-[80] transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+>
+  {/* Backdrop */}
+  <div
+    className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[75]"
+    onClick={() => setMobileMenuOpen(false)}
+  />
 
-          {/* Menu Content */}
-          <div className="relative w-full h-full flex flex-col px-4 pb-4 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] z-[80]">
-            <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img
-                  src={logoSrc}
-                  alt="Company Logo"
-                  width="150"
-                  height="50"
-                  className="h-auto w-[150px]"
-                  fetchpriority="high"
+  {/* Menu Content */}
+  <div className="relative w-full h-full flex flex-col px-5 pb-6 space-y-4 overflow-y-auto bg-gradient-to-b from-[#3c8d89] to-[#a75d9e] bg-opacity-70 z-[80] text-white font-medium">
+    
+    {/* Header */}
+    <div className="flex items-center justify-between py-4 border-b border-white/20">
+      <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+        <img
+          src={logoSrc}
+          alt="Company Logo"
+          width="140"
+          className="h-auto"
+        />
+      </Link>
+      <Button
+        variant="ghost"
+        className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <X className="h-6 w-6 text-white" />
+      </Button>
+    </div>
+
+    {/* Main Links */}
+    {[
+      { to: "/", label: "Home", active: isHomeActive },
+      { to: "/about-us", label: "About Us" },
+      { to: "/brands", label: "Brands" },
+      { to: "/blogs", label: "Blogs" },
+      { to: "/contact-us", label: "Contact Us", active: isContactActive },
+    ].map(({ to, label, active }) => (
+      <Link
+        key={label}
+        to={to}
+        onClick={() => setMobileMenuOpen(false)}
+        className={`block px-2 rounded-md transition-all hover:bg-white/20 hover:pl-4 ${active ? "text-orange-600 font-semibold" : ""}`}
+      >
+        {label}
+      </Link>
+    ))}
+
+    {/* Products Dropdown */}
+    <div className="border-t border-white/20 pt-4">
+      <button
+        className="w-full flex items-center justify-between py-2 px-2 rounded-md hover:bg-white/20 transition-all"
+        onClick={() => toggleCategory("products")}
+      >
+        <span>Products</span>
+        <ChevronDown
+          className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <div className={`ml-4 mt-2 transition-all duration-300 ease-in-out overflow-hidden ${openCategories["products"] ? "max-h-[1000px]" : "max-h-0"}`}>
+        {categories?.map((category) => (
+          <div key={category._id} className="mb-2">
+            <button
+              className="w-full flex items-center justify-between text-left text-sm font-semibold py-1 px-2 rounded hover:bg-white/10"
+              onClick={() => toggleCategory(category._id)}
+            >
+              <span>{category.category}</span>
+              {category.subCategories?.length > 0 && (
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""}`}
                 />
-              </Link>
-              <Button
-                variant="ghost"
-                className="text-main_light hover:bg-transparent p-1 border"
+              )}
+            </button>
+
+            <div className={`ml-3 mt-1 transition-all ${openCategories[category._id] ? "block" : "hidden"}`}>
+              <Link
+                to={`/categories/${category.slug}`}
+                className="block py-1 text-white/80 text-sm hover:text-white"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <X className="h-6 w-6" />
-              </Button>
+                All {category.category}
+              </Link>
+              {category.subCategories?.map((sub) => (
+                <Link
+                  key={sub._id}
+                  to={`/categories/${category.slug}/${sub.slug}`}
+                  className="block py-1 text-white/70 text-sm hover:text-white"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  - {sub.category}
+                </Link>
+              ))}
             </div>
-
-            <Link
-              to="/"
-              className={`block pt-5 text-white ${isHomeActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/about-us"
-              className="block  text-white"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About Us
-            </Link>
-
-            {/* Products Dropdown */}
-            <div className="">
-              <button
-                className="block w-full text-left py-2 text-white  flex items-center justify-between"
-                onClick={() => toggleCategory("products")}
-                aria-expanded={openCategories["products"]}
-              >
-                <span>Products</span>
-                <ChevronDown
-                  className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""
-                    }`}
-                />
-              </button>
-              <div
-                className="ml-4 space-y-2 w-full "
-                style={{ display: openCategories["products"] ? "block" : "none" }}
-              >
-                {categories?.map((category) => (
-                  <div key={category._id} className="w-full">
-                    <button
-                      className="block w-full text-left py-1 text-white font-medium flex items-center justify-between"
-                      onClick={() => toggleCategory(category._id)}
-                      aria-expanded={openCategories[category._id]}
-                    >
-                      <span>{category.category}</span>
-                      {category.subCategories?.length > 0 && (
-                        <ChevronDown
-                          className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""
-                            }`}
-                        />
-                      )}
-                    </button>
-                    <div
-                      className="ml-4 space-y-1"
-                      style={{ display: openCategories[category._id] ? "block" : "none" }}
-                    >
-                      <Link
-                        to={`/categories/${category.slug}`}
-                        className="block py-1 text-white text-sm"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {/* All {category.category} */}
-                      </Link>
-                      {category.subCategories?.map((sub) => (
-                        <Link
-                          key={sub._id}
-                          to={`/categories/${category.slug}/${sub.slug}`}
-                          className="block py-1 text-white text-sm"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          - {sub.category}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Link
-              to="/contact-us"
-              className={`block  text-white ${isContactActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-            <div className="w-full flex justify-center items-center">
-             
-            </div>
-            <Button
-              variant="ghost"
-              className="w-full text-white bg-primary rounded-none  hover:text-primary text-sm"
-              onClick={() => {
-                navigate("/advance-search");
-                setMobileMenuOpen(false);
-              }}
-            >
-              Advanced Search
-            </Button>
           </div>
-        </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Advanced Search Button */}
+    <div className="mt-auto pt-4 border-t border-white/20">
+      <Button
+        variant="ghost"
+        className="w-full py-3 mt-2 bg-white text-primary font-semibold rounded-md hover:bg-orange-600 hover:text-white transition-all"
+        onClick={() => {
+          navigate("/advance-search");
+          setMobileMenuOpen(false);
+        }}
+      >
+        Advanced Search
+      </Button>
+    </div>
+  </div>
+</div>
+
       </header>
 
       <main className="w-full mb-10 mx-auto">

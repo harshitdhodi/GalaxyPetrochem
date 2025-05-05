@@ -38,7 +38,7 @@ export default function HomeBlogCom() {
             <div className="h-1 w-[25%] mt-1 bg-[#9c5d95]"></div>
           </div>
           <p className="py-3 text-gray-400 font-semibold flex lg:pr-3 flex-wrap gap-2">
-            <Link to="/blogs" className="flex pr-5 items-center gap-2 text-[#9c5d95] font-semibold">
+            <Link to="/blogs" className="sm:flex hidden pr-5 items-center gap-2 text-[#9c5d95] font-semibold">
               View All <ArrowRight />
             </Link>
           </p>
