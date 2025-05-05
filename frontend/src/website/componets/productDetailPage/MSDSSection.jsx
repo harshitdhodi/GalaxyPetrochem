@@ -28,7 +28,7 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
   }
 
   return (
-    <div className="mt-5 bg-gradient-to-r from-blue-50 to-blue-100 p-5 shadow-md">
+    <div className=" bg-gradient-to-r from-blue-50 to-blue-100 p-5 shadow-md">
       <h2 className="text-xl font-semibold mb-6 text-blue-900 border-b border-blue-200 pb-3">
         {name} MSDS (Material Safety Data Sheet) or SDS, COA and Specs
       </h2>
@@ -38,7 +38,7 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
             <div key={catalogue._id} className="w-full md:w-1/3 lg:w-1/4">
               <Button
                 onClick={() => window.open(`/api/image/view/${specs}`, '_blank')}
-                className="w-full bg-[#e85920] hover:bg-[#0f7aa8] transition-colors duration-300 text-white text-md py-2"
+                className="w-full bg-[#e85920] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-2"
               >
                 Catalogue
               </Button>

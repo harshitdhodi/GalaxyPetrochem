@@ -112,13 +112,13 @@ export default function BrandsPage() {
       </div>
 
       {/* Brands Section */}
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-5">
         <div className="flex items-center mb-6 sm:mb-8">
-          <div className="w-1 h-6 sm:h-8 bg-[#e84c20] mr-3"></div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Featured Brands</h2>
+          <div className="w-1 h-6 sm:h-8 bg-[#a75d9e] mr-3"></div>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#a75d9e]">Featured Brands</h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
           {brands.map((brand, index) => (
             <div
               key={brand._id}
@@ -148,12 +148,12 @@ export default function BrandsPage() {
       {selectedBrand !== null && (
         <section
           ref={productsRef}
-          className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-12 transition-opacity duration-500"
+          className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 mb-12 transition-opacity duration-500"
         >
-          <h2 className="text-xl sm:text-2xl lg:text-3xl heading font-bold text-gray-800 mb-6">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl heading font-bold text-[#a75d9e] mb-6">
             Products from {brands.find((b) => b._id === selectedBrand)?.name}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
             {products.map((product, index) => (
               <div
                 key={product._id}

@@ -1,3 +1,4 @@
+const brands = require("../model/brands");
 const Product = require("../model/petrochemProduct");
 
 // CREATE
@@ -300,10 +301,14 @@ exports.filterProducts = async (req, res) => {
       return res.status(400).json({ message: "Search parameter is required" });
     }
 
-    // Create a regex pattern for case-insensitive search
+    // Create a case-insensitive regex
     const searchRegex = new RegExp(search, "i");
 
-    // Find products that match the search query
+    // Find brand(s) that match the search query
+    const matchingBrands = await brands.find({ name: searchRegex }).select("_id");
+    const matchingBrandIds = matchingBrands.map((brand) => brand._id);
+
+    // Search in products including brand name (through brandId)
     const products = await Product.find({
       $or: [
         { name: searchRegex },
@@ -314,6 +319,7 @@ exports.filterProducts = async (req, res) => {
         { metaTitle: searchRegex },
         { metaDescription: searchRegex },
         { metaKeyword: searchRegex },
+        { brandId: { $in: matchingBrandIds } } // Include this
       ],
     })
       .populate("brandId")
@@ -322,6 +328,7 @@ exports.filterProducts = async (req, res) => {
 
     res.status(200).json(products);
   } catch (error) {
+    console.error("Filter error:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -73,7 +73,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
     <>
       {/* Featured Products Section */}
       <div className="max-w-[78rem]  mx-auto">
-        <div className='pt-4 ml-4 px-3 lg:px-0 xl:ml-0 md:flex md:items-center md:justify-between gap-2 '>
+        <div className='pt-5 ml-4 px-3 lg:px-0 xl:ml-0 md:flex md:items-center md:justify-between gap-2 '>
           <div className="">
             <p className='text-3xl md:text-4xl font-bold  text-[#9c5d95] font-daysOne text-left  md:text-left'>Featured Products</p>
             <div className="h-1 w-[25%] bg-[#9c5d95]"></div>
@@ -144,8 +144,6 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                 )}
               </div>
             </div>
-
-
           </div>
         </div>
       </div>

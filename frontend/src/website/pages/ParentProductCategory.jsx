@@ -74,10 +74,10 @@ function ParentProductCategory() {
         </div>
       </div>
     
-      <div className="container mx-auto px-4 max-w-7xl pt-10">
+      <div className="container mx-auto px-4 max-w-7xl pt-5">
         <h2 className="text-4xl text-[#0a3161] font-bold mb-3">Our Categories</h2>
       </div>
-      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 pb-8 max-w-7xl lg:gap-10">
+      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 pb-5 max-w-7xl lg:gap-10">
         {allCategories.length === 0 ? (
           <p>No categories found.</p>
         ) : (

@@ -22,8 +22,8 @@ const RecentProduct = () => {
   }, [slug]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="container mx-auto px-4 py-5">
+      <div className="mb-5">
         <h2 className="text-2xl lg:text-3xl font-bold mb-2 text-blue-900">
           Recent Products
         </h2>

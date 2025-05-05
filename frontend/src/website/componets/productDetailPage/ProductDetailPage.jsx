@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
         ) : (
           <>
             
-            <div className="lg:flex gap-12 mt-12">
+            <div className="lg:flex gap-12 mt-5">
               <div className="w-full lg:w-1/2  flex flex-col items-center justify-start">
                 <ImageSection images={images} selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
               </div>
@@ -155,7 +155,7 @@ export default function ProductDetailPage() {
                 />
               </div>
             </div>
-            <div className="mt-12 bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-lg shadow-md border border-blue-200">
+            <div className="mt-5 bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-lg shadow-md border border-blue-200">
               <h2 className="text-2xl font-semibold mb-6 text-blue-900 border-b border-blue-200 pb-3">
                 Product Description
               </h2>

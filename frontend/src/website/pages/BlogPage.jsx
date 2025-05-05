@@ -94,10 +94,10 @@ export default function BlogPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 py-5">
         {/* Conditionally show filter or title */}
         {!slug ? (
-          <div className="flex flex-wrap gap-4 justify-start mb-10">
+          <div className="flex flex-wrap gap-4 justify-start mb-5">
             <button
               onClick={() => setSelectedCategory(null)}
               className={`px-8 py-2 rounded-full border ${!selectedCategory ? 'bg-[#e84c20] text-white' : 'bg-white text-gray-700'} hover:bg-[#e84c20] hover:text-white transition`}
