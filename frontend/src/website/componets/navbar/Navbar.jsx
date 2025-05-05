@@ -266,7 +266,7 @@ export default function NavbarComp({ categories }) {
 
       </header>
 
-      <main className="w-full mb-10 mx-auto">
+      <main className="w-full  mx-auto">
         <Outlet />
       </main>
       <Footer />

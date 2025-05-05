@@ -59,7 +59,7 @@ export default function CategoryCards({ categories }) {
         <div className="h-1 w-[15%] bg-[#9c5d95]"></div>
       </div>
 
-      <div className="w-full mt-7 flex flex-col justify-center items-center overflow-x-auto pb-6">
+      <div className="w-full mt-7 flex flex-col justify-center items-center overflow-x-auto ">
         <div className="grid gap-6 lg:max-w-[81rem] h-auto w-full px-4 md:px-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 justify-center">
           {loading
             ? [...Array(8)].map((_, i) => <SkeletonCard key={i} />)

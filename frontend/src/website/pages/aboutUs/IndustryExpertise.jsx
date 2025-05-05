@@ -44,9 +44,9 @@ export default function IndustryExpertise() {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-5 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-6 max-w-[80rem]">
-        <div className="text-center mb-16">
+        <div className="text-center mb-5">
           <h2 className="text-4xl font-bold text-[#985d97] mb-4">{heading}</h2>
           <div className="w-24 h-1 bg-[#e95821] mx-auto mb-4"></div>
           <p className="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">{subHeading}</p>
@@ -86,7 +86,7 @@ function ExpertiseCard({ item, isHovered, onMouseEnter, onMouseLeave }) {
     >
       <div className={`h-full flex flex-col bg-white border-t-4 ${item.borderColor}`}>
         <div className="p-8 flex-grow">
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-5">
             <div
               className={`h-12 w-12 ${item.bgColor} text-white rounded-lg flex items-center justify-center mr-4 shadow-md`}
             >

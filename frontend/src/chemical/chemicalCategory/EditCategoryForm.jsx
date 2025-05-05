@@ -271,7 +271,7 @@ const EditCategory = () => {
         <label htmlFor="category" className="block font-semibold mb-2">
           Category
         </label>
-        <textarea
+        <input
           id="category"
           value={category}
           onChange={handleInputChange(setCategory)}
@@ -279,7 +279,7 @@ const EditCategory = () => {
           rows="3"
           required
           ref={activeInputRef}
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-8">
         <label htmlFor="photo" className="block font-semibold mb-2">Photo</label>
@@ -307,25 +307,25 @@ const EditCategory = () => {
             </button>
             <div className="mb-4">
               <label htmlFor="alt" className="block font-semibold mb-2">Alternative Text</label>
-              <textarea
+              <input
                 id="alt"
                 value={altText}
                 onChange={handleInputChange(setAltText)}
                 className="w-full p-2 border rounded"
                 rows="3"
                 required
-              ></textarea>
+              ></input>
             </div>
             <div className="mb-4">
               <label htmlFor="imgtitle" className="block font-semibold mb-2">Image Title Text</label>
-              <textarea
+              <input
                 id="imgtitle"
                 value={imgtitle}
                 onChange={handleInputChange(setImgtitle)}
                 className="w-full p-2 border rounded"
                 rows="3"
                 required
-              ></textarea>
+              ></input>
             </div>
           </div>
         )}
@@ -335,13 +335,13 @@ const EditCategory = () => {
         <label htmlFor="slug" className="block font-semibold mb-2">
           Slug
         </label>
-        <textarea
+        <input
           id="slug"
           value={slug}
           onChange={handleInputChange(setSlug)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4 mt-4">
         <label htmlFor="url" className="block font-semibold mb-2">
@@ -359,85 +359,85 @@ const EditCategory = () => {
         <label htmlFor="metatitle" className="block font-semibold mb-2">
           Meta Title
         </label>
-        <textarea
+        <input
           id="metatitle"
           value={metatitle}
           onChange={handleInputChange(setMetatitle)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="metadescription" className="block font-semibold mb-2">
           Meta Description
         </label>
-        <textarea
+        <input
           id="metadescription"
           value={metadescription}
           onChange={handleInputChange(setMetadescription)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="metakeywords" className="block font-semibold mb-2">
           Meta Keywords
         </label>
-        <textarea
+        <input
           id="metakeywords"
           value={metakeywords}
           onChange={handleInputChange(setMetakeywords)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="metacanonical" className="block font-semibold mb-2">
           Meta Canonical
         </label>
-        <textarea
+        <input
           id="metacanonical"
           value={metacanonical}
           onChange={handleInputChange(setMetacanonical)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="metalanguage" className="block font-semibold mb-2">
           Meta Language
         </label>
-        <textarea
+        <input
           id="metalanguage"
           value={metalanguage}
           onChange={handleInputChange(setMetalanguage)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="otherMeta" className="block font-semibold mb-2">
           Other Meta
         </label>
-        <textarea
+        <input
           id="otherMeta"
           value={otherMeta}
           onChange={handleInputChange(setOthermeta)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="metaschema" className="block font-semibold mb-2">
           Schema
         </label>
-        <textarea
+        <input
           id="metaschema"
           value={metaschema}
           onChange={handleInputChange(setMetaschema)}
           className="w-full p-2 border rounded"
           rows="3"
-        ></textarea>
+        ></input>
       </div>
       <div className="mb-4">
         <label htmlFor="priority" className="block font-semibold mb-2">

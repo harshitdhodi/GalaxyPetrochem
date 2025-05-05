@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 const ReadMoreButton = ({ lcpImageLoaded }) => {
   return (
     <div
-      className={`absolute w-full top-1/2 md:mb-5 transform -translate-y-1/2 px-4 sm:px-[15%] ${!lcpImageLoaded ? "hidden" : ""}`}
+      className={`absolute w-full top-1/2 lg:bottom-3 md:mb-5 transform -translate-y-1/2 px-4 sm:px-[15%] ${!lcpImageLoaded ? "hidden" : ""}`}
     >
       <Link to="/about-us">
         <Button className="bg-[#e95821] hover:bg-[#e7571f] hover:shadow-lg text-xs sm:text-sm md:text-base font-medium sm:font-bold px-3 py-1 sm:px-4 sm:py-2 md:px-5 relative -bottom-52 md:py-2 sm:flex items-center sm:mb-16 hidden gap-1 sm:gap-2">

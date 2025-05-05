@@ -9,8 +9,8 @@ function ProductSection({ title, image, subcategories, slug }) {
   };
 
   return (
-    <div className="lg:mb-12 mt-5">
-      <div className="flex  custom930:flex-row  items-center justify-between mb-4">
+    <div className=" ">
+      <div className="flex  custom930:flex-row  items-center justify-between mb-5">
         <div>
           <h2 className="text-2xl font-bold text-[#0a3161] mb-2">{title}</h2>
           <div className="h-1 w-16 bg-[#0a3161] "></div>

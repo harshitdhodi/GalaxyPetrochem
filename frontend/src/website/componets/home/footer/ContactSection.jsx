@@ -24,7 +24,7 @@ export default function ContactSection({ contactInfo, navigate }) {
               {contactInfo.mobiles && contactInfo.mobiles.length > 0 ? (
                 <>
                   <span>{contactInfo.mobiles[0]}</span>
-                  {contactInfo.mobiles[1] && <span>, {contactInfo.mobiles[1]}</span>}
+                  {contactInfo.mobiles[1] && <span> <br/> {contactInfo.mobiles[1]}</span>}
                 </>
               ) : (
                 'No contact numbers available'

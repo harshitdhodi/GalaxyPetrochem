@@ -46,7 +46,7 @@ export function MissionVision() {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 py-16">
+    <section className="relative min-h-screen/2  flex items-center justify-center px-4 py-16">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/80 z-10" />
@@ -65,7 +65,7 @@ export function MissionVision() {
       <div className="relative z-20 w-full max-w-6xl text-white text-center">
         {/* Header */}
         <div className="mb-12 xl:-mt-12">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl mt-5 font-bold tracking-tight mb-4">
             {data.heading || "Our Mission & Vision"}
           </h2>
           <div className="h-1 w-24 bg-[#7d5ea7] mx-auto rounded-full mb-4"></div>

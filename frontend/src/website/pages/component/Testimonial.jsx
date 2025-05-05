@@ -52,13 +52,13 @@ export default function TestimonialSection() {
   }
 
   return (
-    <section className="sm:py-16 py-8 px-4 relative overflow-hidden">
+    <section className="sm:pt-5 py-8 px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#2860da]/10 via-white to-[#9e5d94]/10 -z-10" />
       <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-[#e84c20]/5 -z-10" />
       <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-[#2860da]/5 -z-10" />
 
       <div className="max-w-[79rem] mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-5">
           <h2 className="text-3xl md:text-4xl font-bold pb-4 text-[#9c5d95] bg-clip-text">
             What Our Clients Say
           </h2>

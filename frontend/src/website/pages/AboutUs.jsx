@@ -27,7 +27,7 @@ export default function PetrochemicalAboutUs() {
   }, [path]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen mb-2 bg-white">
     
     <div className="relative">
            {/* Banner */}

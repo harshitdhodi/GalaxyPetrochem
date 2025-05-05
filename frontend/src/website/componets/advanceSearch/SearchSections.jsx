@@ -28,9 +28,9 @@ function SearchCategorySection({ title, slug }) {
   return (
     <div className="bg-gray-100/80 p-6 space-y-4">
       <h2 className="text-xl font-medium">{title}</h2>
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         <Select onValueChange={(value) => setSelectedCategory(value)}>
-          <SelectTrigger className="bg-white">
+          <SelectTrigger className="bg-white mb-[60px]">
             <SelectValue placeholder="Select sub category" />
           </SelectTrigger>
           <SelectContent>
@@ -47,6 +47,7 @@ function SearchCategorySection({ title, slug }) {
             )}
           </SelectContent>
         </Select>
+        
         <Button
           className="w-full bg-[#e85920] hover:bg-[#e85920]"
           onClick={handleSubmit}
@@ -73,7 +74,7 @@ export default function SearchSections() {
     const formattedSearchTerm = searchTerm.toLowerCase().replace(/\s+/g, "-");
   
     // Redirect to the search page with query parameters
-    navigate(`/search?tab=${encodeURIComponent(formattedSearchTerm)}`);
+    navigate(`/search?name=${encodeURIComponent(formattedSearchTerm)}`);
   };
   
   
@@ -96,7 +97,7 @@ export default function SearchSections() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="product_name">Product Name</SelectItem>
-              {/* <SelectItem value="product_code">Product Code</SelectItem> */}
+              <SelectItem value="product_code">Brand Name</SelectItem>
               {/* <SelectItem value="cas">CAS Number</SelectItem> */}
             </SelectContent>
           </Select>
@@ -105,10 +106,10 @@ export default function SearchSections() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Enter ${searchType?.replace("_", " ") || "search criteria"}`}
-            className="w-full px-3 py-2 border rounded-md border-input bg-background bg-white"
+            className="w-full px-3 py-2  border rounded-md border-input bg-background bg-white"
           />
           <Button
-            className="w-full bg-[#e85920] hover:bg-[#e85920]"
+            className="w-full  bg-[#e85920] hover:bg-[#e85920]"
             onClick={handleSearchSubmit}
           >
             SUBMIT
