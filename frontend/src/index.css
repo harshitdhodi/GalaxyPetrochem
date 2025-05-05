@@ -13,6 +13,56 @@ img {
   will-change: transform, opacity;
 }
 
+
+/* Optional: Shared editor styles */
+.ql-editor table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ql-editor table td,
+.ql-editor table th {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.ql-editor table tr:nth-child(odd) {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.ql-editor table td:first-child {
+  color: blue;
+}
+
+.translate-container {
+  width: 100%;
+  max-width: 140px;
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  position: relative;
+  z-index: 100;
+}
+
+#google_translate_element {
+  width: 100%;
+  min-height: 30px;
+}
+
+.goog-te-gadget-simple {
+  width: 100% !important;
+  font-size: 14px !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+}
+
+.goog-te-menu-value span {
+  color: #fff !important; /* Ensure text is visible on mobile menu background */
+}
+
 @layer base {
   :root {
 
@@ -156,7 +206,7 @@ img {
 
 @layer components {
   .bg-custom-gradient {
-    @apply bg-gradient-to-l from-main to-[#9e5d94] text-white;
+    @apply bg-gradient-to-l from-[#6c94ec] to-[#0f62ac] text-white;
   }
 }
 
@@ -168,3 +218,4 @@ img {
     @apply bg-background text-foreground;
   }
 }
+

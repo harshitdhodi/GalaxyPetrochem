@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Table, Image, message, Card, Button, Popconfirm, Breadcrumb } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ const SlideShowTable = () => {
   const navigate = useNavigate();
 
   // Fetch data from API
-  useEffect(() => {
+  useEffect(() => {  
     fetchData();
   }, []);
 

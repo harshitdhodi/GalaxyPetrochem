@@ -1,6 +1,6 @@
 // controllers/apiController.js
 const ProductCategory = require('../model/chemicalCategory');
-const Product = require('../model/product');
+const Product = require('../model/petrochemProduct');
 const Catalogue = require('../model/catalogue');
 const AboutUs = require('../model/aboutUs');
 
@@ -16,10 +16,11 @@ const getCategoriesData = async () => {
 const getRecentProductsData = async () => {
   try {
     return await Product.find()
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(6)
-      .populate("category");
+      .populate("brandId categoryId subCategoryId");
   } catch (error) {
+    console.log(error);
     throw new Error(`Error fetching recent products: ${error.message}`);
   }
 };
@@ -51,7 +52,7 @@ exports.getAllHomePage = async (req, res) => {
       getCataloguesData(),
       getAboutUsData(req.query)
     ]);
-console.log(catalogues)
+
     // Respond with a structured object containing all data
     res.status(200).json({
       category:categories,

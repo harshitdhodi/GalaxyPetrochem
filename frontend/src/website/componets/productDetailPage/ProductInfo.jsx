@@ -1,73 +1,63 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
-export default function ProductInfo({ productDetails, name, price, categorySlug }) {
-  // Process the HTML content using useMemo to avoid unnecessary re-processing
-  const { extractedPContent, remainingContent } = useMemo(() => {
-    // Create a temporary div to parse HTML content
+export default function ProductInfo({ tagline, productDetails, name, price, categorySlug }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const { extractedPContent, previewContent, remainingContent } = useMemo(() => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = productDetails;
 
-    // Find the first <p> before a <table>
     const firstP = tempDiv.querySelector('p');
-    const firstTable = tempDiv.querySelector('table');
-
     let extractedPContent = '';
-    
-    if (firstP && (!firstTable || firstP.compareDocumentPosition(firstTable) & Node.DOCUMENT_POSITION_FOLLOWING)) {
-      // Save the content, but don't manipulate the DOM element
+    if (firstP) {
       extractedPContent = firstP.innerHTML;
-      
-      // Remove the extracted <p> from productDetails
       firstP.remove();
     }
 
+    const remainingHtml = tempDiv.innerHTML;
+    const charLimit = 10000; // Show 10,000 characters at a time
+
     return {
       extractedPContent,
-      remainingContent: tempDiv.innerHTML
+      previewContent: remainingHtml.slice(0, charLimit),
+      remainingContent: remainingHtml.slice(charLimit),
     };
   }, [productDetails]);
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-main mb-2">
-        {name} 
+      <h1 className="text-2xl pb-2 font-bold text-[#2e60d7]">
+        {name}
       </h1>
-      <p className="text-lg font-bold text-main">
-        Price : {price}
-        <span className='text-secondary font-semibold'>
-          {categorySlug === "tubes-pipes" ? "/kg" : "/Piece"}
-        </span>
-      </p>
-
-      {/* Apply styles directly to the container for the extracted paragraph */}
       {extractedPContent && (
-        <p className="extracted-paragraph" dangerouslySetInnerHTML={{ __html: extractedPContent }} />
+        <p
+          className="extracted-paragraph text-md text-gray-900"
+          dangerouslySetInnerHTML={{ __html: extractedPContent }}
+        />
       )}
 
-      <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
-        <div 
-          className="custom-product-details overflow-x-auto w-full"
-          dangerouslySetInnerHTML={{ __html: remainingContent }} 
-        />
-      </div>
+      <div
+        className="custom-product-details overflow-x-auto w-full text-gray-800"
+        dangerouslySetInnerHTML={{
+          __html: expanded ? previewContent + remainingContent : previewContent,
+        }}
+      />
 
-      {/* Using global styles instead of scoped styles */}
+      {remainingContent && (
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className="text-blue-600 mt-2 font-semibold border-blue-600 border-b focus:outline-none"
+        >
+          {expanded ? 'See Less' : 'See More'}
+        </button>
+      )}
+
       <style jsx global>{`
-        .extracted-paragraph {
-          margin-bottom: 16px;
-          font-size: 18px;
-          color: #145bc7;
-          font-weight: 600;
-        }
         .custom-product-details table {
           width: max-content;
           min-width: 100%;
           table-layout: fixed;
           border-collapse: collapse;
-        }
-        .custom-product-details {
-          max-width: 100%;
-          overflow-x-auto;
         }
         .custom-product-details tr:nth-child(odd) {
           background-color: #f5f9ff !important;

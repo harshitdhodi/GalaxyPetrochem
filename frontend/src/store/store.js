@@ -21,13 +21,14 @@ import { productInquiryApi } from '@/slice/inquiry/productInquiry';
 import { aboutUsApi } from '../slice/aboutUs/aboutUs';
 import { bannerApi } from '@/slice/banner/banner';
 import { careerApi } from '../slice/career/CareerForm';
-import { worldwideApi } from '../slice/worldwide/worldwide';
+
 import { emailCategoryApi } from '../slice/emailCategory/emailCategory';
 import { logoApi } from '../slice/logo/LogoSlice';
 import { contactInfoApi } from '../slice/contactInfo/contactInfo';
 import { metaApi } from '@/slice/staticMeta/staticMeta';
 import { menuListingApi } from '@/slice/menuListing/menuList';
 import{whatsUpInfoApi} from '@/slice/whatsUpInfo/WhatsUpInfo';
+import { companyInfoApi } from '@/slice/companyInfo/CompanyInfo';
 
 const store = configureStore({
   reducer: {
@@ -51,7 +52,6 @@ const store = configureStore({
     [aboutUsApi.reducerPath]: aboutUsApi.reducer,
     [bannerApi.reducerPath]: bannerApi.reducer,
     [careerApi.reducerPath]: careerApi.reducer,
-    [worldwideApi.reducerPath]: worldwideApi.reducer,
     [emailCategoryApi.reducerPath]: emailCategoryApi.reducer,
     [logoApi.reducerPath]: logoApi.reducer,
     [contactInfoApi.reducerPath]: contactInfoApi.reducer,
@@ -59,7 +59,8 @@ const store = configureStore({
     [menuListingApi.reducerPath]: menuListingApi.reducer,
     [whatsUpInfoApi.reducerPath]:whatsUpInfoApi.reducer ,
     [navigationLinkApi.reducerPath]: navigationLinkApi.reducer,
-    [catalogueApi.reducerPath]: catalogueApi.reducer
+    [catalogueApi.reducerPath]: catalogueApi.reducer,
+    [companyInfoApi.reducerPath]:companyInfoApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -85,7 +86,7 @@ const store = configureStore({
       .concat(aboutUsApi.middleware)
       .concat(bannerApi.middleware)
       .concat(careerApi.middleware)
-      .concat(worldwideApi.middleware)
+  
       .concat(emailCategoryApi.middleware)
       .concat(logoApi.middleware)
       .concat(contactInfoApi.middleware)
@@ -94,6 +95,7 @@ const store = configureStore({
       .concat(whatsUpInfoApi.middleware)
       .concat(navigationLinkApi.middleware)
       .concat(catalogueApi.middleware)
+      .concat(companyInfoApi.middleware)
 });
 
 export default store;

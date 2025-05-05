@@ -4,6 +4,9 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
         extend: {
+            screens: {
+                'custom930': '930px',
+              },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
@@ -24,18 +27,18 @@ module.exports = {
                     DEFAULT: '#E95821', // Primary color
                     foreground: 'hsl(var(--primary-foreground))',
                 },
-				secondary: {
-                    DEFAULT: '#5bb033', // Secondary color
-                    foreground: 'hsl(var(--secondary-foreground))',
-                },
-                main: {
-                    DEFAULT: '#61b0ab', // main color
-                    foreground: 'hsl(var(--secondary-foreground))',
-                },
-				main_light: {
-                    DEFAULT: '#9e5d94', // main color
-                    foreground: 'hsl(var(--secondary-foreground))',
-                },
+				// secondary: {
+                //     DEFAULT: '#5bb033', // Secondary color
+                //     foreground: 'hsl(var(--secondary-foreground))',
+                // },
+                // main: {
+                //     DEFAULT: '#61b0ab', // main color
+                //     foreground: 'hsl(var(--secondary-foreground))',
+                // },
+				// main_light: {
+                //     DEFAULT: '#9e5d94', // main color
+                //     foreground: 'hsl(var(--secondary-foreground))',
+                // },
                 muted: {
                     DEFAULT: 'hsl(var(--muted))',
                     foreground: 'hsl(var(--muted-foreground))',

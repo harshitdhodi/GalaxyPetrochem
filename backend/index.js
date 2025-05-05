@@ -1,4 +1,4 @@
-
+ 
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -11,19 +11,119 @@ const app = express();
 require('dotenv').config();  
 const cookieParser = require('cookie-parser');
 const { generateAllSitemaps } = require('./route/sitemap');
-
+const handleDynamicRoutes = require('./route/serverMeta');
 app.use(cookieParser());
 app.use(express.json());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: '1000mb' }));
+app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
 
+app.get('/sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'sitemap.xml');
+
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/sitemap1.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'sitemap1.xml');
+
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/blog-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'blog-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/category-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'category-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/chemical-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'chemical-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/subcategory-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'subcategory-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+
+app.get('/product-image-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'subcategory-sitemap.xml');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('Sitemap not found');
+    }
+    
+    res.set('Content-Type', 'application/xml');
+    res.send(data);
+  });
+});
+app.use(handleDynamicRoutes);  
 // Custom image optimization route (Cache removed)
 app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;
   const { w = 1200, q = 80, device = 'desktop' } = req.query;
   const imagePath = path.join(__dirname, 'public', 'download', filename);
-
+ 
   try {
     if (!fs.existsSync(imagePath)) return res.status(404).send('Image not found');
 
@@ -45,21 +145,24 @@ app.get('/images/:filename', async (req, res) => {
   }
 });
 
+
+
 // Static file serving with no caching
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false, 
-  lastModified: false, 
+  etag: false,
+  lastModified: false,
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // cache for 1 hour
   }
 }));
+
  
 // API Routes
 const apiRoutes = [
   ['/api/admin', admin],
   ['/api/supplier', require('./route/supplier')],
   ['/api/allHome', require('./route/allHomePage')],
-  
+  ['/api/brand', require('./route/brand')],
   ['/api/chemicalCategory', require('./route/chemicalCategory')],
   ['/api/chemical', require('./route/chemical')],
   ['/api/customer', require('./route/customer')], 
@@ -75,7 +178,7 @@ const apiRoutes = [
   ['/api/image', require('./route/image')],
   ['/api/blogCategory', require('./route/blogCategory')],
   ['/api/blog', require('./route/blog')],
-  ['/api/email', require('./route/email')],
+  ['/api/email', require('./route/email')], 
   ['/api/template', require('./route/emailTemplate')],
   ['/api/productInquiry', require('./route/productInquiry')],
   ['/api/sitemap', require('./route/sitemapRoute')],
@@ -84,7 +187,6 @@ const apiRoutes = [
   ['/api/contactForm', require('./route/contactForm')],
   ['/api/chemicalMail', require('./route/chemicalMail')],
   ['/api/career', require('./route/carrer')],
-  ['/api/worldwide', require('./route/worldwide')],
   ['/api/contactinfo', require('./route/contactinfo')],
   ['/api/emailCategory', require('./route/emailCategory')],
   ['/api/companyLogo', require('./route/companyLogo')],
@@ -99,9 +201,15 @@ const apiRoutes = [
   ['/api/privacy', require('./route/privacy')],
   ['/api/terms', require('./route/termscondition')],
   ['/api/careerInfo', require('./route/careerInfo')],
-  ['/api/product', require('./route/product')]
+  ['/api/product', require('./route/product')],
+  ['/api/companyInfo', require('./route/companyInfo')],
+  ['/api/testimonial', require('./route/testimonial')],
+  ['/api/industry', require('./route/industryExperty')],
+  ['/api/missionVision', require('./route/missionVision')],
+  ['/api/petrochemProduct', require('./route/petroChemProduct')],
+  
 ];
-
+ 
 // Apply routes
 apiRoutes.forEach(([route, handler]) => {
   app.use(route, handler);
@@ -111,7 +219,7 @@ app.use(express.static(path.join(__dirname, 'dist'), {
   etag: false, 
   lastModified: false, 
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Cache-Control', 'dist, max-age=3600'); // cache for 1 hour
   }
 }));
 
@@ -120,7 +228,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// MongoDB Connection
+// MongoDB Connection  
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -129,17 +237,16 @@ mongoose.connect(process.env.DATABASE_URI, {
 }).catch(err => {
   console.error('Failed to connect to MongoDB', err);
 });
- 
 // Server startup 
-const PORT = process.env.PORT || 3028;
+const PORT = process.env.PORT || 3036;
 app.listen(PORT, () => {
   console.log(`Environment Variables:`, {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
   console.log(`Server running on port ${PORT}`);
-  generateAllSitemaps(); // Generate sitemaps on startup
-});
+  // generateAllSitemaps(); // Generate sitemaps on startup
+}); 
 // SMTP Connection Test
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({

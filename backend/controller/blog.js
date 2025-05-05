@@ -210,44 +210,50 @@ const getBlogsByCategory = async (req, res) => {
 };
 
 
-
 const getLatestBlog = async (req, res) => {
-    try {
-      // Find all blogs, populate the category field, and sort by createdAt in descending order
-      const latestBlog = await Blog.find().sort({ createdAt: -1 }).limit(1);
-  
-      // Check if any blogs were found
-      if (latestBlog.length > 0) {
-        res.status(200).json(latestBlog[0]); // Return the latest blog
-      } else {
-        res.status(404).json({ message: 'No blogs found' });
-      }
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+  try {
+    const { slug } = req.query; // e.g. /api/blog/latest?slug=my-current-blog
+
+    const latestBlog = await Blog.find({ slug: { $ne: slug } })
+      .sort({ createdAt: -1 })
+      .limit(1);
+
+    if (latestBlog.length > 0) {
+      res.status(200).json(latestBlog[0]);
+    } else {
+      res.status(404).json({ message: 'No blogs found' });
     }
-  };
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
 
 
 const getAllBlogsExceptLatest = async (req, res) => {
-    try {
-      // First, fetch the latest blog
-      const latestBlog = await Blog.find().sort({ createdAt: -1 }).limit(1);
-      
-      // If the latest blog exists, proceed to fetch all other blogs excluding it
-      if (latestBlog.length > 0) {
-        const allBlogsExceptLatest = await Blog.find({
-          _id: { $ne: latestBlog[0]._id } // Exclude the latest blog by its ID
-        });
-  
-        res.status(200).json(allBlogsExceptLatest);
-      } else {
-        res.status(404).json({ message: 'No blogs found' });
+  try {
+      // Get the slug from the query parameter
+      const { slug } = req.query;
+
+      if (!slug) {
+          return res.status(400).json({ message: 'Slug query parameter is required' });
       }
-    } catch (error) {
+
+      // Fetch all blogs except the one with the provided slug
+      const allBlogsExceptSlug = await Blog.find({
+          slug: { $ne: slug } // Exclude the blog with the provided slug
+      });
+
+      if (allBlogsExceptSlug.length === 0) {
+          return res.status(404).json({ message: 'No other blogs found' });
+      }
+
+      res.status(200).json(allBlogsExceptSlug);
+  } catch (error) {
       res.status(500).json({ message: 'Server error', error });
-    }
-  };
-  
+  }
+};
+
 const getBlogBySlug = async (req, res) => {
     const { slug } = req.query;  // Extract the slug from the query parameters
   
@@ -262,7 +268,34 @@ const getBlogBySlug = async (req, res) => {
     }
   };
   
+// Increment blog visits and track unique client IPs
+const incrementBlogVisits = async (req, res) => {
+  const { id, clientIP } = req.query; // or req.body if you're using body data
 
+  try {
+    if (!id || !clientIP) {
+      return res.status(400).json({ message: 'Blog ID and client IP are required' });
+    }
+
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    if (!blog.viewedIPs.includes(clientIP)) {
+      blog.visits += 1;
+      blog.viewedIPs.push(clientIP);
+      await blog.save();
+    }
+
+    res.status(200).json(blog);
+  } catch (error) {
+    console.error('Error incrementing blog visits:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+  
 module.exports = {
   createBlog,
   getAllBlogs,
@@ -272,6 +305,7 @@ module.exports = {
   getBlogsByCategory,
   getLatestBlog ,
   getAllBlogsExceptLatest,
-  getBlogBySlug
+  getBlogBySlug,
+  incrementBlogVisits
 
 };

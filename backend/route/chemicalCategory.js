@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { insertCategory, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory, fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq,
-    getSpecificSubcategoryBySlug,
+const { insertCategory,getAllCategories,getAllSubcategories, insertSubCategory, insertSubSubCategory, updateCategory, updateSubCategory, updatesubsubcategory, deletecategory, deletesubcategory, deletesubsubcategory, getAll, getSpecificCategory, getSpecificSubcategory, getSpecificSubSubcategory, fetchCategoryUrlPriorityFreq, editCategoryUrlPriorityFreq,
+    getSpecificSubcategoryBySlug,getAllCategoriesWithProducts,
     fetchCategoryUrlPriorityFreqById,getSpecificCategoryById, fetchCategoryUrlmeta, editCategoryUrlmeta, fetchCategoryUrlmetaById } = require("../controller/chemicalCategory")
 
 const { requireAuth } = require("../middleware/requireAuth")
@@ -16,6 +16,9 @@ router.delete('/deletecategory', deletecategory)
 router.delete('/deletesubcategory', deletesubcategory)
 router.delete('/deletesubsubcategory', deletesubsubcategory)
 router.get('/getAll', getAll)
+router.get('/getAllCategories', getAllCategories)
+router.get('/getAllSubcategories', getAllSubcategories)
+router.get('/getAllCategoriesWithProducts', getAllCategoriesWithProducts)
 router.get('/getSpecificCategory', getSpecificCategory)
 router.get('/getSpecificSubcategory', getSpecificSubcategory)
 router.get('/getSpecificSubSubcategory', getSpecificSubSubcategory)

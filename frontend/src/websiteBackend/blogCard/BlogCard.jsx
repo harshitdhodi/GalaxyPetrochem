@@ -89,13 +89,12 @@ const BlogCardForm = () => {
               [{ list: 'ordered' }, { list: 'bullet' }],
               ['bold', 'italic', 'underline', 'blockquote'],
               [{ align: [] }],
-              ['link', 'image', 'video'],
               ['clean']
             ]
           }}
           formats={[
             'header', 'font', 'list', 'bold', 'italic', 'underline',
-            'blockquote', 'align', 'link', 'image', 'video'
+            'blockquote', 'align'
           ]}
         />
       </Form.Item>

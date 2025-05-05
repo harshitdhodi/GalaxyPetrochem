@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'; // Import PropTypes
+
 export default function CountriesTable({ data, isIndiaTable = false }) {
     const chunkArray = (arr, size) => {
         const chunkedArr = [];
@@ -95,3 +97,15 @@ export default function CountriesTable({ data, isIndiaTable = false }) {
         </div>
     );
 }
+
+// Add PropTypes validation for CountriesTable
+CountriesTable.propTypes = {
+    data: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string,
+            state: PropTypes.string,
+            cities: PropTypes.arrayOf(PropTypes.string),
+        })
+    ).isRequired, // Validate data as an array of objects with specific structure
+    isIndiaTable: PropTypes.bool, // Validate isIndiaTable as a boolean
+};

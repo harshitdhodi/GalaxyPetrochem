@@ -139,7 +139,7 @@ const StaticMetaForm = () => {
         <Form.Item
           name="metaTitle"
           label="Meta Title"
-          rules={[{ required: true, message: "Please enter meta title" }]}
+          rules={[{ required: false, message: "Please enter meta title" }]}
         >
           <Input placeholder="Enter Meta Title" />
         </Form.Item>
@@ -147,7 +147,7 @@ const StaticMetaForm = () => {
         <Form.Item
           name="metaDescription"
           label="Meta Description"
-          rules={[{ required: true, message: "Please enter meta description" }]}
+          rules={[{ required: false, message: "Please enter meta description" }]}
         >
           <Input.TextArea placeholder="Enter Meta Description" rows={4} />
         </Form.Item>
@@ -155,7 +155,7 @@ const StaticMetaForm = () => {
         <Form.Item
           name="metaKeyword"
           label="Meta Keywords"
-          rules={[{ required: true, message: "Please enter meta keywords" }]}
+          rules={[{ required: false, message: "Please enter meta keywords" }]}
         >
           <Input placeholder="Enter Meta Keywords" />
         </Form.Item>

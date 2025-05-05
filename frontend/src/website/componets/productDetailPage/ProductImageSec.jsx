@@ -2,9 +2,9 @@ export default function ImageSection({ images, selectedImage, setSelectedImage }
   console.log(images); // To verify the structure of the images array
 
   return (
-    <div className="sm:w-[80%] md:w-[100%] mb-5 lg:mb-0">
+    <div className="sm:w-[80%] md:w-[100%]  lg:mt-2">
       {/* Main Image Section */}
-      <div className="border items-center flex justify-center p-5 overflow-hidden mb-4 lg:h-[400px] md:h-[300px] h-[200px]">
+      <div className="border items-center flex justify-center  overflow-hidden mb-4 lg:h-[400px] md:h-[300px] h-[200px]">
         <img
           src={images[selectedImage]?.url ? `/api/image/download/${images[selectedImage].url}` : "https://via.placeholder.com/300x300?text=No+Image+Available"}
           alt={images[selectedImage]?.alt || "Chemical bottles with blue liquid"}
@@ -13,7 +13,7 @@ export default function ImageSection({ images, selectedImage, setSelectedImage }
       </div>
 
       {/* Thumbnail Section */}
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         {images.map((img, index) => (
           <button
             key={index}
@@ -25,11 +25,11 @@ export default function ImageSection({ images, selectedImage, setSelectedImage }
             <img
               src={img.url ? `/api/image/download/${img.url}` : "https://via.placeholder.com/150x150?text=No+Thumbnail"}
               alt={img.alt || `Thumbnail ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

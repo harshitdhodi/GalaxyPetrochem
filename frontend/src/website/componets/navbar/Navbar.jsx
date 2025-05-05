@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Search, UserCircle, LogIn, Menu, X } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetAllCategoriesQuery } from "@/slice/blog/blogCategory";
 import SearchBar from "./SearchBar";
 import Footer from "../home/Footer";
 import { useGetLogoQuery } from "@/slice/logo/LogoSlice";
 import NavSection from "./NavSection";
+import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const [mobileMenuState, setMobileMenuState] = useState({
-    open: false,
-    categoryDropdown: null,
-  });
+  const [openCategories, setOpenCategories] = useState({});
 
   const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery();
 
@@ -33,11 +30,14 @@ export default function NavbarComp({ categories }) {
 
   const navigate = useNavigate();
 
+  // Log categories for debugging
+  console.log("Categories:", categories);
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollPercent =
         (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      setIsSticky(scrollPercent >= 10);
+      setIsSticky(scrollPercent >= 0);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -46,14 +46,14 @@ export default function NavbarComp({ categories }) {
 
   const { data: logoData } = useGetLogoQuery();
 
-  // Preload the logo image with proper attributes
+  // Preload the logo image
   useEffect(() => {
     if (logoData?.headerLogo) {
       const preloadLink = document.createElement("link");
       preloadLink.rel = "preload";
       preloadLink.href = `/api/logo/download/${logoData.headerLogo}`;
       preloadLink.as = "image";
-      preloadLink.type = "image/svg+xml"; // Specify SVG type for better browser handling
+      preloadLink.type = "image/svg+xml";
       document.head.appendChild(preloadLink);
     }
   }, [logoData?.headerLogo]);
@@ -74,46 +74,62 @@ export default function NavbarComp({ categories }) {
     }
   }, [logoData?.favIcon]);
 
-  // Memoize the logo source to prevent recalculations
+  // Prevent body scrolling when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const logoSrc = useMemo(() => {
     return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : "";
   }, [logoData?.headerLogo]);
 
-  // Optimized LogoComponent with inline SVG or image fallback
-  const LogoComponent = React.memo(({ src, alt, title }) => {
-    return (
-      
-      <img
-        src={src}
-        alt={alt}
-        title={title}
-        width="150" // Explicit width to prevent layout shift
-        height="50" // Adjust based on actual aspect ratio of your logo
-        loading="eager"
-        className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
-        fetchpriority="high" // Prioritize loading
-      />
-    );
-  });
+  const LogoComponent = React.memo(({ src, alt, title }) => (
+    <img
+      src={src}
+      alt={alt}
+      title={title}
+      width="150"
+      height="50"
+      loading="eager"
+      className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
+      fetchpriority="high"
+    />
+  ));
+
+  const toggleCategory = (categoryId) => {
+    setOpenCategories((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
+  };
 
   return (
     <>
-      <header className={`w-full  relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
+      <header className={`w-full relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
         <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
           </Link>
-          <div className="w-1/2 md:mt-0 hidden md:block">
+          <div className="hidden md:flex items-center gap-4 w-1/2 justify-end">
             <SearchBar />
+            <div className="translate-container w-auto max-w-[120px]">
+              <GoogleTranslate />
+            </div>
           </div>
           <div className="flex items-center md:hidden">
-            <div className="w-full">
-              <SearchBar />
-            </div>
+            <SearchBar />
             <Button
               variant="ghost"
-              className="text-main hover:text-secondary hover:bg-transparent p-2"
+              className="text-main hover:bg-transparent p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -131,131 +147,129 @@ export default function NavbarComp({ categories }) {
           setMobileMenuOpen={setMobileMenuOpen}
         />
 
-        {/* Mobile Menu with CSS Animation */}
+        {/* Mobile Menu */}
         <div
-          className={`
-            md:hidden fixed top-0 left-0 right-0 w-full z-[80]
-            transition-all duration-300 ease-in-out
-            ${
-              mobileMenuOpen
-                ? "opacity-100 h-screen"
-                : "opacity-0 h-0 pointer-events-none overflow-hidden"
-            }
-          `}
-        >
-          {/* Backdrop */}
-          <div
-            className="fixed bg-black bg-opacity-50 z-[75]"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+  className={`md:hidden fixed top-0 left-0 w-full h-screen z-[80] transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+>
+  {/* Backdrop */}
+  <div
+    className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[75]"
+    onClick={() => setMobileMenuOpen(false)}
+  />
 
-          {/* Menu Content */}
-          <div className="relative h-[100vh] w-full px-4 pb-2 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94]">
-            <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                <img
-                  src={logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""}
-                  alt="Company Logo"
-                  width="150" // Explicit width for mobile logo
-                  height="50" // Adjust based on actual aspect ratio
-                  className="h-auto w-[150px]"
-                  fetchpriority="high"
+  {/* Menu Content */}
+  <div className="relative w-full h-full flex flex-col px-5 pb-6 space-y-4 overflow-y-auto bg-gradient-to-b from-[#3c8d89] to-[#a75d9e] bg-opacity-70 z-[80] text-white font-medium">
+    
+    {/* Header */}
+    <div className="flex items-center justify-between py-4 border-b border-white/20">
+      <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+        <img
+          src={logoSrc}
+          alt="Company Logo"
+          width="140"
+          className="h-auto"
+        />
+      </Link>
+      <Button
+        variant="ghost"
+        className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <X className="h-6 w-6 text-white" />
+      </Button>
+    </div>
+
+    {/* Main Links */}
+    {[
+      { to: "/", label: "Home", active: isHomeActive },
+      { to: "/about-us", label: "About Us" },
+      { to: "/brands", label: "Brands" },
+      { to: "/blogs", label: "Blogs" },
+      { to: "/contact-us", label: "Contact Us", active: isContactActive },
+    ].map(({ to, label, active }) => (
+      <Link
+        key={label}
+        to={to}
+        onClick={() => setMobileMenuOpen(false)}
+        className={`block px-2 rounded-md transition-all hover:bg-white/20 hover:pl-4 ${active ? "text-orange-600 font-semibold" : ""}`}
+      >
+        {label}
+      </Link>
+    ))}
+
+    {/* Products Dropdown */}
+    <div className="border-t border-white/20 pt-4">
+      <button
+        className="w-full flex items-center justify-between py-2 px-2 rounded-md hover:bg-white/20 transition-all"
+        onClick={() => toggleCategory("products")}
+      >
+        <span>Products</span>
+        <ChevronDown
+          className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <div className={`ml-4 mt-2 transition-all duration-300 ease-in-out overflow-hidden ${openCategories["products"] ? "max-h-[1000px]" : "max-h-0"}`}>
+        {categories?.map((category) => (
+          <div key={category._id} className="mb-2">
+            <button
+              className="w-full flex items-center justify-between text-left text-sm font-semibold py-1 px-2 rounded hover:bg-white/10"
+              onClick={() => toggleCategory(category._id)}
+            >
+              <span>{category.category}</span>
+              {category.subCategories?.length > 0 && (
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""}`}
                 />
-              </Link>
-              <button
-                variant="ghost"
-                className="text-main_light hover:text-secondary hover:bg-transparent p-1 border"
+              )}
+            </button>
+
+            <div className={`ml-3 mt-1 transition-all ${openCategories[category._id] ? "block" : "hidden"}`}>
+              <Link
+                to={`/categories/${category.slug}`}
+                className="block py-1 text-white/80 text-sm hover:text-white"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <X className="h-6 w-6" />
-              </button>
+                All {category.category}
+              </Link>
+              {category.subCategories?.map((sub) => (
+                <Link
+                  key={sub._id}
+                  to={`/categories/${category.slug}/${sub.slug}`}
+                  className="block py-1 text-white/70 text-sm hover:text-white"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  - {sub.category}
+                </Link>
+              ))}
             </div>
-
-            <Link
-              to="/"
-              className={`block py-2 text-white hover:text-secondary ${isHomeActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/corporate"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Corporate
-            </Link>
-
-            {/* Products Dropdown */}
-            <div>
-              <button
-                className="block w-full text-left py-2 text-white hover:text-secondary"
-                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              >
-                Products
-              </button>
-              {categoryDropdownOpen && (
-                <div className="pl-4 space-y-2 bg-white rounded-md shadow-md">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      to={`/${category.slug}`}
-                      className="block py-1 text-main text-md hover:text-secondary"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Link
-              to="/worldwide"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Worldwide
-            </Link>
-            <Link
-              to="/careers"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Careers
-            </Link>
-            <Link
-              to="/events"
-              className="block py-2 text-white hover:text-secondary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Events
-            </Link>
-            <Link
-              to="/contact-us"
-              className={`block py-2 text-white hover:text-secondary ${isContactActive ? "text-primary" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-            <Button
-              variant="ghost"
-              className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
-              onClick={() => {
-                navigate("/advance-search");
-                setMobileMenuOpen(false);
-              }}
-            >
-              Advanced Search
-            </Button>
           </div>
-        </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Advanced Search Button */}
+    <div className="mt-auto pt-4 border-t border-white/20">
+      <Button
+        variant="ghost"
+        className="w-full py-3 mt-2 bg-white text-primary font-semibold rounded-md hover:bg-orange-600 hover:text-white transition-all"
+        onClick={() => {
+          navigate("/advance-search");
+          setMobileMenuOpen(false);
+        }}
+      >
+        Advanced Search
+      </Button>
+    </div>
+  </div>
+</div>
+
       </header>
 
-      <main className="w-full mb-10 mx-auto">
+      <main className="w-full  mx-auto">
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 }

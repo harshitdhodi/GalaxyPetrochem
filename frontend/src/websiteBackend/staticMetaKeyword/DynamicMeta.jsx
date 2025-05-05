@@ -82,8 +82,8 @@ console.log(categoryResponse.data)
       }
     };
 
-    fetchMetaData();
-  }, [location]);
+    fetchMetaData(); 
+  }, [location.pathname]);
 
   useEffect(() => {
     document.title = metaTitle;

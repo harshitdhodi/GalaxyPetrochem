@@ -34,15 +34,15 @@ exports.createInquiry = async (req, res) => {
             status: req.body.status || "New Inquiry",
             source: req.body.source || "",
         };
-
+        console.log("Inquiry Data:", inquiryData);
         // Save Inquiry to Database
         const inquiry = new Inquiry(inquiryData);
         await inquiry.save();
 
-        console.log("Owner Email:", inquiryData.ownerEmail || "Not provided");
+
 
         // Fetch SMTP Configuration
-        const { data: smtpResponse } = await axios.get("http://localhost:3028/api/smtp/get");
+        const { data: smtpResponse } = await axios.get("http://localhost:3001/api/smtp/get");
         const smtpConfig = smtpResponse.data?.[0];
 
         if (!smtpConfig || !smtpConfig.host) {
@@ -50,7 +50,7 @@ exports.createInquiry = async (req, res) => {
         }
 
         // Fetch Email Templates
-        const { data: emailTemplateResponse } = await axios.get("http://localhost:3028/api/template/get");
+        const { data: emailTemplateResponse } = await axios.get("http://localhost:3001/api/template/get");
         const emailTemplates = emailTemplateResponse.data;
 
         if (!emailTemplates || emailTemplates.length === 0) {
@@ -118,12 +118,12 @@ exports.createInquiry = async (req, res) => {
                             <tr>
                                 <td style="padding-top: 20px;">
                                     <p>Please review the inquiry details in your dashboard.</p>
-                                    <p>Best Regards,<br><strong>Your Business Team</strong></p>
-                                </td>
+                                   
+                                </td>   
                             </tr>
                             <tr>
                                 <td align="center" style="font-size: 14px; color: #888; padding-top: 15px; border-top: 1px solid #ddd;">
-    <p>&copy; <span id="year"></span> Vihaani Enterprise. All rights reserved.</p>
+    <p>&copy; <span id="year"></span>Galaxy Petrochemical. All rights reserved.</p>
 </td>
 
 <script>
@@ -211,7 +211,7 @@ exports.getTodayInquiries = async (req, res) => {
         startOfDay.setHours(0, 0, 0, 0); // Set to 12:00:00 AM
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999); // Set to 11:59:59 PM
-        console.log(startOfDay , endOfDay)
+        console.log(startOfDay, endOfDay)
         // Fetch inquiries created today
         const todayInquiries = await Inquiry.find({
             createdAt: {

@@ -1,27 +1,71 @@
-import React from 'react'
-// import Slideshow from './../componets/home/SlideShow';
-// import NavigationMenu from '../componets/home/NavigationMenu';
+import  { useEffect, useState } from 'react';
 import CategoryCards from '../componets/home/CategoryCards';
 import FeaturedProducts from '../componets/home/FeatureProducts';
-import CorporateProfile from '../componets/home/CorporateProfile';
-import Footer from '../componets/home/Footer';
-import Slideshow from '../componets/home/slideshow/SlideShow';
-import NavigationMenu from '../componets/home/navigation/Navigation';
-import CompanyInfo from '../componets/home/CompanyInfo';
-// import FeaturedProducts from '../componets/home/feature/FeatureProducts';
+import Slideshow from '../componets/home/SlideShow';
+import CompanyInfo from '../componets/home/CompanyInfo.jsx';
+import axios from 'axios';
+import TestimonialSection from './component/Testimonial.jsx';
+import HomeBlogCom from './component/HomeMainBlogCom';
 
 const HomePage = () => {
+  const [homeData, setHomeData] = useState({
+    category: [],
+    recentProducts: [],
+    catalogue: [],
+    aboutUs: []
+  });
+
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollY / docHeight) * 100;
+
+      if (scrollPercent > 20 && !hasScrolled) {
+        setHasScrolled(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasScrolled]);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const response = await axios.get('/api/allHome/getAllHomePage');
+        console.log('Home data:', response.data);
+        setHomeData(response.data);
+      } catch (error) {
+        console.error('Error fetching home page data:', error);
+      }
+    };
+
+    if (hasScrolled) {
+      fetchHomeData();
+    }
+  }, [hasScrolled]);
+
   return (
     <div className='w-full'>
-      {/* <h1 className="text-3xl font-bold mb-4 text-center">Responsive Slideshow</h1> */}
       <Slideshow />
       <CompanyInfo />
-      <CategoryCards />
-      <FeaturedProducts />
-      <CorporateProfile />
-     
+      {hasScrolled && (
+        <>
+          <CategoryCards categories={homeData.category} />
+          <FeaturedProducts recentProducts={homeData.recentProducts} catalogues={homeData.catalogue} />
+          <TestimonialSection />
+          <HomeBlogCom />
+        </>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

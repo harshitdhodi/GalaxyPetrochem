@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
 // Initialize multer with defined storage options and file size limits
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Limit file size to 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
   fileFilter: function (req, file, cb) {
     // Check if file is an image or SVG
     if (!file.mimetype.startsWith('image/') && file.mimetype !== 'image/svg+xml') {
@@ -75,10 +75,11 @@ const uploadLogo = async (req, res, next) => {
   try {
     const uploadFields = upload.fields([
       { name: 'headerLogo', maxCount: 1 },
+      { name: 'footerLogo', maxCount: 1 },
       { name: 'favIcon', maxCount: 1 },
       { name: 'icon', maxCount: 1 },
-      {name :"photo"}
-    ]); 
+      { name: 'photo', maxCount: 1 }
+    ]);
 
     uploadFields(req, res, async (err) => {
       if (err) {
@@ -115,4 +116,4 @@ const uploadLogo = async (req, res, next) => {
   }
 };
 
-module.exports = { uploadLogo }; 
+module.exports = { uploadLogo };

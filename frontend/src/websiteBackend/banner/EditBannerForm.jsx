@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, message, Upload, Select, Breadcrumb } from 'antd';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useGetBannerByIdQuery, useUpdateBannerMutation } from '../../slice/banner/banner';
+import { useGetBannerByIdQuery, useUpdateBannerMutation ,useGetAllBannersQuery } from '../../slice/banner/banner';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { UploadOutlined, HomeOutlined } from '@ant-design/icons';
@@ -18,6 +18,7 @@ const EditBannerForm = () => {
     const [menuList, setMenuList] = useState([]);
     const { data: banner, isLoading, refetch } = useGetBannerByIdQuery(id);
     const [updateBanner] = useUpdateBannerMutation();
+    const { refetch: refetchAllBanners } = useGetAllBannersQuery();
 
     useEffect(() => {
         // Fetch menu list for pageSlug dropdown
@@ -110,6 +111,7 @@ const EditBannerForm = () => {
 
             message.success('Banner updated successfully');
             refetch(); // Refetch the banner data to get the updated data
+            refetchAllBanners();
             navigate('/banner-table');
         } catch (error) {
             console.error(error);

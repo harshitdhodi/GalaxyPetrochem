@@ -34,7 +34,7 @@ const BannerTable = () => {
     },
     {
       title: 'Title',
-      dataIndex: 'imgName',
+      dataIndex: 'title',
       key: 'title',
       width: '20%',
     },

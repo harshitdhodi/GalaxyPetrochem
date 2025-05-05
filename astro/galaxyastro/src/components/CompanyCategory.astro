@@ -1,0 +1,9 @@
+---
+import { BrowserRouter } from 'react-router-dom';
+import CategoryCards from '../react/componets/CategoryCard';
+const data = await fetch('http://localhost:3028/api/allHome/getAllHomePage').then(res => res.json());
+---
+
+<BrowserRouter client:load>
+  <CategoryCards categories={data.category} client:only="react" />
+</BrowserRouter>

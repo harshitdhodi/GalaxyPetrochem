@@ -1,0 +1,46 @@
+---
+// BannerSlider.astro
+// Import the React component
+import BannerSliderClient from '../react/Banner';
+
+// Server-side data fetching
+let banners = [];
+let error = null;
+
+try {
+  const response = await fetch("http://localhost:3028/api/banner/getByPageSlug?pageSlug=/");
+  console.log(response);
+  if (!response.ok) {
+    throw new Error(`API request failed with status ${response.status}`);
+  }
+   
+  const data = await response.json();
+  banners = Array.isArray(data) ? data : data.data || [];
+  
+  if (banners.length === 0) {
+    console.warn("No banner data received from API");
+    // Optionally set fallback data here
+    banners = [{
+      id: 1,
+      imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-l0rYAAkLBQqmle2NMDsVQDqoq1DsvP.png",
+      title: "Industrial Bearings",
+      description: "High-quality bearings for industrial applications",
+      link: "/products/bearings"
+    }];
+  }
+} catch (err) {
+  console.error("Error fetching banner data:", err);
+  error = err.message;
+  // Set fallback banner if API fails
+  banners = [{
+    id: 1,
+    imageUrl: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-l0rYAAkLBQqmle2NMDsVQDqoq1DsvP.png",
+    title: "Industrial Bearings",
+    description: "High-quality bearings for industrial applications",
+    link: "/products/bearings"
+  }];
+}
+---
+
+<!-- Pass the server-fetched data to the React component -->
+<BannerSliderClient banners={banners} client:load />

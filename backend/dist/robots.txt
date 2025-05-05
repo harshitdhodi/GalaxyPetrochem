@@ -1,0 +1,26 @@
+# robots.txt for your web application
+
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /register/
+Disallow: /account/
+Disallow: /customer-table/
+Disallow: /api/
+
+# Disallow specific file types
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.js$
+Disallow: /*.css$
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay to prevent server overload
+Crawl-delay: 10

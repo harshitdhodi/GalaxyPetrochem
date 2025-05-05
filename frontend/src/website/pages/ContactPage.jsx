@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Banner } from '../componets/Banner';
 import LeftSection from '../componets/contact_sec/LeftSide';
 import RightSection from '../componets/contact_sec/RightSide';
-import Footer from '../componets/home/Footer';
 import img from "../images/contact-us.png";
 import { useGetBannerByPageSlugQuery } from '@/slice/banner/banner';
 
@@ -13,24 +12,30 @@ const ContactPage = () => {
 
   return (
     <>
-      <div>
-        {isBannerLoading ? (
-          <div>Loading banner...</div>
-        ) : (
-          <Banner imageUrl={banners && banners.length > 0 ? `/api/image/download/${banners[0].image}` : img} />
-        )}
-      </div>
-
-      <div className="max-w-7xl mx-auto py-4 mb-10">
-        <nav className="py-2 border-b mb-8 border-gray-200 px-6">
-          <div className="flex items-center space-x-2 text-sm">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">
-              Home
-            </Link>
-            <span className="text-gray-400">&raquo;</span>
-            <span className="text-secondary">Contact Us</span>
+     <div className="relative">
+          {/* Banner */}
+          {banners && banners.length > 0 ? (
+            <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
+          ) : (
+           "no image"
+          )}
+  
+          {/* Breadcrumb - centered horizontally, below the title */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+            <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
+              <Link to="/">
+                <span className="text-[12px] sm:text-[15px]">Home</span>
+              </Link>
+              <span className="mx-2">/</span>
+              <Link to="#">
+                <span className="    text-[12px] sm:text-[15px]">Contact Us</span>
+              </Link>
+            </nav>
           </div>
-        </nav>
+        </div>
+
+      <div className="max-w-7xl mx-auto mt-5  mb-5">
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
        <div className='col-span-1'>
        <LeftSection />
