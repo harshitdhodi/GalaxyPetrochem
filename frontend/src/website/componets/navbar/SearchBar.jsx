@@ -79,26 +79,26 @@ export default function SearchBar() {
     <div className="relative w-full">
       {/* Search Icon for Mobile */}
       <button
-        className={`p-2 bg-[#E95821] sm:hidden text-white rounded-full fixed z-50 ${
-          isSticky ? "top-5 right-16" : "top-5 right-16"
-        }`}
-        onClick={() => setShowSearchModal(true)}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </button>
+  className={`p-2 bg-[#E95821] sm:hidden text-white rounded-full fixed z-50 ${
+    isSticky ? "top-5 right-16" : "top-5 right-16"
+  }`}
+  onClick={() => setShowSearchModal(true)}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
+  </svg>
+</button>
 
       {/* Desktop Search Bar */}
       <div className="hidden md:block w-full max-w-[35rem] mx-auto">

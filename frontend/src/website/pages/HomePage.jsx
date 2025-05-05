@@ -40,6 +40,7 @@ const HomePage = () => {
     const fetchHomeData = async () => {
       try {
         const response = await axios.get('/api/allHome/getAllHomePage');
+        console.log('Home data:', response.data);
         setHomeData(response.data);
       } catch (error) {
         console.error('Error fetching home page data:', error);

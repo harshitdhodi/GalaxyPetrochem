@@ -22,7 +22,7 @@ export default function CompanyInfo() {
   if (!aboutData) return null; // or a loading spinner
 
   return (
-    <section className="relative w-full sm:py-10 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <section className="relative w-full px-5 lg:px-0 sm:py-10 overflow-hidden bg-gradient-to-b from-white to-gray-50">
       {/* Decorative elements */}
       <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-100 opacity-20 -mr-32 -mb-32"></div>
       <div className="absolute top-1/4 left-0 w-32 h-32 rounded-full bg-purple-100 opacity-20 -ml-16"></div>
@@ -30,7 +30,7 @@ export default function CompanyInfo() {
       <div className="max-w-[78rem] mx-auto pb-10  relative z-10">
         <div className="grid items-start gap-16 lg:grid-cols-2">
           {/* Image section */}
-          <div className="flex justify-center w-full order-2 lg:order-1">
+          <div className="flex justify-center w-full md:pr-8 lg:pr-0 order-2 lg:order-1">
             <div className="relative w-full group">
               <div className="relative w-full mt-1 overflow-hidden rounded-md hover:shadow-[0_20px_50px_rgba(8,112,184,0.3)] transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(8,112,184,0.5)]">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-purple-700/20 z-10 mix-blend-multiply"></div>

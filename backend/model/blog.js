@@ -12,6 +12,7 @@ const BlogSchema = new Schema({
     slug: { type: String, unique: true },
     postedBy: { type: String, required: true },
     visits: { type: Number, default: 0 },
+    viewedIPs: [{ type: String }],
     metatitle: { type: String },
     metadescription: { type: String },
     metakeywords: { type: String },

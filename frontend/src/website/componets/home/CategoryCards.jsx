@@ -73,7 +73,7 @@ export default function CategoryCards({ categories }) {
                 <img
                   src={category.photo ? `/api/logo/download/${category.photo}` : "/placeholder.jpg"}
                   alt={category.alt || "Category Image"}
-                  className="object-fill sm:object-fill min-w-[200px] max-w-[400px] mt-5  sm:min-h-[350px] max-h-[200px] w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                  className="object-fill sm:object-fill min-w-[200px] max-w-[400px] mt-5  sm:min-h-[350px] max-h-[300px] sm:max-h-[250px] w-full h-auto transition-transform duration-300 group-hover:scale-105"
                   fetchPriority={index < 2 ? "high" : "auto"}
                   loading={index < 4 ? "lazy" : "eager"}
                   decoding="async"

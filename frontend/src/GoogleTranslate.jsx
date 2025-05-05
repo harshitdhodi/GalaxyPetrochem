@@ -28,9 +28,9 @@ const GoogleTranslate = () => {
   }, []);
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center border space-x-2">
       {/* Image first */}
-      <img src={google} alt="Translate Icon" className="w-6 h-6" />
+      {/* <img src={google} alt="Translate Icon" className="w-6 h-6" /> */}
       
       {/* Google Translate Dropdown */}
       <div id="google_translate_element"></div>

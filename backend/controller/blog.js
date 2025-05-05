@@ -268,7 +268,34 @@ const getBlogBySlug = async (req, res) => {
     }
   };
   
+// Increment blog visits and track unique client IPs
+const incrementBlogVisits = async (req, res) => {
+  const { id, clientIP } = req.query; // or req.body if you're using body data
 
+  try {
+    if (!id || !clientIP) {
+      return res.status(400).json({ message: 'Blog ID and client IP are required' });
+    }
+
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found' });
+    }
+
+    if (!blog.viewedIPs.includes(clientIP)) {
+      blog.visits += 1;
+      blog.viewedIPs.push(clientIP);
+      await blog.save();
+    }
+
+    res.status(200).json(blog);
+  } catch (error) {
+    console.error('Error incrementing blog visits:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+  
 module.exports = {
   createBlog,
   getAllBlogs,
@@ -278,6 +305,7 @@ module.exports = {
   getBlogsByCategory,
   getLatestBlog ,
   getAllBlogsExceptLatest,
-  getBlogBySlug
+  getBlogBySlug,
+  incrementBlogVisits
 
 };

@@ -15,7 +15,7 @@ export default function ProductInfo({ tagline, productDetails, name, price, cate
     }
 
     const remainingHtml = tempDiv.innerHTML;
-    const charLimit = Math.floor(remainingHtml.length * 0.65);
+    const charLimit = 10000; // Show 10,000 characters at a time
 
     return {
       extractedPContent,
