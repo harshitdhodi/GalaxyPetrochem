@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetAllCategoriesQuery } from "@/slice/blog/blogCategory";
 import SearchBar from "./SearchBar";
@@ -12,7 +12,7 @@ import GoogleTranslate from "@/GoogleTranslate";
 export default function NavbarComp({ categories }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const [openCategory, setOpenCategory] = useState(null);
+  const [openCategories, setOpenCategories] = useState({});
 
   const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery();
 
@@ -37,7 +37,7 @@ export default function NavbarComp({ categories }) {
     const handleScroll = () => {
       const scrollPercent =
         (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      setIsSticky(scrollPercent >= 10);
+      setIsSticky(scrollPercent >= 0);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -74,6 +74,18 @@ export default function NavbarComp({ categories }) {
     }
   }, [logoData?.favIcon]);
 
+  // Prevent body scrolling when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const logoSrc = useMemo(() => {
     return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : "";
   }, [logoData?.headerLogo]);
@@ -92,7 +104,10 @@ export default function NavbarComp({ categories }) {
   ));
 
   const toggleCategory = (categoryId) => {
-    setOpenCategory(openCategory === categoryId ? null : categoryId);
+    setOpenCategories((prev) => ({
+      ...prev,
+      [categoryId]: !prev[categoryId],
+    }));
   };
 
   return (
@@ -134,9 +149,8 @@ export default function NavbarComp({ categories }) {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden fixed top-0 left-0 w-full min-h-screen z-[80] transition-transform duration-300 ease-in-out ${
-            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`md:hidden fixed top-0 left-0 w-full h-screen z-[80] transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           {/* Backdrop */}
           <div
@@ -145,7 +159,7 @@ export default function NavbarComp({ categories }) {
           />
 
           {/* Menu Content */}
-          <div className="relative w-full min-h-screen h-auto flex-grow flex flex-col px-4 pb-4 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] bg-opacity-100 z-[80] box-sizing-border">
+          <div className="relative w-full h-full flex flex-col px-4 pb-4 space-y-2 overflow-y-auto bg-gradient-to-b from-[#61b0ab] to-[#9e5d94] z-[80]">
             <div className="flex items-center justify-between pb-4 bg-white -mx-4 px-4 pt-2">
               <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                 <img
@@ -168,55 +182,73 @@ export default function NavbarComp({ categories }) {
 
             <Link
               to="/"
-              className={`block py-2 text-white ${isHomeActive ? "text-primary" : ""}`}
+              className={`block pt-5 text-white ${isHomeActive ? "text-primary" : ""}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               to="/about-us"
-              className="block py-2 text-white"
+              className="block  text-white"
               onClick={() => setMobileMenuOpen(false)}
             >
               About Us
             </Link>
 
             {/* Products Dropdown */}
-            <div className="py-4">
+            <div className="">
               <button
-                className="block w-full text-left py-2 text-white font-semibold"
+                className="block w-full text-left py-2 text-white  flex items-center justify-between"
                 onClick={() => toggleCategory("products")}
-                aria-expanded={openCategory === "products"}
+                aria-expanded={openCategories["products"]}
               >
-                Products
+                <span>Products</span>
+                <ChevronDown
+                  className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""
+                    }`}
+                />
               </button>
               <div
-                className="ml-4 space-y-2 w-full py-2"
-                style={{ display: openCategory === "products" ? "block" : "none" }}
+                className="ml-4 space-y-2 w-full "
+                style={{ display: openCategories["products"] ? "block" : "none" }}
               >
                 {categories?.map((category) => (
-                  <div key={category._id} className="w-full overflow-y-auto">
-                    <Link
-                      to={`/categories/${category.slug}`}
-                      className="block py-1 text-white font-medium"
-                      onClick={() => setMobileMenuOpen(false)}
+                  <div key={category._id} className="w-full">
+                    <button
+                      className="block w-full text-left py-1 text-white font-medium flex items-center justify-between"
+                      onClick={() => toggleCategory(category._id)}
+                      aria-expanded={openCategories[category._id]}
                     >
-                      {category.category}
-                    </Link>
-                    {category.subCategories?.length > 0 && (
-                      <div className="ml-4 space-y-1">
-                        {category.subCategories.map((sub) => (
-                          <Link
-                            key={sub._id}
-                            to={`/categories/${category.slug}/${sub.slug}`}
-                            className="block py-1 text-white text-sm"
-                            onClick={() => setMobileMenuOpen(false)}
-                          >
-                            - {sub.category}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                      <span>{category.category}</span>
+                      {category.subCategories?.length > 0 && (
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""
+                            }`}
+                        />
+                      )}
+                    </button>
+                    <div
+                      className="ml-4 space-y-1"
+                      style={{ display: openCategories[category._id] ? "block" : "none" }}
+                    >
+                      <Link
+                        to={`/categories/${category.slug}`}
+                        className="block py-1 text-white text-sm"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {/* All {category.category} */}
+                      </Link>
+                      {category.subCategories?.map((sub) => (
+                        <Link
+                          key={sub._id}
+                          to={`/categories/${category.slug}/${sub.slug}`}
+                          className="block py-1 text-white text-sm"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          - {sub.category}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -224,19 +256,17 @@ export default function NavbarComp({ categories }) {
 
             <Link
               to="/contact-us"
-              className={`block py-2 text-white ${isContactActive ? "text-primary" : ""}`}
+              className={`block  text-white ${isContactActive ? "text-primary" : ""}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Contact Us
             </Link>
-            <div className="w-full flex justify-center py-4">
-              <div className="translate-container w-auto max-w-[140px]">
-                <GoogleTranslate />
-              </div>
+            <div className="w-full flex justify-center items-center">
+             
             </div>
             <Button
               variant="ghost"
-              className="w-full text-white bg-primary rounded-none py-4 hover:text-primary text-sm"
+              className="w-full text-white bg-primary rounded-none  hover:text-primary text-sm"
               onClick={() => {
                 navigate("/advance-search");
                 setMobileMenuOpen(false);
