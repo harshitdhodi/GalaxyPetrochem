@@ -133,7 +133,7 @@ export default function ProductSearchBar() {
           </Table>
         </div>
       </div>
-      <Footer />
+   
     </>
   );
 }
