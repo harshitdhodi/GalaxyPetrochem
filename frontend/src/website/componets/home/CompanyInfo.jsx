@@ -63,7 +63,7 @@ export default function CompanyInfo() {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col justify-center h-full order-1 lg:order-2">
+          <div className="flex flex-col mt-5 sm:mt-0 justify-center h-full order-1 lg:order-2">
             <div>
               <p
                 className="text-xl text-gray-600 leading-relaxed"
