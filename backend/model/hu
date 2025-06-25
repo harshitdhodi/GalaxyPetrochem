@@ -1,0 +1,401 @@
+// models/ExpertiseContent.js
+
+const mongoose = require('mongoose');
+
+const ExpertiseContentSchema = new mongoose.Schema(
+  {
+    heading: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    subHeading: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    missionTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    missionDescription: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    visionTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    visionDescription: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    missionPoints: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
+    visionPoints: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
+  },
+  {
+    timestamps: true, // this will automatically add createdAt and updatedAt
+  }
+);
+
+// Export the model
+module.exports = mongoose.model('ExpertiseContent', ExpertiseContentSchema);
+const mongoose = require('mongoose');
+
+const navigationLinkSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  icon: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
+
+const NavigationLink = mongoose.model('NavigationLink', navigationLinkSchema);
+
+module.exports = NavigationLink;
+const mongoose = require("mongoose");
+
+const ProductSchema = new mongoose.Schema({
+  categorySlug: { type: String,  },
+  subCategorySlug: { type: String,  },
+  slug: { type: String,  },
+  name: { type: String,  },
+  tagline: { type: String },
+  specifiction: { type: String },
+  details: { type: String },
+  tableInfo: { type: String },
+  images: [{
+    url: {
+      type: String,
+      
+    },
+    altText: {
+      type: String,
+      
+    },
+    title: {
+      type: String,
+      
+    }
+  }],
+  pdf: { type: String }, // filename or URL
+  msds: { type: String }, // filename or URL
+  brandId: { type: mongoose.Schema.Types.ObjectId, ref: "brand" },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory" },
+  subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory" },
+  metaTitle: { type: String },
+  metaDescription: { type: String },
+  metaKeyword: { type: String },
+  metaSchema: { type: String }
+}, { timestamps: true });
+
+module.exports = mongoose.model("petroChemProduct", ProductSchema);
+const mongoose = require('mongoose');
+
+const privacySchema = new mongoose.Schema({
+  privacyPolicy: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
+
+const Privacy = mongoose.model('Privacy', privacySchema);
+
+module.exports = Privacy;
+const mongoose = require("mongoose");
+
+const ProductSchema = new mongoose.Schema({
+  category: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory", required: true },
+  categorySlug: { type: String, required: true },
+  slug: { type: String, required: true },
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  images: [{
+    url: {
+      type: String,
+      required: true
+    },
+    altText: {
+      type: String,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    }
+  }],
+  table: { type: String },
+  details: { type: String },
+  metaTitle: { type: String },
+  metaDescription: { type: String },
+  metaKeyword: { type: String },
+  metaSchema: { type: String }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Product", ProductSchema);
+const mongoose = require('mongoose');
+
+const inquirySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  productName: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  companyName: {
+    type: String,
+    required: false
+  },
+  city: {
+    type: String,
+    required: false
+  },
+  pinCode: {
+    type: String,
+    required: false
+  },
+  utm_source: {
+    type: String,
+    required: false
+  },
+  utm_medium: {
+    type: String,
+    required: false
+  },
+  utm_campaign: {
+    type: String,
+    required: false
+  },
+  utm_id: {
+    type: String,
+    required: false
+  },
+  gclid: {
+    type: String,
+    required: false
+  },
+  gcid_source: {
+    type: String,
+    required: false
+  },
+  utm_content:{
+   type:String,
+   required: false
+  },
+  utm_term:{
+    type:String,
+    required:false
+  },
+  ipaddress:{type:String}
+}, {
+  timestamps: true
+});
+
+const Inquiry = mongoose.model('ProductInquiry', inquirySchema);
+
+module.exports = Inquiry;
+const mongoose = require('mongoose');
+
+const sitemapSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true, // Ensure the name is unique
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now, // Set the default timestamp to the current date and time
+  },
+});
+
+// Middleware to update the timestamp automatically on save
+sitemapSchema.pre('save', function (next) {
+  this.timestamp = Date.now(); // Update the timestamp before saving
+  next();
+});
+
+module.exports = mongoose.model('Sitemap', sitemapSchema);
+const mongoose = require('mongoose');
+
+const ImageSchema = new mongoose.Schema({
+    image: { type: String, required: true },
+    altText: { type: String, required: true },
+    title: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+
+module.exports = mongoose.model('SlideShow', ImageSchema);
+// models/Server.js
+const mongoose = require('mongoose');
+
+const serverSchema = new mongoose.Schema({
+  host: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  isSSL: {
+    type: Boolean,
+    default: false
+  },
+  isDefault: {
+    type: Boolean,
+    default: false
+  }
+}, { timestamps: true });
+
+module.exports = mongoose.model('smtp_setting', serverSchema);
+const mongoose = require('mongoose');
+
+const nameSchema = new mongoose.Schema({
+    source: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+}, { timestamps: true });
+
+module.exports = mongoose.model('source', nameSchema);
+const mongoose = require('mongoose');
+
+const MetaSchema = new mongoose.Schema({
+    pageName: { type: String },
+    pageSlug:{type:String},
+    metaTitle: { type: String },
+    metaDescription: { type: String },
+    metaKeyword: { type: String },
+});
+ 
+module.exports = mongoose.model('Meta', MetaSchema);
+const mongoose = require('mongoose');
+
+const nameSchema = new mongoose.Schema({
+    status: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+}, { timestamps: true });
+
+module.exports = mongoose.model('status', nameSchema);
+// /models/contactModel.js
+const mongoose = require('mongoose');
+
+const supplierSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    mobile: { type: String, required: true },
+    email: { type: String, required: true },
+    website: { type: String },
+    contact_person: { type: String },
+    address: { type: String },
+    country: { type: String },
+    city: { type: String },
+    description: { type: String },
+    image:{ type: String },
+    chemical_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chemical' }]
+});
+
+module.exports = mongoose.model('supplier', supplierSchema);
+const mongoose = require('mongoose');
+
+const termsConditionSchema = new mongoose.Schema({
+  termsCondition: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
+
+const TermsCondition = mongoose.model('TermsCondition', termsConditionSchema);
+
+module.exports = TermsCondition;
+// models/Testimonial.js
+const mongoose = require('mongoose');
+
+const testimonialSchema = new mongoose.Schema({
+  photo: { type: String, required: true },
+  altName: { type: String },
+  imgTitle: { type: String },
+  name: { type: String, required: true },
+  designation: { type: String },
+  company: { type: String },
+  rating: { type: Number, min: 0, max: 5 },
+  message: { type: String },
+}, {
+  timestamps: true
+});
+
+module.exports = mongoose.model('Testimonial', testimonialSchema);
+const mongoose = require('mongoose');
+
+const unitSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+}, { timestamps: true });
+
+module.exports = mongoose.model('Unit', unitSchema);
+const mongoose = require('mongoose');
+
+const whatsupInfoSchema = new mongoose.Schema({
+  message: {
+    type: String,
+    required: true
+  },
+  number: {
+    type: String,
+    required: true
+  }
+}, { timestamps: true });
+
+const WhatsupInfo = mongoose.model('WhatsupInfo', whatsupInfoSchema);
+
+module.exports = WhatsupInfo;
