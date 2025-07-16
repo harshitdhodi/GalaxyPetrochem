@@ -1,5 +1,4 @@
- 
-const express = require('express');
+ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const admin = require("./route/admin");
@@ -26,7 +25,7 @@ app.get('/robots.txt', (req, res) => {
       return res.status(404).send('robots.txt not found');
     }
 
-    res.set('Content-Type', 'text/plain'); // 👈 Correct MIME type for robots.txt
+    res.set('Content-Type', 'text/plain'); // Correct MIME type for robots.txt
     res.send(data);
   });
 });
@@ -164,12 +163,27 @@ app.get('/images/:filename', async (req, res) => {
 
 
 
-// Static file serving with no caching
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false,
-  lastModified: false,
-  setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'public, max-age=3600'); // cache for 1 hour
+  maxAge: '1y',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+  }
+}));
+
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, 'dist'), {
+  maxAge: '1h',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
   }
 }));
 
@@ -231,14 +245,6 @@ const apiRoutes = [
 apiRoutes.forEach(([route, handler]) => {
   app.use(route, handler);
 });
-
-app.use(express.static(path.join(__dirname, 'dist'), {
-  etag: false, 
-  lastModified: false, 
-  setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'dist, max-age=3600'); // cache for 1 hour
-  }
-}));
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {

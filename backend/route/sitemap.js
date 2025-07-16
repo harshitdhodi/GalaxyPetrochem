@@ -24,7 +24,7 @@ const generateBlogSitemap = async () => {
 
     blogs.forEach((blog) => {
       xmlContent += `  <url>\n`;
-      xmlContent += `    <loc>${BASE_URL}/blog/${blog.slug}</loc>\n`;
+      xmlContent += `    <loc>${BASE_URL}/${blog.slug}</loc>\n`;
       xmlContent += `    <lastmod>${new Date(blog.updatedAt).toISOString()}</lastmod>\n`;
       xmlContent += `    <changefreq>weekly</changefreq>\n`;
       xmlContent += `    <priority>0.8</priority>\n`;
@@ -230,6 +230,7 @@ const generateStaticPagesSitemap = async () => {
       console.log('Generating static pages sitemap');
 
       const staticPages = [
+        { slug: '/', priority: 1 },
           { slug: 'about-us', priority: 0.8 },
           {slug: 'products', priority: 0.8 },
           {slug: 'Brands', priority: 0.8 },
