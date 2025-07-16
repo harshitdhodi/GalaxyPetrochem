@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const sharp = require('sharp');
 const compression = require('compression');
 const app = express();
-require('dotenv').config();  
+require('dotenv').config();   
 const cookieParser = require('cookie-parser');
 const { generateAllSitemaps } = require('./route/sitemap');
 const handleDynamicRoutes = require('./route/serverMeta');
@@ -17,6 +17,19 @@ app.use(express.json());
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
+app.get('/robots.txt', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'robots.txt');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('robots.txt not found');
+    }
+
+    res.set('Content-Type', 'text/plain'); // 👈 Correct MIME type for robots.txt
+    res.send(data);
+  });
+});
 
 app.get('/sitemap.xml', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'sitemap.xml');
@@ -118,6 +131,10 @@ app.get('/product-image-sitemap.xml', (req, res) => {
   });
 });
 app.use(handleDynamicRoutes);  
+
+
+
+
 // Custom image optimization route (Cache removed)
 app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;

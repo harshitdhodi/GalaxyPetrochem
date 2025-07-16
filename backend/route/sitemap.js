@@ -6,7 +6,7 @@ const Sitemap = require("../model/sitemap");
 // API endpoints
 const BLOG_API_URL = "http://localhost:3036/api/blog/get";
 const CHEMICAL_API_URL = "http://localhost:3036/api/petrochemProduct";
-const BASE_URL = "http://localhost:3036";
+const BASE_URL = "https://www.galaxypetro.in";
 const SITEMAP_API_URL = "http://localhost:3036/api/sitemap/get";
 const PRODUCT_CATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllCategories";
 const PRODUCT_SUBCATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllSubcategories";

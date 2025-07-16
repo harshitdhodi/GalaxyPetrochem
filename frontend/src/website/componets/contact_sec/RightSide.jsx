@@ -6,14 +6,15 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'react-toastify'
 import { useAddInquiryMutation } from '@/slice/inquiry/inquiry'
-import Swal from 'sweetalert2'
 import ReCAPTCHA from 'react-google-recaptcha'
+import { useNavigate } from 'react-router-dom'
 
 export default function RightSection() {
   const [loading, setLoading] = useState(false)
   const [captchaValue, setCaptchaValue] = useState(null)
   const [addInquiry] = useAddInquiryMutation()
   const recaptchaRef = useRef(null) // Reference to the ReCAPTCHA component
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,17 +29,18 @@ export default function RightSection() {
     try {
       const formData = new FormData(e.target)
       const data = Object.fromEntries(formData.entries())
+      
+      // Add reCAPTCHA token to the form data
+      const formDataWithCaptcha = {
+        ...data,
+        'g-recaptcha-response': captchaValue
+      }
 
-      const result = await addInquiry(data).unwrap()
-
-      Swal.fire({
-        title: 'Success!',
-        text: 'Your message has been sent successfully',
-        icon: 'success',
-        confirmButtonColor: '#2c4899',
-        timer: 3000,
-        timerProgressBar: true
-      })
+      // Send the form data with reCAPTCHA token to the server
+      const result = await addInquiry(formDataWithCaptcha).unwrap()
+      
+      // Only navigate to thank you page on successful submission
+      navigate('/thank-you')
 
       // Reset the form
       e.target.reset()
@@ -50,7 +52,8 @@ export default function RightSection() {
         recaptchaRef.current.reset()
       }
     } catch (error) {
-      toast.error(error.data?.message || error.message || 'Something went wrong')
+      console.error('Form submission error:', error)
+      toast.error(error.data?.message || error.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }

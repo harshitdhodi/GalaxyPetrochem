@@ -133,6 +133,8 @@ import UpdatePetrochemicalProduct from './petrochemProduct/product-form/EditProd
 import IndustryManager from './websiteBackend/experties/IndustryManager';
 import MissionVisionForm from './websiteBackend/missionVision/MissionVisionForm';
 import EditAboutUsForm from './websiteBackend/aboutus/EditAboutUs';
+import BrandPage from './website/pages/BrandPage';
+import ThankYouPage from './website/pages/component/Thankyou';
 
 // Auth Components
 const PrivateRoute = ({ children }) => {
@@ -189,7 +191,8 @@ function App() {
             { path: '/introduction', element: <Suspense fallback={<LoadingFallback />}><Introduction /></Suspense> },
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
-          
+            { path: 'brands/:slug', element: <Suspense fallback={<LoadingFallback />}><BrandPage /></Suspense> },
+            { path: 'thankyou', element: <Suspense fallback={<LoadingFallback />}><ThankYouPage /></Suspense> },
          
 
             // brands section 

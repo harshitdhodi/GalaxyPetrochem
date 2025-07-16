@@ -802,7 +802,8 @@ const getSpecificSubcategoryBySlug = async (req, res) => {
     }
 
     // Step 3: Fetch all products that belong to this subcategory
-    const products = await Product.find({ subCategoryId: subCategory._id });
+    const products = await Product.find({ subCategoryId: subCategory._id })
+      .populate("brandId");
 
     // Step 4: Return both the subcategory and its products
     res.status(200).json({
