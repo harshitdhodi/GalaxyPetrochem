@@ -10,89 +10,107 @@ import NavSection from "./NavSection";
 import GoogleTranslate from "@/GoogleTranslate";
 
 export default function NavbarComp({ categories }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isSticky, setIsSticky] = useState(false);
-  const [openCategories, setOpenCategories] = useState({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isSticky, setIsSticky] = useState(false)
+  const [openCategories, setOpenCategories] = useState({})
 
-  const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery();
+  // Use your API hooks
+  const { data: blogCategories = [], isLoading } = useGetAllCategoriesQuery()
+  const { data: logoData } = useGetLogoQuery()
 
   const parsedBlogCategories = blogCategories.map((blog) => ({
     id: blog._id,
     name: blog.category,
     slug: blog.slug,
-  }));
+  }))
 
-  const { pathname } = useLocation();
-  const isHomeActive = pathname === "/" || pathname === "/home";
-  const isProductsActive = pathname.startsWith("/categories");
-  const isBlogActive = pathname.startsWith("/blogs");
-  const isContactActive = pathname.startsWith("/contact-us");
+  const { pathname } = useLocation()
+  const isHomeActive = pathname === "/" || pathname === "/home"
+  const isProductsActive = pathname.startsWith("/categories")
+  const isBlogActive = pathname.startsWith("/blogs")
+  const isContactActive = pathname.startsWith("/contact-us")
+  const navigate = useNavigate()
 
-  const navigate = useNavigate();
-
-  // Log categories for debugging
-  console.log("Categories:", categories);
-
+  // Fixed scroll handler - using document height instead of window height for more reliable calculation
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPercent =
-        (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      setIsSticky(scrollPercent >= 0);
-    };
+      // Calculate scroll percentage based on document height
+      const scrollTop = window.scrollY
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = document.documentElement.clientHeight
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+      // If scrolled more than 100px, make it sticky
+      // This is more reliable than percentage for most sites
+      setIsSticky(scrollTop > 100)
 
-  const { data: logoData } = useGetLogoQuery();
+      // Alternative percentage-based approach
+      // const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      // setIsSticky(scrollPercent >= 10);
+    }
+
+    // Add scroll event listener with throttling for better performance
+    let ticking = false
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll()
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   // Preload the logo image
   useEffect(() => {
     if (logoData?.headerLogo) {
-      const preloadLink = document.createElement("link");
-      preloadLink.rel = "preload";
-      preloadLink.href = `/api/logo/download/${logoData.headerLogo}`;
-      preloadLink.as = "image";
-      preloadLink.type = "image/svg+xml";
-      document.head.appendChild(preloadLink);
+      const preloadLink = document.createElement("link")
+      preloadLink.rel = "preload"
+      preloadLink.href = `/api/logo/download/${logoData.headerLogo}`
+      preloadLink.as = "image"
+      preloadLink.type = "image/svg+xml"
+      document.head.appendChild(preloadLink)
     }
-  }, [logoData?.headerLogo]);
+  }, [logoData?.headerLogo])
 
   // Update favicon dynamically
   useEffect(() => {
     if (logoData?.favIcon) {
-      const faviconUrl = `/api/logo/download/${logoData.favIcon}`;
-      const favicon = document.querySelector('link[rel="icon"]');
+      const faviconUrl = `/api/logo/download/${logoData.favIcon}`
+      const favicon = document.querySelector('link[rel="icon"]')
       if (favicon) {
-        favicon.href = faviconUrl;
+        favicon.href = faviconUrl
       } else {
-        const newFavicon = document.createElement("link");
-        newFavicon.rel = "icon";
-        newFavicon.href = faviconUrl;
-        document.head.appendChild(newFavicon);
+        const newFavicon = document.createElement("link")
+        newFavicon.rel = "icon"
+        newFavicon.href = faviconUrl
+        document.head.appendChild(newFavicon)
       }
     }
-  }, [logoData?.favIcon]);
+  }, [logoData?.favIcon])
 
   // Prevent body scrolling when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = "hidden"
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = ""
     }
     return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileMenuOpen]);
+      document.body.style.overflow = ""
+    }
+  }, [mobileMenuOpen])
 
   const logoSrc = useMemo(() => {
-    return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : "";
-  }, [logoData?.headerLogo]);
+    return logoData?.headerLogo ? `/api/logo/download/${logoData.headerLogo}` : ""
+  }, [logoData?.headerLogo])
 
   const LogoComponent = React.memo(({ src, alt, title }) => (
     <img
-      src={src}
+      src={src || "/placeholder.svg"}
       alt={alt}
       title={title}
       width="150"
@@ -101,41 +119,46 @@ export default function NavbarComp({ categories }) {
       className="h-auto w-[150px] md:w-[130px] lg:w-[200px]"
       fetchpriority="high"
     />
-  ));
+  ))
 
   const toggleCategory = (categoryId) => {
     setOpenCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
-    }));
-  };
+    }))
+  }
 
   return (
     <>
-      <header className={`w-full relative z-[70] ${isSticky ? "sticky top-0 bg-white shadow-md" : ""}`}>
-        <div className="max-w-[80rem] mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
-          </Link>
-          <div className="hidden md:flex items-center gap-4 w-1/2 justify-end">
-            <SearchBar />
-            <div className="translate-container w-auto max-w-[120px]">
-              <GoogleTranslate />
+      <header
+        className={`w-full z-[1000] transition-all duration-300 ${
+          isSticky ? "fixed top-0 left-0 right-0 bg-white shadow-md animate-fadeInDown" : "relative bg-transparent"
+        }`}
+      >
+        <div className="max-w-[80rem] mx-auto px-4 py-3 md:py-2">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <LogoComponent src={logoSrc} alt="Company Logo" title={logoData?.headerLogoName} />
+            </Link>
+            <div className="hidden md:flex items-center gap-4 w-1/2 justify-end">
+              <SearchBar className={isSticky ? "w-full max-w-md" : "w-full max-w-md"} />
+              <div className="translate-container w-auto max-w-[120px]">
+                <GoogleTranslate />
+              </div>
+            </div>
+            <div className="flex items-center md:hidden">
+              <SearchBar className={isSticky ? "hidden" : "mr-2"} />
+              <Button
+                variant="ghost"
+                className="text-main hover:bg-transparent p-2"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-expanded={mobileMenuOpen}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
             </div>
           </div>
-          <div className="flex items-center md:hidden">
-            <SearchBar />
-            <Button
-              variant="ghost"
-              className="text-main hover:bg-transparent p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
         </div>
-
         <NavSection
           categories={categories}
           parsedBlogCategories={parsedBlogCategories}
@@ -146,130 +169,123 @@ export default function NavbarComp({ categories }) {
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
         />
-
         {/* Mobile Menu */}
         <div
-  className={`md:hidden fixed top-0 left-0 w-full h-screen z-[80] transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
->
-  {/* Backdrop */}
-  <div
-    className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[75]"
-    onClick={() => setMobileMenuOpen(false)}
-  />
-
-  {/* Menu Content */}
-  <div className="relative w-full h-full flex flex-col px-5 pb-6 space-y-4 overflow-y-auto bg-gradient-to-b from-[#3c8d89] to-[#a75d9e] bg-opacity-70 z-[80] text-white font-medium">
-    
-    {/* Header */}
-    <div className="flex items-center justify-between py-4 border-b border-white/20">
-      <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-        <img
-          src={logoSrc}
-          alt="Company Logo"
-          width="140"
-          className="h-auto"
-        />
-      </Link>
-      <Button
-        variant="ghost"
-        className="p-2 rounded-full bg-white/10 hover:bg-white/20"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        <X className="h-6 w-6 text-white" />
-      </Button>
-    </div>
-
-    {/* Main Links */}
-    {[
-      { to: "/", label: "Home", active: isHomeActive },
-      { to: "/about-us", label: "About Us" },
-      { to: "/brands", label: "Brands" },
-      { to: "/blogs", label: "Blogs" },
-      { to: "/contact-us", label: "Contact Us", active: isContactActive },
-    ].map(({ to, label, active }) => (
-      <Link
-        key={label}
-        to={to}
-        onClick={() => setMobileMenuOpen(false)}
-        className={`block px-2 rounded-md transition-all hover:bg-white/20 hover:pl-4 ${active ? "text-orange-600 font-semibold" : ""}`}
-      >
-        {label}
-      </Link>
-    ))}
-
-    {/* Products Dropdown */}
-    <div className="border-t border-white/20 pt-4">
-      <button
-        className="w-full flex items-center justify-between py-2 px-2 rounded-md hover:bg-white/20 transition-all"
-        onClick={() => toggleCategory("products")}
-      >
-        <span>Products</span>
-        <ChevronDown
-          className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      <div className={`ml-4 mt-2 transition-all duration-300 ease-in-out overflow-hidden ${openCategories["products"] ? "max-h-[1000px]" : "max-h-0"}`}>
-        {categories?.map((category) => (
-          <div key={category._id} className="mb-2">
-            <button
-              className="w-full flex items-center justify-between text-left text-sm font-semibold py-1 px-2 rounded hover:bg-white/10"
-              onClick={() => toggleCategory(category._id)}
-            >
-              <span>{category.category}</span>
-              {category.subCategories?.length > 0 && (
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""}`}
-                />
-              )}
-            </button>
-
-            <div className={`ml-3 mt-1 transition-all ${openCategories[category._id] ? "block" : "hidden"}`}>
-              <Link
-                to={`/categories/${category.slug}`}
-                className="block py-1 text-white/80 text-sm hover:text-white"
+          className={`md:hidden fixed top-0 left-0 w-full h-screen z-[1001] transition-transform duration-300 ease-in-out ${
+            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-[1001]"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Menu Content */}
+          <div className="relative w-full h-full flex flex-col px-5 pb-6 space-y-4 overflow-y-auto bg-gradient-to-b from-[#3c8d89] to-[#a75d9e] bg-opacity-70 z-[1002] text-white font-medium">
+            {/* Header */}
+            <div className="flex items-center justify-between py-4 border-b border-white/20">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                <img src={logoSrc || "/placeholder.svg"} alt="Company Logo" width="140" className="h-auto" />
+              </Link>
+              <Button
+                variant="ghost"
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                All {category.category}
+                <X className="h-6 w-6 text-white" />
+              </Button>
+            </div>
+            {/* Main Links */}
+            {[
+              { to: "/", label: "Home", active: isHomeActive },
+              { to: "/about-us", label: "About Us" },
+              { to: "/brands", label: "Brands" },
+              { to: "/blogs", label: "Blogs" },
+              { to: "/contact-us", label: "Contact Us", active: isContactActive },
+            ].map(({ to, label, active }) => (
+              <Link
+                key={label}
+                to={to}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-2 rounded-md transition-all hover:bg-white/20 hover:pl-4 ${
+                  active ? "text-orange-600 font-semibold" : ""
+                }`}
+              >
+                {label}
               </Link>
-              {category.subCategories?.map((sub) => (
-                <Link
-                  key={sub._id}
-                  to={`/categories/${category.slug}/${sub.slug}`}
-                  className="block py-1 text-white/70 text-sm hover:text-white"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  - {sub.category}
-                </Link>
-              ))}
+            ))}
+            {/* Products Dropdown */}
+            <div className="border-t border-white/20 pt-4">
+              <button
+                className="w-full flex items-center justify-between py-2 px-2 rounded-md hover:bg-white/20 transition-all"
+                onClick={() => toggleCategory("products")}
+              >
+                <span>Products</span>
+                <ChevronDown
+                  className={`h-5 w-5 transition-transform ${openCategories["products"] ? "rotate-180" : ""}`}
+                />
+              </button>
+              <div
+                className={`ml-4 mt-2 transition-all duration-300 ease-in-out overflow-hidden ${
+                  openCategories["products"] ? "max-h-[1000px]" : "max-h-0"
+                }`}
+              >
+                {categories?.map((category) => (
+                  <div key={category._id} className="mb-2">
+                    <button
+                      className="w-full flex items-center justify-between text-left text-sm font-semibold py-1 px-2 rounded hover:bg-white/10"
+                      onClick={() => toggleCategory(category._id)}
+                    >
+                      <span>{category.category}</span>
+                      {category.subCategories?.length > 0 && (
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${openCategories[category._id] ? "rotate-180" : ""}`}
+                        />
+                      )}
+                    </button>
+                    <div className={`ml-3 mt-1 transition-all ${openCategories[category._id] ? "block" : "hidden"}`}>
+                      <Link
+                        to={`/categories/${category.slug}`}
+                        className="block py-1 text-white/80 text-sm hover:text-white"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        All {category.category}
+                      </Link>
+                      {category.subCategories?.map((sub) => (
+                        <Link
+                          key={sub._id}
+                          to={`/categories/${category.slug}/${sub.slug}`}
+                          className="block py-1 text-white/70 text-sm hover:text-white"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          - {sub.category}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Advanced Search Button */}
+            <div className="mt-auto pt-4 border-t border-white/20">
+              <Button
+                variant="ghost"
+                className="w-full py-3 mt-2 bg-white text-primary font-semibold rounded-md hover:bg-orange-600 hover:text-white transition-all"
+                onClick={() => {
+                  navigate("/advance-search")
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Advanced Search
+              </Button>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-
-    {/* Advanced Search Button */}
-    <div className="mt-auto pt-4 border-t border-white/20">
-      <Button
-        variant="ghost"
-        className="w-full py-3 mt-2 bg-white text-primary font-semibold rounded-md hover:bg-orange-600 hover:text-white transition-all"
-        onClick={() => {
-          navigate("/advance-search");
-          setMobileMenuOpen(false);
-        }}
-      >
-        Advanced Search
-      </Button>
-    </div>
-  </div>
-</div>
-
+        </div>
       </header>
-
-      <main className="w-full  mx-auto">
+      <main className="w-full mx-auto">
         <Outlet />
       </main>
       <Footer />
     </>
-  );
+  )
 }
