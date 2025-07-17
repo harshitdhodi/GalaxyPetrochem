@@ -12,7 +12,7 @@ const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, onB
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between py-4 px-4 border-b bg-gray-50">
+          <div className="flex items-center justify-center py-5 px-4 border-b bg-gray-50">
             <h2 className="text-lg sm:text-xl font-bold text-gray-900">Our Brands</h2>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -63,9 +63,9 @@ const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, onB
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center flex-shrink-0">
+                        {/* <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center flex-shrink-0">
                           <span className="text-xs font-semibold text-gray-600">{brand.name.charAt(0)}</span>
-                        </div>
+                        </div> */}
                         <span className="truncate">{brand.name}</span>
                       </div>
                       <span className="text-xs opacity-75 ml-2 flex-shrink-0">({brand.productCount || 0})</span>

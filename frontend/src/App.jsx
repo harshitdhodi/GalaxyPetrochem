@@ -192,7 +192,7 @@ function App() {
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
             { path: 'brands/:slug', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
-            { path: 'thankyou', element: <Suspense fallback={<LoadingFallback />}><ThankYouPage /></Suspense> },
+            { path: 'thank-you', element: <Suspense fallback={<LoadingFallback />}><ThankYouPage /></Suspense> },
             
             // { path: 'brand', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
 
