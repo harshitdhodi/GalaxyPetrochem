@@ -72,7 +72,7 @@ export default function ProductSearchBar() {
             Showing {chemicals.length} result{chemicals.length !== 1 ? 's' : ''} for "{searchTerm}"
           </div>
 
-          <Table>
+          <Table className="mb-20">
             <TableHeader className="bg-main">
               <TableRow className="text-white bg-blue-700 hover:bg-blue-700">
                 <TableHead className="text-white">Product Name</TableHead>

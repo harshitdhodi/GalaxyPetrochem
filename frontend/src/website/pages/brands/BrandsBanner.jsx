@@ -59,7 +59,7 @@ const BrandsBanner = ({ banners, location }) => {
               {getBrandNameFromUrl() && (
                 <>
                   <span className="mx-2">/</span>
-                  <span className="text-md sm:text-md ">{getBrandNameFromUrl()}</span>
+                  <span className="text-md sm:text-md "> {formatSlugToTitle(location.pathname.split("/")[2])}</span>
                 </>
               )}
             </>
