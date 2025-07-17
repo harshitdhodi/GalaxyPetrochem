@@ -121,7 +121,7 @@ const submitApplication = async (req, res) => {
                         </tr>
                         <tr>
                           <td align="center" style="font-size: 14px; color: #888; padding-top: 15px; border-top: 1px solid #ddd;">
-    <p>&copy; <span id="year"></span>  Vihaani Enterprise. All rights reserved.</p>
+    <p>&copy; <span id="year"></span>  Galaxy Petrochemical. All rights reserved.</p>
 </td>
 
 <script>
@@ -140,7 +140,7 @@ const submitApplication = async (req, res) => {
     // **Send Email to Owner**
     if (ownerEmail) {
       const ownerMailOptions = {
-        from: `"Vihaani Enterprise" <${smtpConfig.name}>`,
+        from: `"Galaxy Petrochemical" <${smtpConfig.name}>`,
         to: ownerEmail,
         subject: "New Application Received",
         html: ownerEmailBody,
@@ -161,7 +161,7 @@ const submitApplication = async (req, res) => {
         subject: applicantTemplate.subject,
         html: applicantTemplate.body.replace("[Applicant's Name]", name)
           .replace("[Job/Position Name]", postAppliedFor)
-          .replace("[Company Name]", "Vihaani Enterprise")
+          .replace("[Company Name]", "Galaxy Petrochemical")
           .replace("[Contact Email]", "vh@gmail.com"),
       };
 
