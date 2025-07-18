@@ -1,5 +1,6 @@
 "use client"
 import banner from "../../../assets/petrochemical.webp"
+import { Link } from "react-router-dom"
 
 const ProductsGrid = ({
   productsBySubCategory,
@@ -99,10 +100,10 @@ const ProductsGrid = ({
               {viewType === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
                   {subCategoryGroup.products.slice(0, 10).map((product) => (
-                    <div
+                    <Link
                       key={product._id}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 p-2 sm:p-3 md:p-4"
-                      onClick={() => onProductClick(product.slug)}
+                      to={`/products/${product.slug}`}
+                      className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 p-2 sm:p-3 md:p-4"
                     >
                       <div className="flex flex-col items-center">
                         <div className="w-full aspect-square mb-2 sm:mb-3 md:mb-4 relative overflow-hidden rounded-md">
@@ -124,46 +125,48 @@ const ProductsGrid = ({
                         <h4 className="text-sm font-medium text-gray-900 text-center mb-2 line-clamp-2">
                           {product.name}
                         </h4>
-                        <p className="text-xs text-gray-500 text-center mb-2">{product.brandId.name}</p>
+                        <p className="text-xs text-gray-500 text-center mb-2">{product.brandId?.name}</p>
                         <p className="text-xs text-gray-600 text-center line-clamp-2">
                           {product.description || product.metaDescription}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-4">
                   {subCategoryGroup.products.slice(0, 10).map((product) => (
-                    <div
+                    <Link
                       key={product._id}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer p-2 sm:p-3 md:p-4 flex items-center space-x-4"
-                      onClick={() => onProductClick(product.slug)}
+                      to={`/products/${product.slug}`}
+                      className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-2 sm:p-3 md:p-4"
                     >
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
-                        {product.images && product.images.length > 0 ? (
-                          <img
-                            src={`/api/image/download/${product.images[0].url}`}
-                            alt={product.name}
-                            className="w-full h-full object-cover rounded-md"
-                            onError={(e) => {
-                              e.target.src = banner
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
-                            <span className="text-gray-500 text-xs">No Image</span>
-                          </div>
-                        )}
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                          {product.images && product.images.length > 0 ? (
+                            <img
+                              src={`/api/image/download/${product.images[0].url}`}
+                              alt={product.name}
+                              className="w-full h-full object-cover rounded-md"
+                              onError={(e) => {
+                                e.target.src = banner
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
+                              <span className="text-gray-500 text-xs">No Image</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-medium text-gray-900 mb-1">{product.name}</h4>
+                          <p className="text-xs text-gray-500 mb-1">{product.brandId?.name}</p>
+                          <p className="text-xs text-gray-600 line-clamp-2">
+                            {product.description || product.metaDescription}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-1 truncate">{product.name}</h4>
-                        <p className="text-xs sm:text-sm text-gray-500 mb-2">{product.brandId.name}</p>
-                        <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
-                          {product.description || product.metaDescription}
-                        </p>
-                      </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
