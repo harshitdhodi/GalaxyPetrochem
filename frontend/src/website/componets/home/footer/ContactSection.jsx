@@ -14,7 +14,7 @@ export default function ContactSection({ contactInfo, navigate }) {
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-            <Link to={`mailto:${contactInfo.email}`} className="hover:text-gray-200">
+            <Link to={`mailto:${contactInfo.emails}`} className="hover:text-gray-200">
               {contactInfo.emails}
             </Link>
           </div>

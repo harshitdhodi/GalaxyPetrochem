@@ -76,7 +76,7 @@ export default function Footer() {
         <div className="absolute inset-0 bg-gradient-to-l from-[#9e5d94] to-[#2860da] text-white"></div>
         
         {/* Content Container */}
-        <div className="relative w-full max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative bottom-0 w-full max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 md:gap-6 lg:gap-8">
             {/* Logo Section */}

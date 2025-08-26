@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url>
+  <url>
     <loc>https://www.galaxypetro.in/</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>1</priority>
   </url>
   <url>
     <loc>https://www.galaxypetro.in/about-us</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.galaxypetro.in/products</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.galaxypetro.in/Brands</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <loc>https://www.galaxypetro.in/brands</loc>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.galaxypetro.in/Blogs</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <loc>https://www.galaxypetro.in/blogs</loc>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.galaxypetro.in/contact-us</loc>
-    <lastmod>2025-07-16T06:03:37.155Z</lastmod>
+    <lastmod>2025-08-26T10:53:07.646Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

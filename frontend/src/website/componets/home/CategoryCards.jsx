@@ -53,9 +53,9 @@ export default function CategoryCards({ categories }) {
   return (
     <>
       <div className="sm:w-[81rem] px-6 mx-auto flex flex-col justify-start">
-        <h2 className="text-3xl md:text-4xl py-5 font-bold pb-2 text-[#9c5d95]">
+        <h1 className="text-3xl md:text-4xl py-5 font-bold pb-2 text-[#9c5d95]">
          We Deal's in
-        </h2>
+        </h1>
         <div className="h-1 w-[15%] bg-[#9c5d95]"></div>
       </div>
 

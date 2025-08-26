@@ -4,18 +4,90 @@
     <loc>https://www.galaxypetro.in/industrial-oils</loc>
     <lastmod>2025-04-24T06:35:44.291Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.02</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/hydraulic-oils</loc>
+    <lastmod>2025-04-24T06:36:24.445Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.03</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/gear-oils</loc>
+    <lastmod>2025-04-25T04:04:33.611Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.04</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/cutting-oil</loc>
+    <lastmod>2025-05-01T05:48:19.295Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.02</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/turbine-oil</loc>
+    <lastmod>2025-05-01T05:49:25.654Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.02</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/refrigeration-oil</loc>
+    <lastmod>2025-05-01T05:52:16.240Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.01</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/rust-prevention-oil</loc>
+    <lastmod>2025-05-01T05:54:23.968Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.04</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/slideway-oil</loc>
+    <lastmod>2025-05-01T05:59:20.237Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.02</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/engine-oil</loc>
+    <lastmod>2025-05-01T06:00:14.854Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.01</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/knitting-oil</loc>
+    <lastmod>2025-05-01T06:02:15.038Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.01</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/food-grade-mineral-oil</loc>
+    <lastmod>2025-05-01T06:46:22.831Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.01</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/thermic-oil</loc>
+    <lastmod>2025-05-01T10:00:46.735Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.03</priority>
+  </url>
+  <url>
+    <loc>https://www.galaxypetro.in/industrial-oils/compressor-oil</loc>
+    <lastmod>2025-05-01T10:57:58.407Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.05</priority>
   </url>
   <url>
     <loc>https://www.galaxypetro.in/greases</loc>
     <lastmod>2025-04-24T08:39:28.292Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.04</priority>
   </url>
   <url>
     <loc>https://www.galaxypetro.in/adhesives</loc>
     <lastmod>2025-05-05T02:40:20.916Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.03</priority>
   </url>
 </urlset>
