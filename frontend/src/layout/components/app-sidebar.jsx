@@ -145,14 +145,14 @@ const menuData = [
           // { title: "Add New", icon: PlusSquare, url: "/contact-info/add" },
         ]
       },
-      {
-        title: "Slide Show",
-        icon: FileQuestion,
-        children: [
-          { title: "slideshow Table", icon: PlusSquare, url: "/slideShow-table" },
-          { title: "slide show", icon: List, url: "/slideShow-form" },
-        ]
-      },
+      // {
+      //   title: "Slide Show",
+      //   icon: FileQuestion,
+      //   children: [
+      //     { title: "slideshow Table", icon: PlusSquare, url: "/slideShow-table" },
+      //     { title: "slide show", icon: List, url: "/slideShow-form" },
+      //   ]
+      // },
       {
         title: "WhatsUp Info",
         icon: FileQuestion,

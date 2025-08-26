@@ -146,7 +146,7 @@ const BlogDetailPage = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-wrap gap-5">
         <div className="w-full lg:w-[65%] px-4 mb-8 lg:mb-0">
-          <h1 className="text-4xl text-[#2d60d6] font-bold mb-4">{blog?.title}</h1>
+          <h2 className="text-4xl text-[#2d60d6] font-bold mb-4">{blog?.title}</h2>
           <p className="text-gray-600 mb-4">
             Published on {blog?.date} | By {blog?.postedBy}
           </p>

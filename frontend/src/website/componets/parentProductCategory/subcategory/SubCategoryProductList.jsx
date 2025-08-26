@@ -115,9 +115,9 @@ function SubCategoryProductList() {
         </div>
       </div>
       <div className="container mx-auto px-4 mt-5 pb-8 max-w-7xl">
-        <h1 className="text-4xl font-bold text-[#0a3161] mb-4">
+        <h2 className="text-4xl font-bold text-[#0a3161] mb-4">
           {categoryData?.category || "INDUSTRIAL OILS"}
-        </h1>
+        </h2>
         <div className="h-1 w-24 bg-[#0a3161] mb-6"></div>
 
         <div className="text-gray-700 mb-4">

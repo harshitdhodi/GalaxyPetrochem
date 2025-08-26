@@ -3,21 +3,44 @@ const path = require("path");
 const axios = require("axios");
 const Sitemap = require("../model/sitemap");
 
-// API endpoints
+// API endpoints with increased timeout
+const axiosConfig = {
+  timeout: 60000, // 60 seconds timeout
+  headers: {
+    'Content-Type': 'application/json'
+  }
+};
+
 const BLOG_API_URL = "http://localhost:3036/api/blog/get";
 const CHEMICAL_API_URL = "http://localhost:3036/api/petrochemProduct";
 const BASE_URL = "https://www.galaxypetro.in";
 const SITEMAP_API_URL = "http://localhost:3036/api/sitemap/get";
 const PRODUCT_CATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllCategories";
 const PRODUCT_SUBCATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllSubcategories";
-const PRODUCT_IMAGES_API_URL = "http://localhost:3036/api/petrochemProduct/getAllProductImages"; // Adjusted to match the new endpoint
+const PRODUCT_IMAGES_API_URL = "http://localhost:3036/api/petrochemProduct/getAllProductImages";
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
+
+// Helper function to fetch with retry logic
+const fetchWithRetry = async (url, retries = 3, delay = 1000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await axios.get(url, axiosConfig);
+      return response.data;
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      console.log(`Retry ${i + 1} for ${url}`);
+      await new Promise(res => setTimeout(res, delay * (i + 1)));
+    }
+  }
+};
 
 // Generate blog sitemap (unchanged)
 const generateBlogSitemap = async () => {
   try {
-    const response = await axios.get(BLOG_API_URL);
-    const blogs = response.data;
+    console.log('Fetching blogs...');
+    const response = await fetchWithRetry(BLOG_API_URL);
+    const blogs = Array.isArray(response) ? response : [];
+    console.log(`Fetched ${blogs.length} blogs`);
 
     let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -57,8 +80,10 @@ const generateBlogSitemap = async () => {
 // Generate chemical sitemap (unchanged)
 const generateChemicalSitemap = async () => {
   try {
-    const response = await axios.get(CHEMICAL_API_URL);
-    const chemicals = response.data;
+    console.log('Fetching chemicals...');
+    const response = await fetchWithRetry(CHEMICAL_API_URL);
+    const chemicals = Array.isArray(response) ? response : [];
+    console.log(`Fetched ${chemicals.length} chemicals`);
     let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
@@ -95,51 +120,153 @@ const generateChemicalSitemap = async () => {
 };
 
 // Generate product category sitemap
-const generateCategorySitemap = async () => {
-  try {
-    const response = await axios.get(PRODUCT_CATEGORY_API_URL);
-    const categories = response.data.categories || []; // Adjusted to handle the response structure
+// Generate XML sitemap content for categories
+const generateSitemapXML = (categories) => {
+  let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
-    categories.forEach((category) => {
-      xmlContent += `  <url>\n`;
-      xmlContent += `    <loc>${BASE_URL}/${category.slug}</loc>\n`;
-      xmlContent += `    <lastmod>${new Date(category.updatedAt || Date.now()).toISOString()}</lastmod>\n`;
-      xmlContent += `    <changefreq>weekly</changefreq>\n`;
-      xmlContent += `    <priority>0.9</priority>\n`;
-      xmlContent += `  </url>\n`;
-    });
-
-    xmlContent += `</urlset>`;
-
-    if (!fs.existsSync(PUBLIC_DIR)) {
-      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+  categories.forEach((category) => {
+    // Validate required fields
+    if (!category.slug) {
+      console.warn(`Category missing slug:`, category._id || 'unknown');
+      return;
     }
 
-    const sitemapPath = path.join(PUBLIC_DIR, "category-sitemap.xml");
-    fs.writeFileSync(sitemapPath, xmlContent);
+    // Construct URL
+    const categoryUrl = `${BASE_URL}/${category.slug}`;
+    
+    // Get last modified date
+    const lastmod = category.updatedAt || category.lastmod || new Date().toISOString();
+    const formattedDate = new Date(lastmod).toISOString();
+    
+    // Get priority (use category priority or default)
+    const priority = category.priority || 0.8;
+    
+    // Get change frequency
+    const changefreq = category.changeFreq || 'weekly';
 
-    console.log("Category sitemap generated successfully as category-sitemap.xml");
+    xmlContent += `  <url>\n`;
+    xmlContent += `    <loc>${escapeXml(categoryUrl)}</loc>\n`;
+    xmlContent += `    <lastmod>${formattedDate}</lastmod>\n`;
+    xmlContent += `    <changefreq>${changefreq}</changefreq>\n`;
+    xmlContent += `    <priority>${priority}</priority>\n`;
+    xmlContent += `  </url>\n`;
 
+    // Include subcategories if they exist
+    if (category.subCategories && Array.isArray(category.subCategories) && category.subCategories.length > 0) {
+      category.subCategories.forEach((subCategory) => {
+        if (subCategory.slug) {
+          const subCategoryUrl = `${BASE_URL}/${category.slug}/${subCategory.slug}`;
+          const subLastmod = subCategory.updatedAt || subCategory.lastmod || formattedDate;
+          const subPriority = subCategory.priority || (priority * 0.8); // Slightly lower priority for subcategories
+          
+          xmlContent += `  <url>\n`;
+          xmlContent += `    <loc>${escapeXml(subCategoryUrl)}</loc>\n`;
+          xmlContent += `    <lastmod>${new Date(subLastmod).toISOString()}</lastmod>\n`;
+          xmlContent += `    <changefreq>${subCategory.changeFreq || changefreq}</changefreq>\n`;
+          xmlContent += `    <priority>${subPriority}</priority>\n`;
+          xmlContent += `  </url>\n`;
+        }
+      });
+    }
+  });
+
+  xmlContent += `</urlset>`;
+  return xmlContent;
+};
+
+// Utility function to escape XML special characters
+const escapeXml = (unsafe) => {
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+    }
+  });
+};
+
+// Update database record function
+const updateSitemapRecord = async () => {
+  try {
     await Sitemap.findOneAndUpdate(
       { name: "category-sitemap.xml" },
-      { timestamp: Date.now() },
+      { 
+        timestamp: Date.now()
+      },
       { upsert: true, new: true }
     );
-
     console.log("Category sitemap record updated in the database");
   } catch (error) {
+    console.error("Failed to update database record:", error);
+    throw error;
+  }
+};
+
+// Updated Generate product category sitemap function
+const generateCategorySitemap = async () => {
+  try {
+    console.log('Fetching categories...');
+    const response = await fetchWithRetry(PRODUCT_CATEGORY_API_URL);
+    
+    // Handle different response structures
+    let categories = [];
+    if (response && response.categories && Array.isArray(response.categories)) {
+      categories = response.categories;
+    } else if (Array.isArray(response)) {
+      categories = response;
+    } else if (response && Array.isArray(response.data)) {
+      categories = response.data;
+    }
+    
+    console.log(`Fetched ${categories.length} categories`);
+
+    if (categories.length === 0) {
+      console.warn('No categories found to generate sitemap');
+      return;
+    }
+
+    // Generate XML sitemap using the helper function
+    let xmlContent = generateSitemapXML(categories);
+
+    // Ensure public directory exists
+    if (!fs.existsSync(PUBLIC_DIR)) {
+      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+      console.log(`Created directory: ${PUBLIC_DIR}`);
+    }
+
+    // Write sitemap file
+    const sitemapPath = path.join(PUBLIC_DIR, "category-sitemap.xml");
+    fs.writeFileSync(sitemapPath, xmlContent, 'utf8');
+    console.log(`Category sitemap generated successfully at: ${sitemapPath}`);
+
+    // Update database record
+    await updateSitemapRecord();
+
+    return {
+      success: true,
+      path: sitemapPath,
+      categoriesCount: categories.length
+    };
+
+  } catch (error) {
     console.error("Error generating category sitemap:", error);
+    if (error.response) {
+      console.error("API Response Data:", error.response.data);
+      console.error("API Response Status:", error.response.status);
+    }
+    throw error;
   }
 };
 
 // Generate product subcategory sitemap
 const generateSubcategorySitemap = async () => {
   try {
-    const response = await axios.get(PRODUCT_SUBCATEGORY_API_URL);
-    const categoriesWithSubs = response.data.data || [];
+    console.log('Fetching subcategories...');
+    const response = await fetchWithRetry(PRODUCT_SUBCATEGORY_API_URL);
+    const categoriesWithSubs = response.data || [];
 
     let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -181,20 +308,40 @@ const generateSubcategorySitemap = async () => {
 };
 
 
-// Generate main sitemap (updated to include category and subcategory sitemaps)
+// Generate main sitemap with specific sitemap order
 const generateMainSitemap = async () => {
   try {
-    const response = await axios.get(SITEMAP_API_URL);
-    const items = response.data.data;
+    // Get all sitemaps from the database
+    const allSitemaps = await Sitemap.find({}).lean();
+    
+    // Define the desired order of sitemaps
+    const sitemapOrder = [
+      'sitemap1.xml',
+      'chemical-sitemap.xml',
+      'category-sitemap.xml',
+      'subcategory-sitemap.xml',
+      'blog-sitemap.xml',
+      'product-image-sitemap.xml'
+    ];
+    
+    // Create a map of sitemaps for quick lookup
+    const sitemapMap = new Map();
+    allSitemaps.forEach(sitemap => {
+      sitemapMap.set(sitemap.name, sitemap);
+    });
 
     let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xmlContent += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    items.forEach((item) => {
-      xmlContent += `  <sitemap>\n`;
-      xmlContent += `    <loc>${BASE_URL}/${item.name}</loc>\n`;
-      xmlContent += `    <lastmod>${new Date(item.timestamp).toISOString()}</lastmod>\n`;
-      xmlContent += `  </sitemap>\n`;
+    // Generate sitemap entries in the specified order
+    sitemapOrder.forEach(sitemapName => {
+      const sitemap = sitemapMap.get(sitemapName);
+      if (sitemap) {
+        xmlContent += `  <sitemap>\n`;
+        xmlContent += `    <loc>${BASE_URL}/${sitemap.name}</loc>\n`;
+        xmlContent += `    <lastmod>${new Date(sitemap.timestamp).toISOString()}</lastmod>\n`;
+        xmlContent += `  </sitemap>\n`;
+      }
     });
 
     xmlContent += `</sitemapindex>`;
@@ -230,11 +377,11 @@ const generateStaticPagesSitemap = async () => {
       console.log('Generating static pages sitemap');
 
       const staticPages = [
-        { slug: '/', priority: 1 },
+        { slug: '', priority: 1 },
           { slug: 'about-us', priority: 0.8 },
           {slug: 'products', priority: 0.8 },
-          {slug: 'Brands', priority: 0.8 },
-          {slug: 'Blogs', priority: 0.8 },
+          {slug: 'brands', priority: 0.8 },
+          {slug: 'blogs', priority: 0.8 },
           { slug: 'contact-us', priority: 0.8 },
       ];
 
@@ -279,11 +426,10 @@ const generateStaticPagesSitemap = async () => {
 
 const generateProductImageSitemap = async () => {
   try {
-    console.log("Fetching from:", PRODUCT_IMAGES_API_URL);
-    const response = await axios.get(PRODUCT_IMAGES_API_URL);
-    console.log("Response data:", response.data);
-    const products = response.data.images || [];
-    console.log("Products data:", products);
+    console.log('Fetching product images...');
+    const response = await fetchWithRetry(PRODUCT_IMAGES_API_URL);
+    const products = (response && response.images) || [];
+    console.log(`Fetched ${products.length} product images`);
 
     let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xmlContent += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
@@ -339,13 +485,23 @@ const generateProductImageSitemap = async () => {
 
 // Generate all sitemaps (updated to include new sitemaps)
 const generateAllSitemaps = async () => {
-  await generateMainSitemap();
-  await generateBlogSitemap();
-  await generateChemicalSitemap();
-  await generateCategorySitemap();
-  await generateSubcategorySitemap();
-  await generateStaticPagesSitemap(); // Call the new function
-  await generateProductImageSitemap(); // Call the new function
+  try {
+    // Generate individual sitemaps first
+    await generateBlogSitemap();
+    await generateChemicalSitemap();
+    await generateCategorySitemap();
+    await generateSubcategorySitemap();
+    await generateStaticPagesSitemap();
+    await generateProductImageSitemap();
+    
+    // Generate main sitemap last to include all others
+    await generateMainSitemap();
+    
+    console.log('✅ All sitemaps generated successfully');
+  } catch (error) {
+    console.error('❌ Error generating sitemaps:', error);
+    throw error;
+  }
 };
 
 module.exports = { 

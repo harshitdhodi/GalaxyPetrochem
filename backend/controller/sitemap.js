@@ -5,7 +5,7 @@ const getAllSitemaps = async (req, res) => {
     try {
         const sitemaps = await Sitemap.find({})
             .sort({ timestamp: -1 }); // Sort by timestamp in descending order (newest first)
-        
+        console.log(sitemaps);
         res.status(200).json({
             success: true,
             count: sitemaps.length,

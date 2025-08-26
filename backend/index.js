@@ -1,6 +1,7 @@
- const express = require('express');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const favicon = require('serve-favicon');
 const admin = require("./route/admin");
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -11,11 +12,30 @@ require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const { generateAllSitemaps } = require('./route/sitemap');
 const handleDynamicRoutes = require('./route/serverMeta');
+
+// Configure favicon for all routes, including static files
+const faviconPath = path.join(__dirname, 'public', 'favicon.svg');
+app.use((req, res, next) => {
+  if (req.url === '/favicon.ico' || req.url === '/favicon.svg') {
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    if (req.url.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      return res.sendFile(path.join(__dirname, 'public', 'favicon.svg'));
+    } else {
+      res.setHeader('Content-Type', 'image/x-icon');
+      return res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+    }
+  }
+  next();
+});
+
+// Basic middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
+
 app.get('/robots.txt', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'robots.txt');
 
@@ -47,8 +67,6 @@ app.get('/sitemap.xml', (req, res) => {
 
 app.get('/sitemap1.xml', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'sitemap1.xml');
-
-
   fs.readFile(filePath, (err, data) => {
     if (err) {
       console.error(err);
@@ -163,10 +181,14 @@ app.get('/images/:filename', async (req, res) => {
 
 
 
-// Serve static files from the 'public' directory
+// Serve static files from the 'public' directory, excluding favicon files
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
   setHeaders: (res, path) => {
+    // Skip favicon files as they're handled by our custom middleware
+    if (path.endsWith('favicon.ico') || path.endsWith('favicon.svg')) {
+      return;
+    }
     if (path.endsWith('.svg')) {
       res.setHeader('Content-Type', 'image/svg+xml');
     }
@@ -267,8 +289,8 @@ app.listen(PORT, () => {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
-  console.log(`Server running on port ${PORT}`);
   // generateAllSitemaps(); // Generate sitemaps on startup
+  console.log(`Server running on port ${PORT}`);
 }); 
 // SMTP Connection Test
 const nodemailer = require('nodemailer');
