@@ -1,8 +1,7 @@
 "use client"
 import { X } from "lucide-react"
-import { Link } from "react-router-dom"
 
-const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, loading, error }) => {
+const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, onBrandSelect, loading, error }) => {
   return (
     <>
       {/* Sidebar */}
@@ -38,9 +37,9 @@ const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, loa
               </div>
             ) : (
               <div className="space-y-1">
-                <Link
-                  to="/brands"
-                  className={`block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                <button
+                  onClick={() => onBrandSelect(null)}
+                  className={`w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
                     !selectedBrand
                       ? "bg-[#a75d9e] text-white shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -50,29 +49,29 @@ const BrandsSidebar = ({ sidebarOpen, setSidebarOpen, brands, selectedBrand, loa
                     <span>All Brands</span>
                     <span className="text-xs opacity-75">({brands.length})</span>
                   </div>
-                </Link>
+                </button>
 
-                {brands.map((brand) => {
-                  const brandSlug = brand.slug || brand.name.replace(/\s+/g, "-").toLowerCase();
-                  return (
-                    <Link
-                      key={brand._id}
-                      to={`/brands/${brandSlug}`}
-                      className={`block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
-                        selectedBrand === brand._id
-                          ? "bg-[#a75d9e] text-white shadow-sm"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 min-w-0">
-                          <span className="truncate">{brand.name}</span>
-                        </div>
-                        <span className="text-xs opacity-75 ml-2 flex-shrink-0">({brand.productCount || 0})</span>
+                {brands.map((brand) => (
+                  <button
+                    key={brand._id}
+                    onClick={() => onBrandSelect(brand._id)}
+                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                      selectedBrand === brand._id
+                        ? "bg-[#a75d9e] text-white shadow-sm"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 min-w-0">
+                        {/* <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-semibold text-gray-600">{brand.name.charAt(0)}</span>
+                        </div> */}
+                        <span className="truncate">{brand.name}</span>
                       </div>
-                    </Link>
-                  );
-                })}
+                      <span className="text-xs opacity-75 ml-2 flex-shrink-0">({brand.productCount || 0})</span>
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>

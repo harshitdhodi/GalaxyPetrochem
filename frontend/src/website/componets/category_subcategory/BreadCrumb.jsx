@@ -20,7 +20,7 @@ export function Breadcrumb({ chemicalName,subCategorySlug, categorySlug, categor
           <span className="mx-2 text-white">/</span>
         </li>
         <li className="flex items-center">
-          <Link to="/categories" className="text-[12px] sm:text-[15px] text-white   rounded-md">Products</Link>
+          <Link to="/products" className="text-[12px] sm:text-[15px] text-white   rounded-md">Products</Link>
           <span className="mx-2 text-white">/</span>
         </li>
         <li className="flex items-center">

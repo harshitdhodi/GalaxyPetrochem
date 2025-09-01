@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useLocation } from "react-router-dom"
-import { Link } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 import BrandsBanner from "./BrandsBanner"
 import BrandsHeader from "./BrandsHeader"
@@ -16,6 +15,7 @@ import { useBrandsFilters } from "./hooks/useBrandsFilters"
 export default function BrandsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [viewType, setViewType] = useState("grid")
+  const navigate = useNavigate()
   const location = useLocation()
 
   const { products, brands, banners, loading, error, fetchProducts } = useBrandsData()
@@ -43,9 +43,9 @@ export default function BrandsPage() {
     const brand = brands.find((b) => b._id === brandId)
     if (brand) {
       const brandSlug = brand.slug || brand.name.replace(/\s+/g, "-").toLowerCase()
-      // Removed navigate call - will be handled by Link component
+      navigate(`/brands/${brandSlug}`)
     } else {
-      // Removed navigate call - will be handled by Link component
+      navigate("/brands")
     }
   }
 
@@ -60,7 +60,7 @@ export default function BrandsPage() {
   }
 
   const handleProductClick = (slug) => {
-    // Removed navigate call - will be handled by Link component
+    navigate(`/products/${slug}`)
   }
 
   const totalProducts = filteredProducts.length

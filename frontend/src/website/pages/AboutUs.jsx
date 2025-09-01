@@ -47,6 +47,7 @@ export default function PetrochemicalAboutUs() {
                <Link to="#">
                  <span className="text-[12px] sm:text-[15px]">About Us</span>
                </Link>
+               
              </nav>
            </div>
          </div>
