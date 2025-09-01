@@ -289,7 +289,7 @@ app.listen(PORT, () => {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
-  generateAllSitemaps(); // Generate sitemaps on startup
+  // generateAllSitemaps(); // Generate sitemaps on startup
   console.log(`Server running on port ${PORT}`);
 }); 
 // SMTP Connection Test
