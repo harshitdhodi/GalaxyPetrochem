@@ -106,8 +106,8 @@ app.get('/category-sitemap.xml', (req, res) => {
   });
 });
 
-app.get('/chemical-sitemap.xml', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'chemical-sitemap.xml');
+app.get('/products-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'products-sitemap.xml');
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -289,7 +289,7 @@ app.listen(PORT, () => {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
-  // generateAllSitemaps(); // Generate sitemaps on startup
+  generateAllSitemaps(); // Generate sitemaps on startup
   console.log(`Server running on port ${PORT}`);
 }); 
 // SMTP Connection Test

@@ -4,6 +4,7 @@ import axios from "axios";
 import company from "../../../assets/petrochemical.webp";
 import { ArrowRight, Award, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReadMoreButton from "./slideshow/ReadMoreButton";
 
 export default function CompanyInfo() {
   const [aboutData, setAboutData] = useState(null);
@@ -79,6 +80,7 @@ export default function CompanyInfo() {
                 className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-[#fff] px-8 text-base font-medium text-gray-700 shadow transition hover:shadow-md hover:text-white hover:bg-[#e84c20] hover:translate-y-[-2px]"
               >
                 Our Products
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/brands"
@@ -86,7 +88,14 @@ export default function CompanyInfo() {
               >
                 Our Brands
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
+              </Link> 
+              <Link
+                to="/about-us"
+                className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-white px-8 text-base font-medium text-gray-700 shadow transition group hover:bg-[#e84c20] hover:text-white hover:translate-y-[-2px]"
+              >
+                Read More
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link> 
             </div>
           </div>
         </div>

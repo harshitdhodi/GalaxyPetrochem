@@ -102,13 +102,13 @@ const generateChemicalSitemap = async () => {
       fs.mkdirSync(PUBLIC_DIR, { recursive: true });
     }
 
-    const sitemapPath = path.join(PUBLIC_DIR, "chemical-sitemap.xml");
+    const sitemapPath = path.join(PUBLIC_DIR, "products-sitemap.xml");
     fs.writeFileSync(sitemapPath, xmlContent);
 
-    console.log("Chemical sitemap generated successfully as chemical-sitemap.xml");
+    console.log("Chemical sitemap generated successfully as products-sitemap.xml");
 
     await Sitemap.findOneAndUpdate(
-      { name: "chemical-sitemap.xml" },
+      { name: "products-sitemap.xml" },
       { timestamp: Date.now() },
       { upsert: true, new: true }
     );
@@ -317,7 +317,7 @@ const generateMainSitemap = async () => {
     // Define the desired order of sitemaps
     const sitemapOrder = [
       'sitemap1.xml',
-      'chemical-sitemap.xml',
+      'products-sitemap.xml',
       'category-sitemap.xml',
       'subcategory-sitemap.xml',
       'blog-sitemap.xml',

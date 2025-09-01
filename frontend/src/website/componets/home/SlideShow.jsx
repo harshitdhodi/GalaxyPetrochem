@@ -155,7 +155,7 @@ const Slideshow = () => {
         setLcpImageLoaded={setLcpImageLoaded}
       />
 
-      <ReadMoreButton lcpImageLoaded={lcpImageLoaded} />
+      {/* <ReadMoreButton lcpImageLoaded={lcpImageLoaded} /> */}
 
       <SlideshowControls
         imageSource={imageSource}
