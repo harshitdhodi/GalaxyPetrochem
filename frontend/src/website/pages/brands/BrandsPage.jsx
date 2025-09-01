@@ -87,7 +87,7 @@ export default function BrandsPage() {
           error={error}
         />
 
-        <div className="flex-1 lg:ml-0">
+        <div className="flex-1 z-0 lg:ml-0">
           <CategoryNavigation
             categories={categories}
             selectedCategory={selectedCategory}

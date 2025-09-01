@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Layout from './layout/Layout';
+import FloatingInquiry from './components/FloatingInquiry';
 import './App.css';
 
 // Loading component for Suspense
@@ -150,17 +151,19 @@ const LoginRoute = () => {
 // Dynamic meta function
 const AppContent = () => {
   useDocumentTitle(); // Use the hook here
-  <CriticalStyles />
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Outlet /> {/* Render the rest of the app */}
-    </Suspense>
+    <>
+      <CriticalStyles />
+      <Suspense fallback={<LoadingFallback />}>
+        <Outlet /> {/* Render the rest of the app */}
+      </Suspense>
+      <FloatingInquiry />
+    </>
   );
 };
 
 // Main App Component
-function App() {
-
+const App = () => {
   const router = createBrowserRouter([
     {
       path: '/',
@@ -193,9 +196,9 @@ function App() {
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
             { path: 'brands/:slug', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
             { path: 'thank-you', element: <Suspense fallback={<LoadingFallback />}><ThankYouPage /></Suspense> },
-            
+             
             // { path: 'brand', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
-
+ 
             // brands section 
             { path: '/brands', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
             { path: '/advance-search', element: <Suspense fallback={<LoadingFallback />}><AdvanceSearch /></Suspense> },
@@ -362,17 +365,18 @@ function App() {
 
             // Privacy Policy Routes
             { path: 'privacypolicy-terms', element: <Suspense fallback={<LoadingFallback />}><PrivacyForm /></Suspense> },
-            { path: 'terms-and-conditions-form', element: <Suspense fallback={<LoadingFallback />}><TermsConditionForm /></Suspense> },
-
-
-
+            { path: 'terms-and-conditions-form', element: <Suspense fallback={<LoadingFallback />}><TermsConditionForm /></Suspense> }
           ]
         }
       ]
     }
   ]);
 
-  return <RouterProvider router={router} />;
-}
+  return (
+    <div className="min-h-screen bg-white">
+      <RouterProvider router={router} />
+    </div>
+  );
+};
 
 export default App;
