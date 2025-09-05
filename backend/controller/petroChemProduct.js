@@ -63,7 +63,7 @@ exports.createProduct = async (req, res) => {
       msds,
       brandId,
       categoryId,
-      subCategoryId,
+      subCategoryId: subCategoryId || null, // Convert empty string to null
       metaTitle,
       metaDescription,
       metaKeyword,

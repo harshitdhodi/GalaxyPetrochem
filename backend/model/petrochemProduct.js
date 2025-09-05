@@ -27,7 +27,7 @@ const ProductSchema = new mongoose.Schema({
   msds: { type: String }, // filename or URL
   brandId: { type: mongoose.Schema.Types.ObjectId, ref: "brand" },
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory" },
-  subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory" },
+  subCategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory" , required:false,default:null},
   metaTitle: { type: String },
   metaDescription: { type: String },
   metaKeyword: { type: String },

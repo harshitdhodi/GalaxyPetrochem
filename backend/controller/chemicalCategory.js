@@ -149,6 +149,7 @@ const updateCategory = async (req, res) => {
 
     res.status(200).json(updatedCategory);
   } catch (error) {
+    console.log('Error updating category:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };

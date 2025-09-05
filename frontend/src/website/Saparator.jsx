@@ -25,7 +25,8 @@ export default function Saperator() {
     'Knitting Oil',
     'Food Grade Mineral Oil',
     'Thermic Oil',
-    'Compressor Oil'
+    'Compressor Oil',
+    'Multipurpose grease'
   ];
 
   // Convert to lowercase and replace spaces with dashes
