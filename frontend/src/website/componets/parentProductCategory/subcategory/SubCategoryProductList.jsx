@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { Breadcrumb } from "../../category_subcategory/BreadCrumb";
 import { Banner } from "../../Banner";
-import banner from "../../../../assets/petrochemical.webp";
+import banner from "../../../../assets/banner.webp";
 import SubCategoryProductListCard from "./SubCategoryProductListCard";
 
 function SubCategoryProductList() {
