@@ -1,4 +1,5 @@
 const brands = require("../model/brands");
+const chemicalCategory = require("../model/chemicalCategory");
 const Product = require("../model/petrochemProduct");
 
 // CREATE
@@ -127,19 +128,37 @@ exports.getProductsByCategorySlug = async (req, res) => {
       .populate('subCategoryId', 'name slug') // Adjust fields as needed
       .sort({ createdAt: -1 }); // Sort by newest first
 
+    // Fetch chemical category data that matches the categorySlug
+    let chemicalCategoryData = null;
+    
+    try {
+      chemicalCategoryData = await chemicalCategory.findOne({ 
+        $or: [
+          { slug: categorySlug },
+          { name: { $regex: new RegExp(categorySlug, 'i') } },
+          { category: { $regex: new RegExp(categorySlug, 'i') } }
+        ]
+      });
+    } catch (chemicalError) {
+      console.warn("Warning: Could not fetch chemical category data:", chemicalError.message);
+      // Continue execution even if chemical category fetch fails
+    }
+
     // Check if products found
     if (!products || products.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No products found for this category"
+        message: "No products found for this category",
+        chemicalCategory: chemicalCategoryData // Include chemical data even if no products found
       });
     }
 
-    // Return successful response
+    // Return successful response with both products and chemical category data
     res.status(200).json({
       success: true,
       count: products.length,
-      data: products
+      data: products,
+      chemicalCategory: chemicalCategoryData
     });
 
   } catch (error) {
