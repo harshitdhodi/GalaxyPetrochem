@@ -60,7 +60,7 @@ function SubCategoryProduct() {
         fetchCategory();
     }, [slug]);
 
-    return (
+    return ( 
         <>
 
             <div className="relative">

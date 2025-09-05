@@ -95,7 +95,7 @@ const EditCategory = () => {
   };
 
   const generateUrl = () => {
-    let baseUrl = "https://rndtechnosoft.com";
+    let baseUrl = "https://www.galaxypetro.in";
     if (categoryId && !subCategoryId) {
       return `${baseUrl}/${slug}`;
     } else if (categoryId && subCategoryId) {
