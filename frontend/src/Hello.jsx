@@ -10,7 +10,7 @@ export default function Hello() {
   const { data: blogData, isLoading } = useGetAllBlogsQuery();
 
   const path = location.pathname;
-  const validSubCategoryPaths = ['/industrial-oils', '/greases'];
+  const validSubCategoryPaths = ['/industrial-oils', '/greases','/aerosol'];
   const isSubCategoryPath = validSubCategoryPaths.includes(path);
 
   const isBlogPath = blogData?.some(blog => path === `/${blog.slug}`);
