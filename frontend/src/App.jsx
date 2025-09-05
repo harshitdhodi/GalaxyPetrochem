@@ -150,14 +150,37 @@ const LoginRoute = () => {
 
 // Dynamic meta function
 const AppContent = () => {
-  useDocumentTitle(); // Use the hook here
+  useDocumentTitle();
+  const location = useLocation();
+  
+  // List of paths where FloatingInquiry should be shown
+  const showFloatingInquiry = [
+    '/',
+    '/categories',
+    '/alphabetsbaseCategory',
+    '/about-us',
+    '/contact-us',
+    '/blogs',
+    '/about',
+    '/introduction',
+    '/vision-mission',
+    '/products',
+    '/brands',
+    '/advance-search',
+    '/privacy-policy',
+    '/terms-and-conditions',
+    '/product-search'
+  ].some(path => location.pathname === path || 
+                location.pathname.startsWith(path + '/') || 
+                (path === '/' && location.pathname === ''));
+
   return (
     <>
       <CriticalStyles />
       <Suspense fallback={<LoadingFallback />}>
-        <Outlet /> {/* Render the rest of the app */}
+        <Outlet />
       </Suspense>
-      <FloatingInquiry />
+      {showFloatingInquiry && <FloatingInquiry />}
     </>
   );
 };

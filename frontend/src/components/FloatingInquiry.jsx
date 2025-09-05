@@ -73,7 +73,7 @@ const FloatingInquiry = () => {
           className="fixed right-0 top-1/2 transform -rotate-90 -translate-y-1/2 bg-primary hover:bg-orange-600 text-white rounded-md py-6 px-4 shadow-lg transition-all duration-300"
         >
           <span className="block whitespace-nowrap text-sm font-semibold">
-            INQUIRE NOW
+            INQUIRY NOW
           </span>
         </Button>
       ) : (
