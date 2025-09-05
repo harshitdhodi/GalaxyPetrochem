@@ -8,6 +8,7 @@ router.post("/addProduct",upload,productController.createProduct
 
 router.get("/", productController.getAllProducts);
 router.get("/brandId", productController.getProductsByBrandId);
+router.get("/getByCategorySlug/:categorySlug",productController.getProductsByCategorySlug)
 router.get("/getAllProductImages", productController.getAllProductImages);
 router.get("/getBySlug",  productController.getProductBySlug);
 router.get("/getRecentProductsByCategorySlug", productController.getRecentProductsByCategorySlug);
