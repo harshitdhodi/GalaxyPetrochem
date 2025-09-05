@@ -26,8 +26,16 @@ export default function Saperator() {
     'Food Grade Mineral Oil',
     'Thermic Oil',
     'Compressor Oil',
-    'Multipurpose grease'
+    'Multipurpose grease',
+    'Extreme Pressure Grease',
+    'High Temperature Grease',
+    'Water Resistant Grease',
+    'Silicon Grease',
+    'High Speed Grease',
+    'Copper Paste'
   ];
+
+
 
   // Convert to lowercase and replace spaces with dashes
   const subcategorySlugs = subcategoryNames.map(name =>

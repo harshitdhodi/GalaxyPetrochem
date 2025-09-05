@@ -105,6 +105,53 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+
+
+// Get products by category slug
+exports.getProductsByCategorySlug = async (req, res) => {
+  try {
+    const { categorySlug } = req.params;
+    
+    // Validate categorySlug parameter
+    if (!categorySlug) {
+      return res.status(400).json({
+        success: false,
+        message: "Category slug is required"
+      });
+    }
+
+    // Find products by categorySlug with populated references
+    const products = await Product.find({ categorySlug })
+      .populate('brandId', 'name slug') // Adjust fields as needed
+      .populate('categoryId', 'name slug') // Adjust fields as needed
+      .populate('subCategoryId', 'name slug') // Adjust fields as needed
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Check if products found
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No products found for this category"
+      });
+    }
+
+    // Return successful response
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products
+    });
+
+  } catch (error) {
+    console.error("Error fetching products by category slug:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching products",
+      error: error.message
+    });
+  }
+};
+
 // GET BY ID
 exports.getProductById = async (req, res) => {
   try {
