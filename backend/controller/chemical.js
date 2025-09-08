@@ -196,7 +196,7 @@ exports.updateChemical = async (req, res) => {
       imagesToDelete.forEach(imageId => {
         const image = existingChemical.images.find(img => img._id.toString() === imageId);
         if (image) {
-          const imagePath = path.join(__dirname, '../uploads', image.url);
+          const imagePath = path.join(__dirname, '../uploads2', image.url);
           fs.unlink(imagePath, (err) => {
             if (err) console.error('Failed to delete image file:', err);
           });
@@ -608,7 +608,7 @@ exports.updateChemical = async (req, res) => {
       imagesToDelete.forEach(imageId => {
         const image = existingChemical.images.find(img => img._id.toString() === imageId);
         if (image) {
-          const imagePath = path.join(__dirname, '../uploads', image.url);
+          const imagePath = path.join(__dirname, '../uploads2', image.url);
           fs.unlink(imagePath, (err) => {
             if (err) console.error('Failed to delete image file:', err);
           });

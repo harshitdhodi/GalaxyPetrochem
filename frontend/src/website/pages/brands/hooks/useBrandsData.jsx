@@ -50,7 +50,7 @@ export const useBrandsData = () => {
       if (selectedCategory) params.categoryId = selectedCategory
       if (selectedSubCategory) params.subCategorySlug = selectedSubCategory
 
-      const response = await axios.get("/api/petrochemProduct", { params })
+      const response = await axios.get("/api/petrochemProduct/getAllProductsForBrandPage", { params })
       setProducts(response.data || [])
     } catch (error) {
       console.error("Failed to fetch products:", error)

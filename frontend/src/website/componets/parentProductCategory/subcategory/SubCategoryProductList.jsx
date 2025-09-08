@@ -100,7 +100,7 @@ function SubCategoryProductList() {
       <div className="relative">
         {/* Banner */}
         {banners && banners.length > 0 ? (
-          <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={banners[0].title} />
+          <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={categoryData?.slug} />
         ) : (
           <Banner imageUrl={banner} />
         )}

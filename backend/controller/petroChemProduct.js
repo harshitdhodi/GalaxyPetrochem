@@ -106,6 +106,39 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+exports.getAllProductsForBrandPage = async (req, res) => {
+  try {
+    const products = await Product.find({}, { details: 0, tableInfo: 0, specifiction: 0 })
+      .populate("brandId", "name photo createdAt updatedAt slug")
+      .populate({
+        path: "categoryId",
+        select: "category subCategories",
+        options: { lean: true }
+      })
+      .lean()
+
+    // Remove details field from subCategories and subSubCategories
+    const cleanedProducts = products.map(product => {
+      if (product.categoryId && product.categoryId.subCategories) {
+        product.categoryId.subCategories = product.categoryId.subCategories.map(subCat => {
+          const { details, ...cleanSubCat } = subCat;
+          if (cleanSubCat.subSubCategory) {
+            cleanSubCat.subSubCategory = cleanSubCat.subSubCategory.map(subSubCat => {
+              const { details, ...cleanSubSubCat } = subSubCat;
+              return cleanSubSubCat;
+            });
+          }
+          return cleanSubCat;
+        });
+      }
+      return product;
+    });
+
+    res.json(cleanedProducts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
 // Get products by category slug
@@ -123,10 +156,10 @@ exports.getProductsByCategorySlug = async (req, res) => {
 
     // Find products by categorySlug with populated references
     const products = await Product.find({ categorySlug })
-      .populate('brandId', 'name slug') // Adjust fields as needed
-      .populate('categoryId', 'name slug') // Adjust fields as needed
-      .populate('subCategoryId', 'name slug') // Adjust fields as needed
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .populate('brandId', 'name slug') 
+      .populate('categoryId', 'name slug') 
+      .populate('subCategoryId', 'name slug') 
+      .sort({ createdAt: -1 }); 
 
     // Fetch chemical category data that matches the categorySlug
     let chemicalCategoryData = null;
@@ -149,7 +182,7 @@ exports.getProductsByCategorySlug = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "No products found for this category",
-        chemicalCategory: chemicalCategoryData // Include chemical data even if no products found
+        chemicalCategory: chemicalCategoryData 
       });
     }
 
@@ -222,7 +255,7 @@ exports.updateProduct = async (req, res) => {
       tableInfo,
       brandId,
       categoryId,
-      subCategoryId,
+      subCategoryId: subCategoryId || null, // Convert empty string to null
       metaTitle,
       metaDescription,
       metaKeyword,
@@ -243,7 +276,7 @@ exports.updateProduct = async (req, res) => {
           title: title,
         });
       });
-      updates.images = images; // Replace existing images with new ones
+      updates.images = images; 
     }
 
     // Handle PDF file
@@ -347,9 +380,9 @@ exports.getRecentProductsByCategorySlug = async (req, res) => {
     // Step 2: Find the 5 most recent products in the same category excluding the current product
     const recentProducts = await Product.find({
       categoryId: currentProduct.categoryId,
-      slug: { $ne: slug } // Exclude the current product
+      slug: { $ne: slug } 
     })
-      .sort({ createdAt: -1 }) // Most recent first
+      .sort({ createdAt: -1 }) 
       .limit(6)
       .populate("brandId categoryId subCategoryId");
 
@@ -385,7 +418,7 @@ exports.filterProducts = async (req, res) => {
         { metaTitle: searchRegex },
         { metaDescription: searchRegex },
         { metaKeyword: searchRegex },
-        { brandId: { $in: matchingBrandIds } } // Include this
+        { brandId: { $in: matchingBrandIds } } 
       ],
     })
       .populate("brandId")
@@ -401,7 +434,7 @@ exports.filterProducts = async (req, res) => {
 
 exports.getAllProductImages = async (req, res) => {
   try {
-    const images = await Product.find({}, { images: 1 }); // Include only images field
+    const images = await Product.find({}, { images: 1 }); 
 
     if (!images.length) {
       return res.status(404).json({ message: "No product images found" });
@@ -421,7 +454,7 @@ exports.getAllSlugs = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      slugs: slugs.map((item) => item.slug), // Return an array of slugs
+      slugs: slugs.map((item) => item.slug), 
     });
   } catch (error) {
     console.error("Error fetching slugs:", error);

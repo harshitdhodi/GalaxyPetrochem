@@ -11,10 +11,10 @@ const ensureDirectory = (dir) => {
 };
 
 // Define directories
-const imageDir = path.join(__dirname, '../uploads/images');
-const catalogueDir = path.join(__dirname, '../uploads/catalogs');
-const photoDir = path.join(__dirname, '../uploads/photos');
-const videoDir = path.join(__dirname, '../uploads/videos');
+const imageDir = path.join(__dirname, '../uploads2/images');
+const catalogueDir = path.join(__dirname, '../uploads2/catalogs');
+const photoDir = path.join(__dirname, '../uploads2/photos');
+const videoDir = path.join(__dirname, '../uploads2/videos');
 
 // Ensure all directories exist
 ensureDirectory(imageDir);
@@ -24,17 +24,17 @@ ensureDirectory(videoDir);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let dir = 'uploads/images'; // Default directory for images
+        let dir = 'uploads2/images'; // Default directory for images
         
         // Choose directory based on file type
         if (file.mimetype === 'application/pdf') {
-            dir = 'uploads/catalogs';
+            dir = 'uploads2/catalogs';
         } else if (file.mimetype.startsWith('image')) {
-            dir = 'uploads/images';
+            dir = 'uploads2/images';
         } else if (file.mimetype.startsWith('video')) {
-            dir = 'uploads/videos';
-        } else if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-            dir = 'uploads/photos';
+            dir = 'uploads2/videos';
+        } else if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/svg+xml') {
+            dir = 'uploads2/photos';
         }
 
         // Ensure the chosen directory exists
@@ -63,9 +63,9 @@ const upload = multer({
     fileFilter: function (req, file, cb) {
         const allowedMimeTypes = {
             catalogue: ['application/pdf'],
-            photo: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'],
+            photo: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/svg+xml'],
             video: ['video/mp4', 'video/mkv', 'video/avi', 'video/mov'],
-            image: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+            image: ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/svg+xml']
         };
         const allowedTypes = allowedMimeTypes[file.fieldname];
         if (allowedTypes && allowedTypes.includes(file.mimetype)) {
@@ -76,11 +76,18 @@ const upload = multer({
     }
 });
 
-// Function to process the image to maintain quality
-const processImage = (inputPath, outputPath) => {
+// Function to process images (only resize if needed, maintain original format)
+const processImage = (inputPath, outputPath, originalFormat) => {
+    // Skip processing for SVG files
+    if (originalFormat === 'svg') {
+        fs.copyFileSync(inputPath, outputPath);
+        console.log('SVG file copied without processing');
+        return;
+    }
+
     sharp(inputPath)
-        .resize(1024) // Resize to a max width of 1024px if needed
-        .toFormat('jpeg', { quality: 100 }) // Maintain high quality for JPEG
+        .resize({ width: 1024, withoutEnlargement: true }) // Resize only if larger than 1024px, don't upscale
+        .toFormat(originalFormat, { quality: 100 }) // Keep original format and maximum quality
         .toFile(outputPath, (err, info) => {
             if (err) {
                 console.error('Error processing image:', err);
@@ -104,9 +111,20 @@ const image = (req, res, next) => {
         // Process image files (after upload)
         if (req.files && req.files.photo) {
             req.files.photo.forEach(file => {
-                const inputPath = path.join(__dirname, `../uploads/photos/${file.filename}`);
-                const outputPath = inputPath; // Optionally, use a new path or filename
-                processImage(inputPath, outputPath);
+                const inputPath = path.join(__dirname, `../uploads2/photos/${file.filename}`);
+                const outputPath = inputPath; // Keep same path to overwrite
+                const originalFormat = file.mimetype === 'image/svg+xml' ? 'svg' : path.extname(file.originalname).slice(1).toLowerCase();
+                processImage(inputPath, outputPath, originalFormat);
+            });
+        }
+
+        // Process regular image files
+        if (req.files && req.files.image) {
+            req.files.image.forEach(file => {
+                const inputPath = path.join(__dirname, `../uploads2/images/${file.filename}`);
+                const outputPath = inputPath;
+                const originalFormat = file.mimetype === 'image/svg+xml' ? 'svg' : path.extname(file.originalname).slice(1).toLowerCase();
+                processImage(inputPath, outputPath, originalFormat);
             });
         }
 

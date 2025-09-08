@@ -12,7 +12,7 @@ Disallow: /register/
 Disallow: /account/
 Disallow: /customer-table/
 Disallow: /api/
-Disallow: /uploads/
+Disallow: /uploads2/
 
 
 # Sitemap location

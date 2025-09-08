@@ -170,17 +170,17 @@ export default function InquiryList() {
             <Table className="border">
                 <TableHeader>
                     <TableRow className="border-b bg-gray-100">
-                        <TableHead className="w-12"></TableHead>
+                        {/* <TableHead className="w-12"></TableHead> */}
                         <TableHead className="lg:w-[100px] w-[50px] sticky left-0 bg-background z-50">Date</TableHead>
                         <TableHead className="text-left">Info</TableHead>
                         {/* <TableHead className="text-left">Email</TableHead> */}
                         <TableHead className="text-left">Message</TableHead>
-                        <TableHead className="text-left">Follow Up</TableHead>
+                        {/* <TableHead className="text-left">Follow Up</TableHead> */}
                         <TableHead className="w-[80px] text-left">Actions</TableHead>
                     </TableRow>
                     <TableRow className="border-b">
-                        <TableHead></TableHead>
-                        <TableHead></TableHead>
+                        {/* <TableHead></TableHead> */}
+                        {/* <TableHead></TableHead> */}
                         <TableHead>
                             <Input
                                 placeholder="Search Info"
@@ -222,12 +222,12 @@ export default function InquiryList() {
                 <TableBody>
                     {filteredData.map((item, index) => (
                         <TableRow key={index} className="border-b">
-                            <TableCell className="p-5">
+                            {/* <TableCell className="p-5">
                                 <Checkbox
                                     checked={selectedInquiries.includes(item._id)}
                                     onCheckedChange={() => handleInquirySelect(item._id)}
                                 />
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell className="sticky left-0 bg-background">{item.createdAt.slice(0, 10)}</TableCell>
                             <TableCell>
                                 <div className="space-y-1">
@@ -244,12 +244,12 @@ export default function InquiryList() {
                             </TableCell>
                             {/* <TableCell>{item.email}</TableCell> */}
                             <TableCell>{item.message}</TableCell>
-                            <TableCell className="text-left">
+                            {/* <TableCell className="text-left">
                                 <FollowUpModal
                                     inquiry={item}
                                     onFollowUpAdded={handleFollowUpAdded}
                                 />
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell className="text-center">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>

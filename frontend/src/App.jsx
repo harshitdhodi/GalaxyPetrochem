@@ -137,6 +137,11 @@ import EditAboutUsForm from './websiteBackend/aboutus/EditAboutUs';
 // import BrandPage from './website/pages/BrandPage';
 import ThankYouPage from './website/pages/component/Thankyou';
 import BrandPage2 from './website/pages/brands/BrandsPage';
+import GallaryChild from './website/gallary/GallaryChild';
+import GalleryCRUD from './websiteBackend/gallary/GallayMainPage';
+import GallaryPage from './website/gallary/GallaryPage';
+import Marquee from './website/componets/productDetailPage/marquee/Marquee';
+import DownloadPage from './website/componets/download/DownloadPage';
 // Auth Components
 const PrivateRoute = ({ children }) => {
   const token = Cookies.get('jwt');
@@ -153,7 +158,7 @@ const AppContent = () => {
   useDocumentTitle();
   const location = useLocation();
   
-  // List of paths where FloatingInquiry should be shown
+  // List of paths where FloatingInquiry should be shown (exact matches only)
   const showFloatingInquiry = [
     '/',
     '/categories',
@@ -169,14 +174,13 @@ const AppContent = () => {
     '/advance-search',
     '/privacy-policy',
     '/terms-and-conditions',
-    '/product-search'
-  ].some(path => location.pathname === path || 
-                location.pathname.startsWith(path + '/') || 
-                (path === '/' && location.pathname === ''));
+    '/product-search',
+    '/download'
+  ].includes(location.pathname);
 
   return (
     <>
-      <CriticalStyles />
+      <CriticalStyles /> 
       <Suspense fallback={<LoadingFallback />}>
         <Outlet />
       </Suspense>
@@ -204,6 +208,7 @@ const App = () => {
             { index: true, element: <Suspense fallback={<LoadingFallback />}><HomePage /></Suspense> },
             { path: 'categories', element: <Suspense fallback={<LoadingFallback />}><ProductCategoryPage /></Suspense> },
             // { path: 'ParentProductCategory', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
+            { path: 'marquee', element: <Suspense fallback={<LoadingFallback />}><Marquee /></Suspense> },
             { path: 'alphabetsbaseCategory', element: <Suspense fallback={<LoadingFallback />}><AlphabetsBaseCategory /></Suspense> },
             { path: ':categorySlug/:slug', element: <Suspense fallback={<LoadingFallback />}><Saperator /></Suspense> },
             { path: 'about-us', element: <Suspense fallback={<LoadingFallback />}><PetrochemicalAboutUs /></Suspense> },
@@ -214,6 +219,7 @@ const App = () => {
             { path: ':blog/:slug', element: <Suspense fallback={<LoadingFallback />}><BlogSaparator /></Suspense> },
             { path: '/search', element: <Suspense fallback={<LoadingFallback />}><ProductSearchBar /></Suspense> },
             { path: '/about', element: <Suspense fallback={<LoadingFallback />}><AboutDescription /></Suspense> },
+            { path: '/gallery', element: <Suspense fallback={<LoadingFallback />}><GallaryPage /></Suspense> },
             { path: '/introduction', element: <Suspense fallback={<LoadingFallback />}><Introduction /></Suspense> },
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
@@ -228,7 +234,7 @@ const App = () => {
             { path: '/privacy-policy', element: <Suspense fallback={<LoadingFallback />}><PrivacyPolicy /></Suspense> },
             { path: '/terms-and-conditions', element: <Suspense fallback={<LoadingFallback />}><TermsAndConditions /></Suspense> },
             { path: '/product-search', element: <Suspense fallback={<LoadingFallback />}><SearchResultsTable /></Suspense> },
-
+            { path: '/download', element: <Suspense fallback={<LoadingFallback />}><DownloadPage /></Suspense> },
             // { path: '*', element: <NotFoundPage /> }
           ]
         },
@@ -312,6 +318,9 @@ const App = () => {
             { path: 'source-table', element: <Suspense fallback={<LoadingFallback />}><SourceTable /></Suspense> },
             { path: 'status-table', element: <Suspense fallback={<LoadingFallback />}><StatusTable /></Suspense> },
 
+            // Gallery Management Routes
+            { path: 'gallery-table', element: <Suspense fallback={<LoadingFallback />}><GalleryCRUD /></Suspense> },
+         
             // Blog Management Routes
             { path: 'blog-category-table', element: <Suspense fallback={<LoadingFallback />}><BlogCategory /></Suspense> },
             { path: 'blog-category-form', element: <Suspense fallback={<LoadingFallback />}><Blogcategoryform /></Suspense> },

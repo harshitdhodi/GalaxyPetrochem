@@ -108,9 +108,16 @@ const ImagesForm = ({ formData, setFormData }) => {
               {image.url && (
                 <div className="w-16 h-16 flex-shrink-0">
                   <img
-                    src={image.url}
+                    src={image.file ? image.url : image.url.startsWith('http') ? image.url : `/api/image/download/${image.url}`}
                     alt={image.altText || 'Image preview'}
                     className="w-full h-full object-cover rounded-md border"
+                    onError={(e) => {
+                      // Only try fallback if it's a relative URL that failed to load
+                      if (!image.file && !image.url.startsWith('http')) {
+                        e.target.src = image.url;
+                      }
+                    }}
+                    loading="lazy"
                   />
                 </div>
               )}
@@ -132,8 +139,6 @@ const ImagesForm = ({ formData, setFormData }) => {
                 onChange={(e) => handleImageFieldChange(index, 'title', e.target.value)}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
               />
-
-         
 
               {/* Remove Button */}
               <button

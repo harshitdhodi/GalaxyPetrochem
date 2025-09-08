@@ -19,7 +19,7 @@ const NavSection = ({
     <nav className="text-white bg-gradient-to-l from-[#2860da] to-[#9e5d94]">
       <div className="max-w-[75rem] mx-auto px-4 flex items-center justify-evenly">
         <div className="space-x-2 lg:space-x-3 hidden md:flex text-sm items-center lg:text-[16px] font-bold">
-          
+
           {/* Corporate Dropdown */}
           <div
             className="relative"
@@ -69,7 +69,13 @@ const NavSection = ({
             </NavLink>
 
           </div>
-
+          {/* Gallery */}
+          <NavLink
+            href="/gallery"
+            className={() => (isGallaryActive ? "text-primary" : "")}
+          >
+            Gallery
+          </NavLink>
           {/* Contact */}
           <NavLink
             href="/contact-us"
@@ -89,6 +95,13 @@ const NavSection = ({
               </Link>
             </div>
           )}
+          {/* Download */}
+          <NavLink
+            href="/download"
+            className={() => (isDownloadActive ? "text-primary" : "")}
+          >
+            Download
+          </NavLink>
         </div>
       </div>
     </nav>

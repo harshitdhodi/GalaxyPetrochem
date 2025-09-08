@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { useAddCategoryMutation, useAddSubCategoryMutation, useAddSubSubCategoryMutation } from '@/slice/chemicalSlice/chemicalCategory';
 
 const NewCategoryForm = () => {
     const [category, setCategory] = useState("");
@@ -23,6 +24,10 @@ const NewCategoryForm = () => {
     const [metaschema, setMetaschema] = useState("")
     const [otherMeta, setOthermeta] = useState("")
     const navigate = useNavigate();
+
+    const [addCategory] = useAddCategoryMutation();
+    const [addSubCategory] = useAddSubCategoryMutation();
+    const [addSubSubCategory] = useAddSubSubCategoryMutation();
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
@@ -80,7 +85,6 @@ const NewCategoryForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let urls = '/api/chemicalCategory/insertCategory';
             const formData = new FormData();
             formData.append('category', category);
             if (photo) {
@@ -101,12 +105,19 @@ const NewCategoryForm = () => {
             formData.append('status', status);
 
             if (parentCategoryId && !subCategoryId) {
-                urls = `/api/chemicalCategory/insertSubCategory?categoryId=${parentCategoryId}`;
+                await addSubCategory({ 
+                    categoryId: parentCategoryId, 
+                    formData 
+                }).unwrap();
             } else if (parentCategoryId && subCategoryId) {
-                urls = `/api/chemicalCategory/insertSubSubCategory?categoryId=${parentCategoryId}&subCategoryId=${subCategoryId}`;
+                await addSubSubCategory({ 
+                    categoryId: parentCategoryId, 
+                    subCategoryId,
+                    formData 
+                }).unwrap();
+            } else {
+                await addCategory(formData).unwrap();
             }
-
-            const response = await axios.post(urls, formData, { withCredentials: true });
 
             setCategory("");
             setPhoto(null);
@@ -126,9 +137,10 @@ const NewCategoryForm = () => {
             setUrl("");
             setPriority("");
             setChangeFreq("");
+            
             navigate('/chemical-category');
         } catch (error) {
-            console.error(error);
+            console.error('Error saving category:', error);
         }
     };
 
