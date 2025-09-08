@@ -260,6 +260,7 @@ const apiRoutes = [
   ['/api/industry', require('./route/industryExperty')],
   ['/api/missionVision', require('./route/missionVision')],
   ['/api/petrochemProduct', require('./route/petroChemProduct')],
+  ['/api/gallery', require('./route/gallary')],
   
 ];
  

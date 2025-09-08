@@ -70,7 +70,7 @@ const FloatingInquiry = () => {
       {!isOpen ? (
         <Button 
           onClick={() => setIsOpen(true)}
-          className="fixed right-0 top-1/2 transform -rotate-90 -translate-y-1/2 bg-primary hover:bg-orange-600 text-white rounded-md py-6 px-4 shadow-lg transition-all duration-300"
+          className="fixed -right-10 top-1/2  transform -rotate-90 -translate-y-1/2 bg-primary hover:bg-orange-600 text-white rounded-md py-6 px-4 shadow-lg transition-all duration-300"
         >
           <span className="block whitespace-nowrap text-sm font-semibold">
             INQUIRY NOW

@@ -56,7 +56,7 @@ const insertSubCategory = async (req, res) => {
     // Handle the photo upload if there's a file in the request
     let photo = null;
     if (req.file) {
-      photo = req.file.filename; // Assuming you're using multer for handling file uploads
+      photo = req.file.filename; // Assuming you're using multer for handling file uploads2
     }
 
     // Push the new subcategory to the category document
@@ -306,9 +306,11 @@ const deletecategory = async (req, res) => {
     }
 
     
-    const photoPath = path.join(__dirname, '../logos', category.photo);
-    deleteFile(photoPath);
-
+// Only delete the photo if it exists
+if (category.photo) {
+  const photoPath = path.join(__dirname, '../logos', category.photo);
+  deleteFile(photoPath);
+}
 
     // Proceed to delete the category
     const deletedCategory = await ProductCategory.findByIdAndDelete(id);
@@ -326,6 +328,7 @@ const deletecategory = async (req, res) => {
 
     res.status(200).json({ message: 'Category deleted successfully and references removed from products' });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Server error', error });
   }
 };

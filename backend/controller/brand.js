@@ -52,7 +52,7 @@ exports.updateUserPhoto = async (req, res) => {
 
     // Delete old photo if new one is uploaded
     if (req.files && req.files.photo && existingUser.photo) {
-      const oldPhotoPath = path.join(__dirname, '../uploads', existingUser.photo);
+      const oldPhotoPath = path.join(__dirname, '../uploads2', existingUser.photo);
       if (fs.existsSync(oldPhotoPath)) {
         fs.unlinkSync(oldPhotoPath);
       }
@@ -88,7 +88,7 @@ exports.deleteUserPhoto = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (user.photo) {
-      const photoPath = path.join(__dirname, '../uploads', user.photo);
+      const photoPath = path.join(__dirname, '../uploads2', user.photo);
       if (fs.existsSync(photoPath)) fs.unlinkSync(photoPath);
     }
 

@@ -28,7 +28,7 @@ const createBlog = async (req, res) => {
       category,
   } = req.body;
 
-  // Handle file uploads correctly
+  // Handle file uploads2 correctly
   let imagePaths = [];
   if (req.files && Array.isArray(req.files)) {
       imagePaths = req.files.map(file => file.filename);

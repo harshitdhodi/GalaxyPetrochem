@@ -74,6 +74,36 @@ export const chemicalCategoryApi = createApi({
       invalidatesTags: ['ChemicalCategories'],
     }),
 
+    // Add category
+    addCategory: builder.mutation({
+      query: (formData) => ({
+        url: 'insertCategory',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['ChemicalCategories'],
+    }),
+
+    // Add subcategory
+    addSubCategory: builder.mutation({
+      query: ({ categoryId, formData }) => ({
+        url: `insertSubCategory?categoryId=${categoryId}`,
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['ChemicalCategories'],
+    }),
+
+    // Add sub-subcategory
+    addSubSubCategory: builder.mutation({
+      query: ({ categoryId, subCategoryId, formData }) => ({
+        url: `insertSubSubCategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}`,
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['ChemicalCategories'],
+    }),
+
     // Add delete category mutation
     deleteChemicalCategory: builder.mutation({
       query: (id) => ({
@@ -96,5 +126,8 @@ export const {
   useUpdateSubSubCategoryMutation,
   useGetSpecificSubcategoryBySlugQuery,
   useGetSpecificCategoryBySlugQuery,
-  useDeleteChemicalCategoryMutation // Export the new delete mutation hook
+  useDeleteChemicalCategoryMutation,
+  useAddCategoryMutation,
+  useAddSubCategoryMutation,
+  useAddSubSubCategoryMutation
 } = chemicalCategoryApi;

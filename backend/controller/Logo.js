@@ -94,7 +94,7 @@ const deleteLogo = async (req, res) => {
 
         // Delete associated files
         const deleteFile = (filePath) => {
-            const fullPath = path.join(__dirname, '..', 'uploads', 'logos', filePath);
+            const fullPath = path.join(__dirname, '..', 'uploads2', 'logos', filePath);
             if (fs.existsSync(fullPath)) fs.unlink(fullPath, (err) => console.error(`Error deleting file:`, err));
         };
 

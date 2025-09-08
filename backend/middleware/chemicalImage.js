@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Ensure the necessary folders exist
 const createFoldersIfNotExist = () => {
-  const folders = ['uploads/images', 'uploads/msds', 'uploads/pdf'];
+  const folders = ['uploads2/images', 'uploads2/msds', 'uploads2/pdf'];
   folders.forEach(folder => {
     if (!fs.existsSync(folder)) {
       fs.mkdirSync(folder, { recursive: true });
@@ -23,16 +23,16 @@ const storage = multer.diskStorage({
     
     switch (file.fieldname) {
       case 'images':
-        folder = 'uploads/images';
+        folder = 'uploads2/images';
         break;
       case 'msds':
-        folder = 'uploads/msds';
+        folder = 'uploads2/msds';
         break;
       case 'pdf':
-        folder = 'uploads/pdf';
+        folder = 'uploads2/pdf';
         break;
       default:
-        folder = 'uploads';
+        folder = 'uploads2';
     }
     
     cb(null, folder);

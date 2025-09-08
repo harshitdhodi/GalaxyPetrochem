@@ -131,7 +131,7 @@ const updateAdminProfile = async (req, res) => {
       // Optionally, delete the old photo
       const admin = await Admin.findById(adminId);
       if (admin && admin.photo) {
-        const oldPhotoPath = path.join(__dirname, '../uploads/images', admin.photo);
+        const oldPhotoPath = path.join(__dirname, '../uploads2/images', admin.photo);
         if (fs.existsSync(oldPhotoPath)) {
           fs.unlinkSync(oldPhotoPath);
         }

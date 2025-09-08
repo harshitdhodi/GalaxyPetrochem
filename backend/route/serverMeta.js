@@ -21,7 +21,7 @@ async function fetchProductMeta(slug, metaInfo, res) {
         title: productData.metaTitle || productData.name || metaInfo.title,
         description: productData.metaDescription || productData.name || metaInfo.description,
         keywords: productData.metaKeyword || productData.name || metaInfo.keywords,
-        ogImage: productData.images?.[0]?.url ? `/Uploads/${productData.images[0].url}` : metaInfo.ogImage,
+        ogImage: productData.images?.[0]?.url ? `/uploads2/${productData.images[0].url}` : metaInfo.ogImage,
       };
     } else {
       console.log('Invalid product data:', product);
@@ -131,7 +131,7 @@ router.get('*', async (req, res, next) => {
                 title: subCategory.metatitle || subCategory.category || metaInfo.title,
                 description: subCategory.metadescription || detailsText || metaInfo.description,
                 keywords: subCategory.metakeywords || subCategory.category || metaInfo.keywords,
-                ogImage: subCategory.photo ? `/Uploads/${subCategory.photo}` : metaInfo.ogImage,
+                ogImage: subCategory.photo ? `/uploads2/${subCategory.photo}` : metaInfo.ogImage,
               };
             }
           }
@@ -154,7 +154,7 @@ router.get('*', async (req, res, next) => {
               title: category.metatitle || category.category || metaInfo.title,
               description: category.metadescription || detailsText || metaInfo.description,
               keywords: category.metakeywords || subCategoryNames || metaInfo.keywords,
-              ogImage: category.photo ? `/Uploads/${category.photo}` : metaInfo.ogImage,
+              ogImage: category.photo ? `/uploads2/${category.photo}` : metaInfo.ogImage,
             };
           }
         } catch (apiError) {

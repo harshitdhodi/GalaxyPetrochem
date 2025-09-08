@@ -28,7 +28,7 @@ export default function CompanyInfo() {
       <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-100 opacity-20 -mr-32 -mb-32"></div>
       <div className="absolute top-1/4 left-0 w-32 h-32 rounded-full bg-purple-100 opacity-20 -ml-16"></div>
 
-      <div className="max-w-[78rem] mx-auto pb-10 relative z-10">
+      <div className="max-w-[78rem] mx-auto pb-10 relative z-0">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* Image Section */}
           <div className="flex justify-center w-full order-2 lg:order-1">
