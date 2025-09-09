@@ -10,7 +10,7 @@ const cache = apicache.middleware;
 
 router.get("/download/:filename", cache("1 day"), async (req, res) => {
   const { filename } = req.params;
-  const { w = 1200, q = 80 } = req.query;
+  const { w = 1600  } = req.query;
   const filePath = path.join(__dirname, "../uploads2/images", `${filename.split(".")[0]}-${w}.webp`);
   const originalPath = path.join(__dirname, "../uploads2/images", filename);
 
@@ -32,7 +32,7 @@ router.get("/download/:filename", cache("1 day"), async (req, res) => {
 
     const optimizedImage = await sharp(originalPath)
       .resize({ width: parseInt(w, 10), withoutEnlargement: true })
-      .webp({ quality: parseInt(q, 10) })
+      .webp({ quality: 80 })
       .toBuffer();
 
     res.setHeader("X-Cache", "MISS");

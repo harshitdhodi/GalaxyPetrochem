@@ -1,1 +1,0 @@
-import{j as t}from"./index-D7HGD_fo-1757400731972.js";import o from"./MainContent-DcJ2N4zF-1757400731972.js";import"./dropdown-menu-DK_sSv-v-1757400731972.js";import"./index-Dt7TRMwA-1757400731972.js";import"./AboutUs-CBhOjUJQ-1757400731972.js";function e(){return t.jsx("div",{className:"",children:t.jsx(o,{})})}export{e as default};

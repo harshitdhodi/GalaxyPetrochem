@@ -1,7 +1,6 @@
 const fs = require('fs').promises; // Use promises for async file operations
 const path = require('path');
 const multer = require('multer');
-const sharp = require('sharp');
 
 // Ensure directories exist
 const ensureDirectory = async (dir) => {
@@ -48,8 +47,11 @@ const storage = multer.diskStorage({
         ensureDirectory(fullDir).then(() => cb(null, fullDir));
     },
     filename: (req, file, cb) => {
-        // Use the original filename to avoid any processing
-        cb(null, file.originalname);
+        // Generate filename with timestamp and original extension
+        const timestamp = Date.now();
+        const extension = path.extname(file.originalname).toLowerCase();
+        const filename = `image_${timestamp}${extension}`;
+        cb(null, filename);
     },
 });
 
