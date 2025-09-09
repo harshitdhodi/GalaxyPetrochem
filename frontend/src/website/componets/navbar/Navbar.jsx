@@ -131,7 +131,7 @@ export default function NavbarComp({ categories }) {
   return (
     <>
       <header
-        className={`w-full z-[1000] transition-all duration-300 ${
+        className={`w-full z-0 transition-all duration-300 ${
           isSticky ? "fixed top-0 left-0 right-0 bg-white shadow-md animate-fadeInDown" : "relative bg-transparent"
         }`}
       >
