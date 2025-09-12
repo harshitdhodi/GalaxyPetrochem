@@ -188,7 +188,6 @@ const SlideshowImages = ({
             font-size: 1.125rem !important;
           }
         }
-
         /* Ultra-small mobile screens */
         @media (max-width: 359px) {
           .rich-content-display,

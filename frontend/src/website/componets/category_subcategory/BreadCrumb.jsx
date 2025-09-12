@@ -13,7 +13,7 @@ const formatText = (text) => {
 export function Breadcrumb({ chemicalName,subCategorySlug, categorySlug, categoryName, slug2, subcategoryName }) {
   console.log(subCategorySlug)
   return (
-    <nav className="mb-6 md:mx-5 mt-2 lg:mx-5  xl:ml-0 pb-3">
+    <nav className="mb-6 md:mx-5 mt-2 lg:mx-5  xl:ml-0 pb-3 z-0">
       <ol className="list-none inline-flex">
         <li className="flex items-center">
           <Link to="/" className="text-[12px]   rounded-md sm:text-[15px] text-white">Home</Link>

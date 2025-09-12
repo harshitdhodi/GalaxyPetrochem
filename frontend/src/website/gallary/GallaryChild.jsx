@@ -36,7 +36,7 @@ export default function GallaryChild() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className=" bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-primary">Loading gallery items...</p>
@@ -47,7 +47,7 @@ export default function GallaryChild() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <div className="text-center text-red-500">
           <p>Error loading gallery: {error}</p>
           <button
@@ -62,7 +62,7 @@ export default function GallaryChild() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="">
       {/* <div className="text-center py-12">
         <h1 className="text-4xl font-bold text-primary text-balance">Premium Petrochemical Solutions</h1>
       </div> */}
