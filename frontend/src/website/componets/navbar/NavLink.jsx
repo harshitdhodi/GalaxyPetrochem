@@ -76,7 +76,7 @@ export function NavLink({
       </Link>
 
       {isHovered && categories?.length > 0 && (
-        <div className="absolute left-0 w-64 bg-[#2b5fd9] text-white shadow-lg z-50 transition-all duration-200 ease-in-out">
+        <div className="absolute left-0 w-64 bg-[#2b5fd9] text-white shadow-lg z-[1000] transition-all duration-200 ease-in-out">
           {categories.map((category) => (
             <div
               key={category._id}
@@ -94,7 +94,6 @@ export function NavLink({
                 className="block px-4 py-2 hover:bg-blue-600 transition-colors font-normal relative group"
               >
                 {category.category}
-              
               </Link>
 
               {activeCategory === category && category.subCategories?.length > 0 && (

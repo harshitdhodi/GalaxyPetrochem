@@ -61,7 +61,7 @@ function ParentProductCategory() {
         )}
 
         {/* Breadcrumb - centered horizontally, below the title */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-0">
           <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
             <Link to="/">
               <span className="    text-[12px] sm:text-[15px]">Home</span>

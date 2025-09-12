@@ -206,6 +206,12 @@ const App = () => {
           ),
           children: [
             { index: true, element: <Suspense fallback={<LoadingFallback />}><HomePage /></Suspense> },
+            { 
+              path: 'adhesives', 
+              element: <Suspense fallback={<LoadingFallback />}>
+                <ComingSoon pageName="Adhesives" />
+              </Suspense> 
+            },
             { path: 'categories', element: <Suspense fallback={<LoadingFallback />}><ProductCategoryPage /></Suspense> },
             // { path: 'ParentProductCategory', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
             { path: 'marquee', element: <Suspense fallback={<LoadingFallback />}><Marquee /></Suspense> },
@@ -410,5 +416,7 @@ const App = () => {
     </div>
   );
 };
+
+const ComingSoon = lazy(() => import('./components/ComingSoon'));
 
 export default App;
