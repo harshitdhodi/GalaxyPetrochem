@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Marquee = () => {
   const [marqueeData, setMarqueeData] = useState([]);
@@ -11,14 +12,14 @@ const Marquee = () => {
       try {
         setIsLoading(true);
         const response = await fetch('/api/brand');
+      
         if (!response.ok) {
           throw new Error('Failed to fetch marquee data');
         }
         const responseData = await response.json();
-        const dataArray = responseData.data
-          ? responseData.data.map(item => item.photo)
-          : [];
-        console.log('Fetched marqueeData (photos):', dataArray);
+        console.log('Response:', responseData.data);
+        const dataArray = responseData.data || [];
+        console.log('Fetched marqueeData:', dataArray);
         setMarqueeData(dataArray);
         setIsLoading(false);
       } catch (err) {
@@ -31,12 +32,12 @@ const Marquee = () => {
     fetchMarqueeData();
   }, []);
 
-  // Duplicate marqueeData for seamless looping (only duplicate once for efficiency)
+  // Duplicate marqueeData for seamless looping
   const combinedServices = Array.isArray(marqueeData)
     ? [...marqueeData, ...marqueeData]
     : [];
 
-  // Group logos into sets of 4 for grid display
+  // Group logos into sets of 5 for grid display
   const groupedLogos = [];
   for (let i = 0; i < combinedServices.length; i += 5) {
     groupedLogos.push(combinedServices.slice(i, i + 5));
@@ -48,7 +49,7 @@ const Marquee = () => {
         {`
           @keyframes marquee {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-${100 * (marqueeData.length / 4)}%); }
+            100% { transform: translateX(-${100 * (marqueeData.length / 5)}%); }
           }
           .marquee-container {
             display: flex;
@@ -66,6 +67,12 @@ const Marquee = () => {
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+          }
+          .marquee-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
           }
           .marquee-container:hover {
             animation-play-state: paused;
@@ -96,19 +103,23 @@ const Marquee = () => {
           <div className="marquee-container">
             {groupedLogos.map((group, groupIndex) => (
               <div key={groupIndex} className="marquee-grid">
-                {group.map((photo, index) => (
-                  <div key={index} className="marquee-item bg-white p-5 px-10 my-6">
+                {group.map((brand, index) => (
+                  <Link
+                    key={`${brand._id}-${groupIndex}-${index}`}
+                    to={`/brands/${brand.slug}`}
+                    className="marquee-item bg-white p-5 px-10 my-6"
+                    aria-label={`View ${brand.name} products`}
+                  >
                     <img
-                      src={`/api/logo/download/${photo}`}
-                      alt={`Brand ${groupIndex * 4 + index + 1}`}
+                      src={`/api/logo/download/${brand.photo}`}
+                      alt={brand.name}
                       className="h-auto w-full object-contain max-h-20"
                     />
-                    {/* <span className="text-[#ffffff] text-2xl pl-4">●</span> */}
-                  </div>
+                  </Link>
                 ))}
-                {/* Fill empty grid cells if less than 4 logos in a group */}
-                {group.length < 4 &&
-                  [...Array(4 - group.length)].map((_, index) => (
+                {/* Fill empty grid cells if less than 5 logos in a group */}
+                {group.length < 5 &&
+                  [...Array(5 - group.length)].map((_, index) => (
                     <div key={`empty-${index}`} className="marquee-item" />
                   ))}
               </div>

@@ -48,7 +48,6 @@ export default function EditCustomerForm() {
     { isoCode: 'AU', name: 'Australia' }
     // Add more countries as needed
   ]);
-  
   // You can replace these with your own data or fetch from your API
   const countryStates = {
     'US': [
