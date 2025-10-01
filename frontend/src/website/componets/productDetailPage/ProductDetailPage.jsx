@@ -25,52 +25,85 @@ export default function ProductDetailPage() {
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Enhanced function to preserve HTML formatting while truncating
-  const truncateHTML = (html, percentage = 0.5) => {
-    if (!html || typeof html !== 'string') return "No description available.";
-    
-    // Create a temporary div to parse HTML
-    const div = document.createElement("div");
-    div.innerHTML = html;
-    
-    // Get plain text for word counting
-    const text = div.textContent || div.innerText || "";
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const wordCount = Math.floor(words.length * percentage);
-    
-    if (words.length <= wordCount) {
-      return html; // Return full HTML if already short enough
+ // Enhanced function to preserve HTML formatting while truncating
+ const truncateHTML = (html, percentage = 0.5) => {
+  if (!html || typeof html !== 'string') return "No description available.";
+  
+  // Create a temporary div to parse HTML
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  
+  // Get plain text for word counting
+  const text = div.textContent || div.innerText || "";
+  const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+  const targetWordCount = Math.floor(words.length * percentage);
+  
+  // If content is short, return as-is
+  if (words.length <= 50 || words.length <= targetWordCount) {
+    return html;
+  }
+  
+  // Simple truncation approach: extract text nodes and rebuild
+  let wordCount = 0;
+  let truncated = false;
+  
+  function truncateNode(node) {
+    if (truncated) {
+      return null;
     }
     
-    // Find truncation point in HTML while preserving structure
-    let currentWordCount = 0;
-    let truncatedHTML = '';
-    const walker = document.createTreeWalker(
-      div,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-    
-    let node;
-    while (node = walker.nextNode()) {
-      const nodeWords = node.textContent.split(/\s+/).filter(word => word.length > 0);
-      if (currentWordCount + nodeWords.length <= wordCount) {
-        currentWordCount += nodeWords.length;
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nodeWords = node.textContent.trim().split(/\s+/).filter(w => w.length > 0);
+      
+      if (wordCount + nodeWords.length <= targetWordCount) {
+        wordCount += nodeWords.length;
+        return node.cloneNode(true);
       } else {
-        // Truncate this text node
-        const remainingWords = wordCount - currentWordCount;
+        const remainingWords = targetWordCount - wordCount;
         if (remainingWords > 0) {
-          const truncatedText = nodeWords.slice(0, remainingWords).join(' ');
-          node.textContent = truncatedText + '...';
-        } else {
-          node.textContent = '';
+          const newText = nodeWords.slice(0, remainingWords).join(' ') + '...';
+          const newNode = document.createTextNode(newText);
+          wordCount = targetWordCount;
+          truncated = true;
+          return newNode;
         }
-        break;
+        truncated = true;
+        return null;
       }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const newElement = document.createElement(node.tagName);
+      
+      // Copy attributes
+      for (let i = 0; i < node.attributes.length; i++) {
+        newElement.setAttribute(node.attributes[i].name, node.attributes[i].value);
+      }
+      
+      // Process children
+      for (let i = 0; i < node.childNodes.length; i++) {
+        if (truncated) break;
+        const newChild = truncateNode(node.childNodes[i]);
+        if (newChild) {
+          newElement.appendChild(newChild);
+        }
+      }
+      
+      return newElement.childNodes.length > 0 ? newElement : null;
     }
     
-    return div.innerHTML;
-  };
+    return null;
+  }
+  
+  const resultDiv = document.createElement('div');
+  for (let i = 0; i < div.childNodes.length; i++) {
+    if (truncated) break;
+    const newChild = truncateNode(div.childNodes[i]);
+    if (newChild) {
+      resultDiv.appendChild(newChild);
+    }
+  }
+  
+  return resultDiv.innerHTML;
+};
 
   // Function to clean and enhance HTML for proper display
   const enhanceHTMLForDisplay = (html) => {
