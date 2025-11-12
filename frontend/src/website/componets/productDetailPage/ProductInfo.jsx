@@ -25,7 +25,7 @@ export default function ProductInfo({ tagline, productDetails, name, price, cate
   }, [productDetails]);
 
   return (
-    <>
+    <div className="mb-8">
       <p className="text-2xl pb-2 font-bold text-[#2e60d7]">
         {name}
       </p>
@@ -101,6 +101,6 @@ export default function ProductInfo({ tagline, productDetails, name, price, cate
           }
         }
       `}</style>
-    </>
+    </div>
   );
 }

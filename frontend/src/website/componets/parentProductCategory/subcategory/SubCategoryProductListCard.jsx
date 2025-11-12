@@ -19,7 +19,7 @@ function SubCategoryProductListCard({ product, categorySlug, subCategorySlug }) 
 
   return (
     <div
-      className="border shadow-md shadow-blue-200 hover:shadow-blue-300 rounded-lg bg-white transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+      className="border shadow-md shadow-blue-200 hover:shadow-blue-300 rounded-lg bg-white transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer overflow-hidden"
       onClick={handleViewDetails}
     >
       <div className="flex flex-col gap-4 p-4">

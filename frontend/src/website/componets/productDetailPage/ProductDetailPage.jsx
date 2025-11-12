@@ -5,7 +5,7 @@ import ProductInfo from "./ProductInfo";
 import MSDSSection from "./MSDSSection";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import InquiryForm from "./InquiryForm";
-import RecentProduct from "./RecentProduct";
+import RecentProduct from "./RecentProduct";  
 import ProductDetailBreadcrumb from "../SubCategoryPage/ProductDetailBreadCrumb";
 import { Banner } from "../Banner";
 import axios from "axios";
@@ -137,6 +137,13 @@ export default function ProductDetailPage() {
     return enhancedHTML;
   };
 
+  // Helper function to check if HTML content is empty
+  const isContentEmpty = (html) => {
+    if (!html) return true;
+    const strippedHtml = html.replace(/<[^>]+>/g, '').trim();
+    return strippedHtml.length === 0;
+  };
+
   useEffect(() => {
     const fetchBanner = async () => {
       try {
@@ -261,7 +268,7 @@ export default function ProductDetailPage() {
                   onError={handleImageError} 
                 />
               </div>
-              <div className="w-full">
+              <div className="w-full ">
                 <ProductInfo
                   productDetails={productData?.details}
                   name={productData?.name}
@@ -269,9 +276,10 @@ export default function ProductDetailPage() {
                   categorySlug={productData?.categorySlug}
                   tagline={productData?.tagline}
                 />
+                
                 <MSDSSection
                   msds={productData?.msds}
-                  specs={productData?.pdf}
+                  pdf={productData?.pdf}
                   name={productData?.name}
                   onInquiry={() => setShowInquiryForm(true)}
                 />
@@ -299,7 +307,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Table Info (Specifications) */}
-              {showFullDescription && productData?.tableInfo && (
+              {showFullDescription && !isContentEmpty(productData?.tableInfo) && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-4 text-blue-800">Specifications</h3>
                   <div
@@ -312,7 +320,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Show More/Less Button */}
-              {(productData?.details?.length > 0 || productData?.specifiction?.length > 0 || productData?.tableInfo?.length > 0) && (
+              {(!isContentEmpty(productData?.details) || !isContentEmpty(productData?.specifiction) || !isContentEmpty(productData?.tableInfo)) && (
                 <button
                   onClick={() => setShowFullDescription((prev) => !prev)}
                   className="mt-4 px-4  text-blue-600 hover:border-b-2 hover:border-blue-600 hover:text-blue-700   font-medium   transition-colors duration-200"

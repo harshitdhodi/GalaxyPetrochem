@@ -38,9 +38,21 @@ const storage = multer.diskStorage({
     cb(null, folder);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const filename = `${Date.now()}${ext}`;
-    cb(null, filename);
+    // For PDF and MSDS files, keep the original filename
+    if (file.fieldname === 'pdf' || file.fieldname === 'msds') {
+      // Sanitize the filename to avoid issues
+      const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      
+      // Optional: Add timestamp prefix to avoid overwriting files with same name
+      // const filename = `${Date.now()}_${sanitizedFilename}`;
+      
+      cb(null, sanitizedFilename);
+    } else {
+      // For images, use timestamp-based naming
+      const ext = path.extname(file.originalname);
+      const filename = `${Date.now()}${ext}`;
+      cb(null, filename);
+    }
   }
 });
 
@@ -48,7 +60,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 50 * 1024 * 1024 // Limit each file size to 10MB
+    fileSize: 50 * 1024 * 1024 // Limit each file size to 50MB
   },
   fileFilter: (req, file, cb) => {
     // Log the file information for debugging
@@ -78,7 +90,7 @@ const upload = multer({
       
       const mimetype = allowedMimetypes.includes(file.mimetype);
 
-      if (extname || mimetype) {  // Changed from AND to OR for more leniency
+      if (extname || mimetype) {
         return cb(null, true);
       } else {
         console.log("Image validation failed:", {
@@ -109,7 +121,7 @@ const upload = multer({
       const extname = validExtensions.includes(path.extname(file.originalname).toLowerCase());
       const mimetype = validMimetypes.includes(file.mimetype);
 
-      if (extname || mimetype) {  // Changed from AND to OR for more leniency
+      if (extname || mimetype) {
         return cb(null, true);
       } else {
         cb(new Error(`Only PDF, DOC, and DOCX files are allowed for MSDS. Received: ${file.mimetype}`), false);

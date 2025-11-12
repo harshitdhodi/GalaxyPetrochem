@@ -57,12 +57,12 @@ const UpdatePetrochemicalProduct = () => {
         // Process images
         const images = Array.isArray(productData.images)
           ? productData.images.map((img) => ({
-              file: null,
-              url: img.url || `/Uploads/images/${img.name}`,
-              name: img.name || '',
-              altText: img.altText || '',
-              title: img.title || '',
-            }))
+            file: null,
+            url: img.url || `/Uploads/images/${img.name}`,
+            name: img.name || '',
+            altText: img.altText || '',
+            title: img.title || '',
+          }))
           : [];
 
         // Extract IDs
@@ -123,6 +123,19 @@ const UpdatePetrochemicalProduct = () => {
     fetchProduct();
     fetchBrands();
   }, [id]);
+
+  // Add this function in UpdatePetrochemicalProduct component
+  const handleFileChange = (e, fieldName) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: file,  // Store the file object
+      }));
+    }
+  };
+
+
 
   // Fetch subcategories when category changes
   const fetchSubcategories = async (categoryId) => {
@@ -214,9 +227,17 @@ const UpdatePetrochemicalProduct = () => {
       // Create FormData object
       const formDataToSend = new FormData();
 
+      // In handleSubmit, after appending other fields:
+      if (formData.pdf && typeof formData.pdf === 'object') {
+        formDataToSend.append('pdf', formData.pdf);
+      }
+
+      if (formData.msds && typeof formData.msds === 'object') {
+        formDataToSend.append('msds', formData.msds);
+      }
       // Append non-image fields
       Object.keys(formData).forEach((key) => {
-        if (key !== 'images') {
+        if (key !== 'images' && key !== 'pdf' && key !== 'msds') {
           formDataToSend.append(key, formData[key]);
         }
       });
@@ -298,6 +319,7 @@ const UpdatePetrochemicalProduct = () => {
         <DocumentsForm
           formData={formData}
           handleInputChange={handleInputChange}
+          handleFileChange={handleFileChange}
         />
         <ImagesForm
           formData={formData}
