@@ -149,7 +149,7 @@ function SubCategoryProductList() {
               .map((brandName) => (
                 <div key={brandName} className="mb-8">
                   <h2 className="text-2xl font-bold text-[#0a3161] mb-4">{brandName}</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {groupedProducts[brandName].map((product, index) => (
                       <SubCategoryProductListCard
                         key={index}

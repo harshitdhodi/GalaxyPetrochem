@@ -186,7 +186,7 @@ const ProductDetailsForm = ({ formData, handleInputChange }) => {
       <div className="space-y-8">
 
         {/* Specification */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Specification</label>
           <div className="jodit-container">
             <JoditEditor
@@ -196,7 +196,7 @@ const ProductDetailsForm = ({ formData, handleInputChange }) => {
               onChange={(newContent) => handleEditorChange(newContent, 'specifiction')}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Details */}
         <div>

@@ -130,6 +130,19 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
             onChange={handleFileChange}
             accept=".pdf"
           />
+          {product.pdf && typeof product.pdf === 'string' && (
+            <p className="text-sm text-gray-500 mt-1">
+              Current file:{" "}
+              <a
+                href={`/api/image/view/${product.pdf}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {product.pdf}
+              </a>
+            </p>
+          )}
         </div>
         <div>
           <Label htmlFor="msds" className="block text-sm font-medium">
@@ -142,6 +155,19 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
             onChange={handleFileChange}
             accept=".pdf"
           />
+          {product.msds && typeof product.msds === 'string' && (
+            <p className="text-sm text-gray-500 mt-1">
+              Current file:{" "}
+              <a
+                href={`/api/image/view/${product.msds}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {product.msds}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </Card>

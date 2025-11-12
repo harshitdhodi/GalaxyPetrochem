@@ -1,18 +1,21 @@
 import { Delete, Edit } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const ProductTable = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Number of items per page
+  const [selectedBrand, setSelectedBrand] = useState("");
 
   useEffect(() => {
     fetchProducts();
+    fetchBrands();
   }, []);
 
   const fetchProducts = async () => {
@@ -35,6 +38,18 @@ const ProductTable = () => {
     }
   };
 
+  const fetchBrands = async () => {
+    try {
+      const res = await fetch("/api/brand");
+      if (!res.ok) {
+        throw new Error("Failed to fetch brands");
+      }
+      const data = await res.json();
+      setBrands(data.data || []);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+    }
+  };
   const handleEdit = (id) => {
     navigate(`/products/edit/${id}`);
   };
@@ -56,7 +71,7 @@ const ProductTable = () => {
       setProducts(products.filter(product => product._id !== id));
       setConfirmDelete(null);
       
-      // Adjust current page if necessary after deletion
+      // Adjust current page if necessary after deletion - using paginatedProducts from before state update
       if (paginatedProducts.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
@@ -70,11 +85,22 @@ const ProductTable = () => {
     setConfirmDelete(null);
   };
 
+  const filteredProducts = useMemo(() => {
+    if (!selectedBrand) {
+      return products;
+    }
+    return products.filter(product => product.brandId?._id === selectedBrand);
+  }, [products, selectedBrand]);
+
+  const handleBrandChange = (e) => {
+    setSelectedBrand(e.target.value);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const paginatedProducts = products.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -129,16 +155,32 @@ const ProductTable = () => {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <div className="flex justify-between items-center p-6 border-b">
-        <h2 className="text-xl font-semibold">Petrochemical Products</h2>
-        <Link 
-          to="/products/add" 
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Add New Product
-        </Link>
+        <h2 className="text-xl font-semibold">Products</h2>
+        <div className="flex items-center space-x-4">
+          <div>
+            <select
+              value={selectedBrand}
+              onChange={handleBrandChange}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Brands</option>
+              {brands.map((brand) => (
+                <option key={brand._id} value={brand._id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Link
+            to="/products/add"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Add New Product
+          </Link>
+        </div>
       </div>
       
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="p-6 text-center text-gray-500">
           No products found. Click "Add New Product" to create one.
         </div>
@@ -267,7 +309,7 @@ const ProductTable = () => {
           {/* Pagination Controls */}
           <div className="flex justify-between items-center px-6 py-4 border-t">
             <div className="text-sm text-gray-700">
-              Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, products.length)} of {products.length} products
+              Showing {filteredProducts.length > 0 ? indexOfFirstItem + 1 : 0} to {Math.min(indexOfLastItem, filteredProducts.length)} of {filteredProducts.length} products
             </div>
             <div className="flex space-x-2">
               <button
