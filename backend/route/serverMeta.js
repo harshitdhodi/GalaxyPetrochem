@@ -10,7 +10,7 @@ const router = express.Router();
 // Helper function to fetch product metadata
 async function fetchProductMeta(slug, metaInfo, res) {
   try {
-    const productResponse = await axios.get(`http://localhost:3036/api/petrochemProduct/getbySlug?slug=${slug}`);
+    const productResponse = await axios.get(`http://localhost:3040/api/petrochemProduct/getbySlug?slug=${slug}`);
     console.log('Product API response:', productResponse.data);
     const product = productResponse.data;
 
@@ -86,7 +86,7 @@ router.get('*', async (req, res, next) => {
       let subCategorySlug = pathSegments[0];
       if (pathSegments.length === 2 && pathSegments[0] !== 'industrial-oils') {
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getAllCategories`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getAllCategories`);
           const categories = categoryResponse.data.categories || [];
           isValidSubCategory = categories.some(cat =>
             cat.subCategories.some(subCat => subCat.slug === subCategorySlug)
@@ -118,7 +118,7 @@ router.get('*', async (req, res, next) => {
         const subCategorySlug = pathSegments[1];
 
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${categorySlug}`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getSpecificCategory?slug=${categorySlug}`);
           category = categoryResponse.data.category;
 
           if (category) {
@@ -143,7 +143,7 @@ router.get('*', async (req, res, next) => {
       // Handle category paths (e.g., /industrial-oils)
       if (isCategoryPath) {
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${currentPath}`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getSpecificCategory?slug=${currentPath}`);
           category = categoryResponse.data.category;
 
           if (category) {
@@ -162,8 +162,6 @@ router.get('*', async (req, res, next) => {
         }
       }
     }
-
-    console.log('Final metaInfo:', metaInfo);
 
     const escapeHtml = (str) =>
       str ? String(str).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"') : '';

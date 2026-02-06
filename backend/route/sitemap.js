@@ -11,13 +11,13 @@ const axiosConfig = {
   }
 };
 
-const BLOG_API_URL = "http://localhost:3036/api/blog/get";
-const CHEMICAL_API_URL = "http://localhost:3036/api/petrochemProduct";
+const BLOG_API_URL = "http://localhost:3040/api/blog/get";
+const CHEMICAL_API_URL = "http://localhost:3040/api/petrochemProduct";
 const BASE_URL = "https://www.galaxypetro.in";
-const SITEMAP_API_URL = "http://localhost:3036/api/sitemap/get";
-const PRODUCT_CATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllCategories";
-const PRODUCT_SUBCATEGORY_API_URL = "http://localhost:3036/api/chemicalCategory/getAllSubcategories";
-const PRODUCT_IMAGES_API_URL = "http://localhost:3036/api/petrochemProduct/getAllProductImages";
+const SITEMAP_API_URL = "http://localhost:3040/api/sitemap/get";
+const PRODUCT_CATEGORY_API_URL = "http://localhost:3040/api/chemicalCategory/getAllCategories";
+const PRODUCT_SUBCATEGORY_API_URL = "http://localhost:3040/api/chemicalCategory/getAllSubcategories";
+const PRODUCT_IMAGES_API_URL = "http://localhost:3040/api/petrochemProduct/getAllProductImages";
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
 // Helper function to fetch with retry logic
