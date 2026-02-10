@@ -245,7 +245,7 @@ export default function NavbarComp({ categories }) {
                     </button>
                     <div className={`ml-3 mt-1 transition-all ${openCategories[category._id] ? "block" : "hidden"}`}>
                       <Link
-                        to={`/categories/${category.slug}`}
+                        to={`/${category.slug}`}
                         className="block py-1 text-white/80 text-sm hover:text-white"
                         onClick={() => setMobileMenuOpen(false)}
                       >
@@ -254,7 +254,7 @@ export default function NavbarComp({ categories }) {
                       {category.subCategories?.map((sub) => (
                         <Link
                           key={sub._id}
-                          to={`/categories/${category.slug}/${sub.slug}`}
+                          to={`/${category.slug}/${sub.slug}`}
                           className="block py-1 text-white/70 text-sm hover:text-white"
                           onClick={() => setMobileMenuOpen(false)}
                         >

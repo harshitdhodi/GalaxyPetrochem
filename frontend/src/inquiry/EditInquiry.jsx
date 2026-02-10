@@ -2,45 +2,47 @@ import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@/components/ui/select";
-import { 
-    Form, 
-    FormControl, 
-    FormField, 
-    FormItem, 
-    FormLabel, 
-    FormMessage 
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
 } from "@/components/ui/form";
 import { useAddInquiryMutation, useGetInquiryByIdQuery, useUpdateInquiryMutation } from "@/slice/inquiry/inquiry";
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useParams } from 'react-router-dom'; 
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BreadcrumbWithCustomSeparator } from '@/breadCrumb/BreadCrumb';
 import { useGetAllStatusesQuery } from '@/slice/status/status';
 
 const breadcrumbItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Inquiry Table", href: "/inquiry-list" },
-    { label: "Inquiry Form", href: null }, 
+    { label: "Edit Inquiry", href: null },
 ]
 
 // Define validation schema
 const inquirySchema = z.object({
     firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
     lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
-    organisation: z.string().min(2, { message: "Organization name is required" }),
     email: z.string().email({ message: "Invalid email address" }),
     phone: z.string()
         .regex(/^[0-9]{10}$/, { message: "Phone number must be 10 digits" }),
     address: z.string().min(2, { message: "Address is required" }),
     country: z.string().min(2, { message: "Country is required" }),
     department: z.string().min(2, { message: "Department is required" }),
+    organisation: z.string().optional(),
     message: z.string().optional(),
     needCallback: z.boolean().default(false),
     source: z.string().optional(),
@@ -48,9 +50,10 @@ const inquirySchema = z.object({
 });
 
 export default function EditInquiryForm({ onClose }) {
-    const { id } = useParams();  
-    const navigate = useNavigate(); 
-    const { data: inquiryData, isLoading: isFetching } = useGetInquiryByIdQuery(id); 
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { data: inquiryData, isLoading: isFetching, error: fetchError } = useGetInquiryByIdQuery(id);
+    console.log("Fetched inquiry data:", inquiryData);
     const [updateInquiry, { isLoading }] = useUpdateInquiryMutation();
     const { data: statusesData, isLoading: isLoadingStatuses } = useGetAllStatusesQuery();
 
@@ -60,12 +63,12 @@ export default function EditInquiryForm({ onClose }) {
         defaultValues: {
             firstName: "",
             lastName: "",
-            organisation: "",
             email: "",
             phone: "",
             address: "",
             country: "",
             department: "",
+            organisation: "",
             message: "",
             needCallback: false,
             source: "",
@@ -76,36 +79,96 @@ export default function EditInquiryForm({ onClose }) {
     // Set form values when inquiryData is loaded
     useEffect(() => {
         if (inquiryData) {
-            form.reset({
+            const patchedValues = {
                 ...inquiryData,
-                // Ensure we have default values if any fields are missing
-                needCallback: inquiryData.needCallback || false,
-            });
+                status:
+                    typeof inquiryData.status === 'object'
+                        ? inquiryData.status?.status
+                        : inquiryData.status || '',
+                source: inquiryData.source || '',
+                needCallback: inquiryData.needCallback ?? false,
+            };
+
+            console.log("Patching form with:", patchedValues);
+            form.reset(patchedValues);
         }
     }, [inquiryData, form]);
 
+    // Also log current form value after reset
+    useEffect(() => {
+        console.log("Current form source value:", form.getValues("source"));
+        console.log("Current form status value:", form.getValues("status"));
+    }, [form.watch(["source", "status"])]);
+
+    // Show error toast if fetch fails
+    useEffect(() => {
+        if (fetchError) {
+            toast.error('Failed to load inquiry data. Please try again.');
+        }
+    }, [fetchError]);
+
     const onSubmit = async (data) => {
+        // Show loading toast
+        const toastId = toast.loading('Updating inquiry...');
+
         try {
             await updateInquiry({ id, ...data }).unwrap();
-            navigate("/inquiry-list");
+
+            // Update loading toast to success
+            toast.update(toastId, {
+                render: 'Inquiry updated successfully!',
+                type: 'success',
+                isLoading: false,
+                autoClose: 3000,
+            });
+
+            // Navigate after a short delay
+            setTimeout(() => {
+                navigate("/inquiry-list");
+            }, 1500);
         } catch (error) {
             console.error("Failed to update inquiry:", error);
+
+            // Update loading toast to error
+            toast.update(toastId, {
+                render: error?.data?.message || 'Failed to update inquiry. Please try again.',
+                type: 'error',
+                isLoading: false,
+                autoClose: 4000,
+            });
         }
     };
 
     if (isFetching || isLoadingStatuses) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg">Loading inquiry data...</div>
+            </div>
+        );
     }
 
     return (
         <>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
+
             <div className="ml-1">
                 <BreadcrumbWithCustomSeparator items={breadcrumbItems} />
             </div>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4">
                     <h2 className="text-2xl font-semibold mb-6">Update Inquiry</h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* First Name */}
                         <FormField
@@ -137,21 +200,6 @@ export default function EditInquiryForm({ onClose }) {
                             )}
                         />
 
-                        {/* Organization */}
-                        <FormField
-                            control={form.control}
-                            name="organisation"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Organization</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Enter organization name" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
                         {/* Email */}
                         <FormField
                             control={form.control}
@@ -167,6 +215,19 @@ export default function EditInquiryForm({ onClose }) {
                             )}
                         />
 
+                            <FormField
+                            control={form.control}
+                            name="organisation"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Organization</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter organization name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />   
                         {/* Phone */}
                         <FormField
                             control={form.control}
@@ -175,7 +236,7 @@ export default function EditInquiryForm({ onClose }) {
                                 <FormItem>
                                     <FormLabel>Phone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter phone number" {...field} />
+                                        <Input placeholder="Enter phone number" {...field} maxLength={10} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -219,7 +280,7 @@ export default function EditInquiryForm({ onClose }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Status</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
@@ -233,9 +294,33 @@ export default function EditInquiryForm({ onClose }) {
                                                     </SelectItem>
                                                 ))
                                             ) : (
-                                                // Fallback in case the data structure is different
                                                 <SelectItem value="New Inquiry">New Inquiry</SelectItem>
                                             )}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Source */}
+                        <FormField
+                            control={form.control}
+                            name="source"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Source</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select lead source" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="website">Website</SelectItem>
+                                            <SelectItem value="facebook">Facebook</SelectItem>
+                                            <SelectItem value="instagram">Instagram</SelectItem>
+                                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -300,29 +385,20 @@ export default function EditInquiryForm({ onClose }) {
                         )}
                     />
 
-                    {/* Source (hidden by default, can be shown if needed) */}
-                    <FormField
-                        control={form.control}
-                        name="source"
-                        render={({ field }) => (
-                            <FormItem className="hidden">
-                                <FormControl>
-                                    <Input type="hidden" {...field} />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-
-                    <div className="flex justify-end  space-x-4 mt-6">
-                        <Button 
-                            type="button" 
-                            variant="outline" 
+                    <div className="flex justify-end space-x-4 mt-6">
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => navigate(-1)}
                             className="bg-gray-200 hover:bg-gray-300 text-gray-800"
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="disabled:cursor-not-allowed"
+                        >
                             {isLoading ? "Updating..." : "Update Inquiry"}
                         </Button>
                     </div>

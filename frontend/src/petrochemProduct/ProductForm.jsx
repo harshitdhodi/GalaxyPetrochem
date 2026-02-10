@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import BasicInformation from "./product-form/BasicInformation.jsx";
 import CategoryInformation from "./product-form/CategoryInformation.jsx";
 import ProductDetails from "./product-form/ProductDetails.jsx";
 import MediaFiles from "./product-form/MediaFiles.jsx";
 import SeoInformation from "./product-form/SeoInformation.jsx";
 import FormActions from "./product-form/FormActions.jsx";
-import MessageAlert from "./common/MessageAlert.jsx";
 import { useGetAllChemicalCategoriesQuery } from "@/slice/chemicalSlice/chemicalCategory.js";
 
 const ProductForm = () => {
@@ -18,7 +19,6 @@ const ProductForm = () => {
   const [brands, setBrands] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
 
   const {
     data: categoryData,
@@ -51,6 +51,11 @@ const ProductForm = () => {
     metaSchema: "",
   });
 
+  // Add these constants at the top of the component
+const MAX_IMAGE_SIZE_MB = 1;          // 4 MB
+const MAX_DOCUMENT_SIZE_MB = 1;       // 8 MB
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+const MAX_DOCUMENT_SIZE_BYTES = MAX_DOCUMENT_SIZE_MB * 1024 * 1024;
   const product = useMemo(() => productState, [productState]);
 
   useEffect(() => {
@@ -61,6 +66,7 @@ const ProductForm = () => {
         setBrands(data.data || []);
       } catch (error) {
         console.error("Error fetching brands:", error);
+        toast.error("Failed to load brands");
       }
     };
 
@@ -70,9 +76,12 @@ const ProductForm = () => {
         const data = await res.json();
         if (res.ok) {
           setEditProduct(data.data);
+        } else {
+          toast.error(data.message || "Failed to load product");
         }
       } catch (error) {
         console.error("Error fetching product:", error);
+        toast.error("Failed to load product details");
       }
     };
 
@@ -115,6 +124,7 @@ const ProductForm = () => {
       setSubCategories(data.data || []);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
+      toast.error("Failed to load subcategories");
     }
   };
 
@@ -133,12 +143,25 @@ const ProductForm = () => {
     []
   );
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (files && files[0]) {
-      setProductState((prev) => ({ ...prev, [name]: files[0] }));
-    }
-  };
+ const handleFileChange = (e) => {
+  const { name, files } = e.target;
+  if (!files || !files[0]) return;
+
+  const file = files[0];
+  const isDocument = name === "pdf" || name === "msds";
+  const maxSize = isDocument ? MAX_DOCUMENT_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
+  const typeName = isDocument ? (name === "pdf" ? "PDF" : "MSDS") : "image";
+
+  if (file.size > maxSize) {
+    toast.error(
+      `${typeName} file too large! Maximum allowed: ${maxSize / (1024 * 1024)} MB`
+    );
+    e.target.value = ""; // clear the input
+    return;
+  }
+
+  setProductState((prev) => ({ ...prev, [name]: file }));
+};
 
   const generateSlug = (text) => {
     return text
@@ -156,30 +179,52 @@ const ProductForm = () => {
     }));
   };
 
-  const handleImageChange = (images, isUpdate = false) => {
-    if (isUpdate) {
-      setProductState((prev) => ({
-        ...prev,
-        images,
-      }));
+ const handleImageChange = (images, isUpdate = false) => {
+  if (isUpdate) {
+    setProductState((prev) => ({ ...prev, images }));
+    return;
+  }
+
+  // New images being added
+  const validImages = [];
+  const rejected = [];
+
+  images.forEach((img) => {
+    if (!img.file) return;
+
+    if (img.file.size > MAX_IMAGE_SIZE_BYTES) {
+      rejected.push(img.file.name);
     } else {
-      const newImages = images.map((img) => ({
+      validImages.push({
         file: img.file,
         url: URL.createObjectURL(img.file),
         altText: img.altText || "",
         title: img.title || "",
-      }));
-      setProductState((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newImages],
-      }));
+      });
     }
-  };
+  });
+
+  if (rejected.length > 0) {
+    toast.error(
+      `The following image(s) exceed ${MAX_IMAGE_SIZE_MB} MB and were not added:\n` +
+        rejected.join(", ")
+    );
+  }
+
+  if (validImages.length > 0) {
+    setProductState((prev) => ({
+      ...prev,
+      images: [...prev.images, ...validImages],
+    }));
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: "", text: "" });
+
+    // Show loading toast with toastId for react-toastify
+    const toastId = toast.loading(id ? 'Updating product...' : 'Creating product...');
 
     try {
       const formData = new FormData();
@@ -232,9 +277,12 @@ const ProductForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({
+        // Update loading toast to success
+        toast.update(toastId, {
+          render: id ? "Product updated successfully!" : "Product created successfully!",
           type: "success",
-          text: id ? "Product updated successfully!" : "Product created successfully!",
+          isLoading: false,
+          autoClose: 3000,
         });
 
         if (!id) {
@@ -262,61 +310,94 @@ const ProductForm = () => {
 
         setTimeout(() => {
           navigate("/products-table");
-        }, 2000);
+        }, 1500);
       } else {
-        setMessage({ type: "error", text: data.message || "An error occurred" });
+        // Update loading toast to error
+        toast.update(toastId, {
+          render: data.message || "An error occurred",
+          type: "error",
+          isLoading: false,
+          autoClose: 4000,
+        });
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setMessage({ type: "error", text: "An error occurred while saving the product" });
+      // Update loading toast to error
+      toast.update(toastId, {
+        render: "An error occurred while saving the product",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
   if (categoryLoading) {
-    return <div>Loading categories...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading categories...</div>
+      </div>
+    );
   }
 
   if (categoryError) {
-    return <div className="text-red-500">Error loading categories: {categoryError.message}</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500">Error loading categories: {categoryError.message}</div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">{id ? "Edit Product" : "Add New Product"}</h2>
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-6">{id ? "Edit Product" : "Add New Product"}</h2>
 
-      {message.text && <MessageAlert message={message} />}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CategoryInformation
+              product={product}
+              categories={categories}
+              subCategories={subCategories}
+              handleChange={handleChange}
+            />
+            <BasicInformation
+              product={product}
+              brands={brands}
+              handleChange={handleChange}
+              handleNameChange={handleNameChange}
+            />
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CategoryInformation
+          <ProductDetails product={product} handleChange={handleChange} />
+
+          <MediaFiles
             product={product}
-            categories={categories}
-            subCategories={subCategories}
-            handleChange={handleChange}
+            handleImageChange={handleImageChange}
+            handleFileChange={handleFileChange}
           />
-          <BasicInformation
-            product={product}
-            brands={brands}
-            handleChange={handleChange}
-            handleNameChange={handleNameChange}
-          />
-        </div>
 
-        <ProductDetails product={product} handleChange={handleChange} />
+          <SeoInformation product={product} handleChange={handleChange} />
 
-        <MediaFiles
-          product={product}
-          handleImageChange={handleImageChange}
-          handleFileChange={handleFileChange}
-        />
-
-        <SeoInformation product={product} handleChange={handleChange} />
-
-        <FormActions navigate={navigate} loading={loading} isEdit={!!id} />
-      </form>
-    </div>
+          <FormActions navigate={navigate} loading={loading} isEdit={!!id} />
+        </form>
+      </div>
+    </>
   );
 };
 

@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
 
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
+
 const ImagesForm = ({ formData, setFormData }) => {
   // Generate a unique name for the image
   const generateImageName = () => `${Date.now()}.png`;
 
-  // Add a new empty image
+  // Add a new empty image slot
   const addImage = () => {
     setFormData((prev) => ({
       ...prev,
@@ -29,22 +31,31 @@ const ImagesForm = ({ formData, setFormData }) => {
     }));
   };
 
-  // Handle image file changes
+  // Handle image file changes with size validation
   const handleImageFileChange = (index, file) => {
     if (!file) return;
 
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      alert(
+        `File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)} MB).\n` +
+        `Maximum allowed size is 1MB.`
+      );
+      return; // skip update
+    }
+
     const updatedImages = [...formData.images];
 
-    // Revoke the previous object URL if it exists and is a blob URL
+    // Revoke previous blob URL if it exists
     if (updatedImages[index].url && updatedImages[index].url.startsWith('blob:')) {
       URL.revokeObjectURL(updatedImages[index].url);
     }
 
     updatedImages[index] = {
       ...updatedImages[index],
-      file, // Store the file object
-      url: URL.createObjectURL(file), // Generate a preview URL
-      name: updatedImages[index].name || generateImageName(), // Ensure name is set
+      file,                    // Store the file object
+      url: URL.createObjectURL(file), // Generate preview
+      name: updatedImages[index].name || generateImageName(),
     };
 
     setFormData((prev) => ({
@@ -66,7 +77,7 @@ const ImagesForm = ({ formData, setFormData }) => {
     }));
   };
 
-  // Cleanup object URLs on component unmount
+  // Cleanup object URLs on unmount or when images change significantly
   useEffect(() => {
     return () => {
       formData.images.forEach((image) => {
@@ -108,11 +119,16 @@ const ImagesForm = ({ formData, setFormData }) => {
               {image.url && (
                 <div className="w-16 h-16 flex-shrink-0">
                   <img
-                    src={image.file ? image.url : image.url.startsWith('http') ? image.url : `/api/image/download/${image.url}`}
+                    src={
+                      image.file
+                        ? image.url
+                        : image.url.startsWith('http')
+                        ? image.url
+                        : `/api/image/download/${image.url}`
+                    }
                     alt={image.altText || 'Image preview'}
                     className="w-full h-full object-cover rounded-md border"
                     onError={(e) => {
-                      // Only try fallback if it's a relative URL that failed to load
                       if (!image.file && !image.url.startsWith('http')) {
                         e.target.src = image.url;
                       }
@@ -153,6 +169,10 @@ const ImagesForm = ({ formData, setFormData }) => {
           ))}
         </div>
       )}
+
+      <p className="text-sm text-gray-500 mt-3">
+        Maximum file size: 1MB per image
+      </p>
     </div>
   );
 };

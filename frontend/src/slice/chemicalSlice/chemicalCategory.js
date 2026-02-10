@@ -46,8 +46,8 @@ export const chemicalCategoryApi = createApi({
 
     // Update category
     updateCategory: builder.mutation({
-      query: (formData) => ({
-        url: 'updateCategory',
+      query: ({ categoryId, formData }) => ({
+        url: `updateCategory?categoryId=${categoryId}`,
         method: 'PUT',
         body: formData,
       }),
@@ -56,8 +56,8 @@ export const chemicalCategoryApi = createApi({
 
     // Update subcategory
     updateSubCategory: builder.mutation({
-      query: (formData) => ({
-        url: 'updateSubCategory',
+      query: ({ categoryId, subCategoryId, formData }) => ({
+        url: `updateSubCategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}`,
         method: 'PUT',
         body: formData,
       }),
@@ -66,8 +66,8 @@ export const chemicalCategoryApi = createApi({
 
     // Update sub-subcategory
     updateSubSubCategory: builder.mutation({
-      query: (formData) => ({
-        url: 'updatesubsubcategory',
+      query: ({ categoryId, subCategoryId, subSubCategoryId, formData }) => ({
+        url: `updatesubsubcategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}&subSubCategoryId=${subSubCategoryId}`,
         method: 'PUT',
         body: formData,
       }),
@@ -112,6 +112,23 @@ export const chemicalCategoryApi = createApi({
       }),
       invalidatesTags: ['ChemicalCategories'],
     }),
+    // Add delete subcategory mutation
+    deleteSubCategory: builder.mutation({
+      query: ({ categoryId, subCategoryId }) => ({
+        url: `deletesubcategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}`, 
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ChemicalCategories'],
+    }),
+    // Add delete sub-subcategory mutation
+    deleteSubSubCategory: builder.mutation({
+      query: ({ categoryId, subCategoryId, subSubCategoryId }) => ({
+        url: `deletesubsubcategory?categoryId=${categoryId}&subCategoryId=${subCategoryId}&subSubCategoryId=${subSubCategoryId}`, 
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ChemicalCategories'],
+    }),
+
   }),
 });
 
@@ -127,6 +144,8 @@ export const {
   useGetSpecificSubcategoryBySlugQuery,
   useGetSpecificCategoryBySlugQuery,
   useDeleteChemicalCategoryMutation,
+  useDeleteSubCategoryMutation,
+  useDeleteSubSubCategoryMutation,
   useAddCategoryMutation,
   useAddSubCategoryMutation,
   useAddSubSubCategoryMutation

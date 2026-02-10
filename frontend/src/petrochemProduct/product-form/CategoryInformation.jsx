@@ -75,7 +75,7 @@ const CategoryInformation = ({ product, categories = [], handleChange }) => {
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Category*</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500 text-lg">*</span> </label>
         <select
           name="categoryId"
           value={product.categoryId || ""}

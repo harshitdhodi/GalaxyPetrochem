@@ -108,15 +108,18 @@ export default function ProductDetailPage() {
   // Function to clean and enhance HTML for proper display
   const enhanceHTMLForDisplay = (html) => {
     if (!html) return "No content available.";
-    
+
+    // Remove empty or whitespace-only p tags so they don't get spacing/layout
+    let cleaned = html.replace(/<p(?:\s[^>]*)?>\s*<\/p>/gi, '');
+
     // Ensure proper list styling and formatting
-    let enhancedHTML = html
+    let enhancedHTML = cleaned
       // Add proper classes to lists
       .replace(/<ul(?![^>]*class)/g, '<ul class="list-disc pl-6 space-y-2 my-4"')
       .replace(/<ol(?![^>]*class)/g, '<ol class="list-decimal pl-6 space-y-2 my-4"')
       // Add proper classes to list items
       .replace(/<li(?![^>]*class)/g, '<li class="leading-relaxed"')
-      // Add proper classes to paragraphs
+      // Add proper classes to paragraphs (only non-empty p tags remain)
       .replace(/<p(?![^>]*class)/g, '<p class="mb-4 leading-relaxed"')
       // Add proper classes to headings
       .replace(/<h1(?![^>]*class)/g, '<h1 class="text-2xl font-bold mb-4 mt-6"')
@@ -286,12 +289,13 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Enhanced Product Description Section */}
+            {/* Enhanced Product Description Section — only show when there is content */}
+            {(!isContentEmpty(productData?.details) || !isContentEmpty(productData?.specifiction) || !isContentEmpty(productData?.tableInfo)) && (
             <div className="mt-5 bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-lg shadow-md border border-blue-200">
               <h2 className="text-2xl font-bold mb-6 text-blue-900 border-b border-blue-200 pb-3">
                 Product Description
               </h2>
-              
+
               {/* Product Details */}
               {(productData?.details || productData?.specifiction) && (
                 <div className="mb-6">
@@ -320,15 +324,14 @@ export default function ProductDetailPage() {
               )}
 
               {/* Show More/Less Button */}
-              {(!isContentEmpty(productData?.details) || !isContentEmpty(productData?.specifiction) || !isContentEmpty(productData?.tableInfo)) && (
-                <button
-                  onClick={() => setShowFullDescription((prev) => !prev)}
-                  className="mt-4 px-4  text-blue-600 hover:border-b-2 hover:border-blue-600 hover:text-blue-700   font-medium   transition-colors duration-200"
-                >
-                  {showFullDescription ? "Show Less" : "Show More"}
-                </button>
-              )}
+              <button
+                onClick={() => setShowFullDescription((prev) => !prev)}
+                className="mt-4 px-4 text-blue-600 hover:border-b-2 hover:border-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
+              >
+                {showFullDescription ? "Show Less" : "Show More"}
+              </button>
             </div>
+            )}
           </>
         )}
         
@@ -346,14 +349,16 @@ export default function ProductDetailPage() {
 
         .rich-content-display ul {
           list-style-type: disc !important;
+          list-style-position: inside !important;
           margin: 16px 0 !important;
-          padding-left: 24px !important;
+          padding-left: 1em !important;
         }
 
         .rich-content-display ol {
           list-style-type: decimal !important;
+          list-style-position: inside !important;
           margin: 16px 0 !important;
-          padding-left: 24px !important;
+          padding-left: 1.5em !important;
         }
 
         .rich-content-display li {
@@ -364,24 +369,35 @@ export default function ProductDetailPage() {
 
         .rich-content-display ul ul {
           list-style-type: circle !important;
+          list-style-position: inside !important;
           margin: 8px 0 !important;
         }
 
         .rich-content-display ul ul ul {
           list-style-type: square !important;
+          list-style-position: inside !important;
         }
 
         .rich-content-display ol ol {
           list-style-type: lower-alpha !important;
+          list-style-position: inside !important;
         }
 
         .rich-content-display ol ol ol {
           list-style-type: lower-roman !important;
+          list-style-position: inside !important;
         }
 
         .rich-content-display p {
           margin: 12px 0 !important;
           line-height: 1.6 !important;
+        }
+
+        .rich-content-display p:empty,
+        .rich-content-display p:has(br:only-child) {
+          display: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
 
         .rich-content-display h1,

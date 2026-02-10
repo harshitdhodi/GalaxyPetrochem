@@ -28,7 +28,8 @@ export default function SearchBar() {
 
   // API call function
   const fetchChemicals = async (term) => {
-    if (!term || term.length < 2) {
+    const trimmedTerm = term.trim();
+    if (!trimmedTerm || trimmedTerm.length < 2) {
       setChemicals([]);
       setShowSuggestions(false);
       return;
@@ -36,7 +37,7 @@ export default function SearchBar() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(term)}`);
+      const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(trimmedTerm)}`);
       if (!response.ok) {
         throw new Error("Failed to fetch chemicals.");
       }
@@ -70,7 +71,7 @@ export default function SearchBar() {
 
   const handleChemicalSelect = (chemical) => {
     setSelectedChemical(chemical);
-    setSearchTerm(chemical.name);
+    setSearchTerm(chemical.name.trim());
     setShowSuggestions(false); // Explicitly hide suggestions
     setShowSearchModal(false); // Close mobile modal
     // Optionally navigate immediately
@@ -78,7 +79,7 @@ export default function SearchBar() {
   };
 
   const handleSearch = async () => {
-    const term = selectedChemical ? selectedChemical.name : searchTerm;
+    const term = (selectedChemical ? selectedChemical.name : searchTerm).trim();
     if (!term) {
       alert("Please enter or select a product to search.");
       return;
