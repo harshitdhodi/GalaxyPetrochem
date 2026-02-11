@@ -1,6 +1,6 @@
-import React from 'react';
-import { Table, Button, Space, message, Breadcrumb } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Table, Button, Space, message, Breadcrumb, Input } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, HomeOutlined, SearchOutlined } from '@ant-design/icons';
 import { useGetAllBannersQuery, useDeleteBannerMutation } from '../../slice/banner/banner';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ const BannerTable = () => {
   const navigate = useNavigate();
   const { data: bannerData, isLoading } = useGetAllBannersQuery();
   const [deleteBanner] = useDeleteBannerMutation();
+  const [searchText, setSearchText] = useState('');
 
   const handleDelete = async (id) => {
     try {
@@ -17,6 +18,11 @@ const BannerTable = () => {
       message.error('Failed to delete banner');
     }
   };
+
+  // Filter data based on search text (trimmed)
+  const filteredData = bannerData?.filter((banner) =>
+    banner.title?.toLowerCase().includes(searchText.trim().toLowerCase())
+  );
 
   const columns = [
     {
@@ -91,9 +97,22 @@ const BannerTable = () => {
           </Button>
         </div>
       </div>
+
+      {/* Search Input */}
+      <div style={{ padding: '0 24px 16px 24px' }}>
+        <Input
+          placeholder="Search by title..."
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          allowClear
+          style={{ maxWidth: '400px' }}
+        />
+      </div>
+
       <Table 
         columns={columns} 
-        dataSource={bannerData} 
+        dataSource={filteredData} 
         loading={isLoading}
         rowKey="_id"
         pagination={{ pageSize: 5 }}

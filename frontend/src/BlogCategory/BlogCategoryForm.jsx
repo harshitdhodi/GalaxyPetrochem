@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -6,77 +8,115 @@ import {
   useGetCategoryByIdQuery, 
   useUpdateCategoryMutation 
 } from '@/slice/blog/blogCategory';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const slugify = (text) => {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')          // Replace multiple - with single -
+    .replace(/^-+/, '')              // Trim - from start
+    .replace(/-+$/, '');             // Trim - from end
+};
 
 const CategoryForm = () => {
-  // Get the ID from URL
   const { id } = useParams();
   const navigate = useNavigate();
+  const isEditMode = !!id;
 
-  // Mutation and Query Hooks
   const [addCategory, { isLoading: isAddLoading }] = useAddCategoryMutation();
   const [updateCategory, { isLoading: isUpdateLoading }] = useUpdateCategoryMutation();
   const { data: existingCategory, isLoading: isFetchLoading } = useGetCategoryByIdQuery(id, {
-    skip: !id // Only run the query if id exists
+    skip: !id
   });
 
-  // Initialize react-hook-form
   const { 
     register, 
     handleSubmit, 
     formState: { errors },
     reset,
-    setValue
-  } = useForm();
+    setValue,
+    watch,
+  } = useForm({
+    defaultValues: {
+      slug: '',
+    }
+  });
 
-  // Populate form with existing data if editing
+  const categoryName = watch('category');
+
+  // Auto-generate slug when category name changes (only in add mode or if slug is empty)
+  useEffect(() => {
+    if (!categoryName) return;
+
+    const newSlug = slugify(categoryName);
+
+    // In add mode → always update
+    // In edit mode → only update if slug is empty or very short
+    if (!isEditMode || !watch('slug') || watch('slug').length < 3) {
+      setValue('slug', newSlug, { shouldValidate: true });
+    }
+  }, [categoryName, isEditMode, setValue, watch]);
+
+  // Populate form when editing
   useEffect(() => {
     if (existingCategory) {
-      // Populate all form fields with existing category data
       Object.keys(existingCategory).forEach(key => {
         setValue(key, existingCategory[key]);
       });
     }
   }, [existingCategory, setValue]);
 
-  // Form submission handler
-  const onSubmit = async (data) => {
-    try {
-      // Convert priority to number if it's not already
-      const formData = {
-        ...data,
-        priority: data.priority ? Number(data.priority) : undefined
-      };
-  
-      let response;
-      if (id) {
-        // Update existing category with id as query parameter
-        response = await updateCategory({ id, categoryData: formData }).unwrap();
-      } else {
-        // Add new category
-        response = await addCategory(formData).unwrap();
-      }
-  
-      // Reset form after successful submission
-      reset();
-  
-      // Manually trigger refetch or state change for table update
-      // Navigate to category table and refetch data if necessary
-      navigate("/blog-category-table", { replace: true });
-  
-      // Optionally, add a success toast or notification
-      console.log(id ? 'Category updated successfully' : 'Category added successfully', response);
-    } catch (submitError) {
-      // Handle submission error (you might want to add error handling)
-      console.error(id ? 'Failed to update category' : 'Failed to add category', submitError);
+ const onSubmit = async (data) => {
+  try {
+    const formData = {
+      ...data,
+      priority: data.priority ? Number(data.priority) : undefined,
+    };
+
+    if (id) {
+      await updateCategory({ id, categoryData: formData }).unwrap();
+      toast.success("Category updated successfully!");
+    } else {
+      await addCategory(formData).unwrap();
+      toast.success("Category added successfully!");
     }
-  };
-  
-  // Determine loading and button text
+
+    reset();
+
+    // ✅ Give the toast time to render before navigating away
+    setTimeout(() => {
+      navigate("/blog-category-table", { replace: true });
+    }, 1500);
+
+  } catch (submitError) {
+ toast.error(submitError?.data?.message || submitError?.message || 'An error occurred. Please try again.');
+ console.error("Submission error:", submitError);
+  }
+};
+
   const isLoading = isAddLoading || isUpdateLoading || isFetchLoading;
-  const isEditMode = !!id;
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <div className="max-w-xl mx-auto p-6 bg-white shadow-md rounded-lg relative">
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       <h2 className="text-2xl font-bold mb-6 text-center">
         {isEditMode ? 'Update Category' : 'Add Category'}
       </h2>
@@ -104,7 +144,7 @@ const CategoryForm = () => {
             )}
           </div>
 
-          {/* Slug Field */}
+          {/* Slug Field - now auto-generated */}
           <div>
             <label htmlFor="slug" className="block text-sm font-medium text-gray-700">
               Slug <span className="text-red-500">*</span>
@@ -116,17 +156,24 @@ const CategoryForm = () => {
                 required: "Slug is required",
                 pattern: {
                   value: /^[a-z0-9-]+$/,
-                  message: "Slug must be lowercase, numbers, and hyphens only"
-                }
+                  message: "Slug must contain only lowercase letters, numbers, and hyphens"
+                },
+                minLength: { value: 3, message: "Slug should be at least 3 characters" }
               })}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="auto-generated from category name"
             />
             {errors.slug && (
               <p className="text-red-500 text-xs mt-1">{errors.slug.message}</p>
             )}
+            {!isEditMode && categoryName && (
+              <p className="text-gray-500 text-xs mt-1 italic">
+                Auto-generated: {slugify(categoryName)}
+              </p>
+            )}
           </div>
 
-          {/* Meta Title Field */}
+          {/* Meta Title */}
           <div>
             <label htmlFor="metatitle" className="block text-sm font-medium text-gray-700">
               Meta Title
@@ -139,7 +186,7 @@ const CategoryForm = () => {
             />
           </div>
 
-          {/* Meta Description Field */}
+          {/* Meta Description */}
           <div>
             <label htmlFor="metadescription" className="block text-sm font-medium text-gray-700">
               Meta Description
@@ -147,11 +194,12 @@ const CategoryForm = () => {
             <textarea
               id="metadescription"
               {...register("metadescription")}
+              rows={3}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
-          {/* Meta Keywords Field */}
+          {/* Meta Keywords */}
           <div>
             <label htmlFor="metakeywords" className="block text-sm font-medium text-gray-700">
               Meta Keywords
@@ -164,7 +212,7 @@ const CategoryForm = () => {
             />
           </div>
 
-          {/* URL Field */}
+          {/* URL */}
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-700">
               URL
@@ -185,7 +233,7 @@ const CategoryForm = () => {
             )}
           </div>
 
-          {/* Priority Field */}
+          {/* Priority */}
           <div>
             <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
               Priority
@@ -203,7 +251,7 @@ const CategoryForm = () => {
             )}
           </div>
 
-          {/* Other Meta Field */}
+          {/* Other Meta */}
           <div>
             <label htmlFor="otherMeta" className="block text-sm font-medium text-gray-700">
               Other Meta
@@ -211,6 +259,7 @@ const CategoryForm = () => {
             <textarea
               id="otherMeta"
               {...register("otherMeta")}
+              rows={3}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -220,8 +269,7 @@ const CategoryForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 
-              disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading 
                 ? 'Processing...' 

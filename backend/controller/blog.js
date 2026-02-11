@@ -1,6 +1,5 @@
 const Blog = require('../model/blog'); // Import the Blog model
 const blogCategory = require('../model/blogCategory');
-const BlogCategory = require('../model/blogCategory'); // Import the BlogCategory model
 
 // Create a new blog
 const createBlog = async (req, res) => {
@@ -29,12 +28,19 @@ const createBlog = async (req, res) => {
   } = req.body;
 
   // Handle file uploads2 correctly
-  let imagePaths = [];
-  if (req.files && Array.isArray(req.files)) {
-      imagePaths = req.files.map(file => file.filename);
-  } else if (req.file) {
-      imagePaths = [req.file.filename]; // Single file upload
-  }
+// Handle file uploads correctly
+let imagePaths = [];
+
+if (req.files && req.files.image) {
+    // multer .fields() or .any() — files grouped by field name
+    imagePaths = req.files.image.map(file => file.filename);
+} else if (req.files && Array.isArray(req.files)) {
+    // multer .array() — files as a plain array
+    imagePaths = req.files.map(file => file.filename);
+} else if (req.file) {
+    // multer .single() — one file
+    imagePaths = [req.file.filename];
+}
 
   try {
       const newBlog = new Blog({
@@ -83,7 +89,7 @@ const getBlogById = async (req, res) => {
   const { id } = req.query;
 
   try {
-    const blog = await Blog.findById(id); // Populate the category field
+    const blog = await Blog.findById(id).populate('category'); // Populate the category field
     if (!blog) {
       return res.status(404).json({ message: 'Blog not found' });
     }

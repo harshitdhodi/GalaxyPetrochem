@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';  // ✅ import here
+import 'react-toastify/dist/ReactToastify.css';   // ✅ import CSS here too
 import TestimonialForm from './TestimonialForm';
 import TestimonialTable from './TestimonialTable';
 
@@ -17,17 +19,18 @@ const TestimonialManager = () => {
   }, []);
 
   return (
-    <div className="p-6 ">
+    <div className="p-6">
+      <ToastContainer />  {/* ✅ Single instance lives here */}
       <h2 className="text-2xl font-bold mb-4">Manage Testimonials</h2>
-      <TestimonialForm 
-        selected={selected} 
-        setSelected={setSelected} 
-        fetchTestimonials={fetchTestimonials} 
+      <TestimonialForm
+        selected={selected}
+        setSelected={setSelected}
+        fetchTestimonials={fetchTestimonials}
       />
-      <TestimonialTable 
-        testimonials={testimonials} 
-        setSelected={setSelected} 
-        fetchTestimonials={fetchTestimonials} 
+      <TestimonialTable
+        testimonials={testimonials}
+        setSelected={setSelected}
+        fetchTestimonials={fetchTestimonials}
       />
     </div>
   );

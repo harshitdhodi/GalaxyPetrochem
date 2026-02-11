@@ -17,6 +17,9 @@ const AddBannerForm = () => {
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // File size limit in bytes (1MB = 1024 * 1024 bytes)
+  const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+
   useEffect(() => {
     const fetchMenuList = async () => {
       try {
@@ -69,9 +72,32 @@ const AddBannerForm = () => {
     }
   };
 
+  const beforeUploadImage = (file) => {
+    const isLt1M = file.size <= MAX_FILE_SIZE;
+    if (!isLt1M) {
+      message.error('Image must be smaller than 1MB!');
+      return Upload.LIST_IGNORE; // Prevent upload
+    }
+    return false; // Prevent auto upload
+  };
+
+  const beforeUploadPhoto = (file) => {
+    const isLt1M = file.size <= MAX_FILE_SIZE;
+    if (!isLt1M) {
+      message.error('Photo must be smaller than 1MB!');
+      return Upload.LIST_IGNORE; // Prevent upload
+    }
+    return false; // Prevent auto upload
+  };
+
   const handleImageChange = (info) => {
     const file = info.fileList[0];
     if (file?.originFileObj) {
+      // Check file size again
+      if (file.size > MAX_FILE_SIZE) {
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewUrl(reader.result);
@@ -90,6 +116,11 @@ const AddBannerForm = () => {
   const handlePhotoChange = (info) => {
     const file = info.fileList[0];
     if (file?.originFileObj) {
+      // Check file size again
+      if (file.size > MAX_FILE_SIZE) {
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewUrl(reader.result);
@@ -149,15 +180,36 @@ const AddBannerForm = () => {
               {menuList.map(menu => renderMenuOptions(menu))}
             </Select>
           </Form.Item>
-          <Form.Item name="image" label="Banner Image" rules={[{ required: true, message: 'Please upload an image!' }]}>
-            <Upload maxCount={1} listType="picture" beforeUpload={() => false} onChange={handleImageChange}>
-              <Button icon={<UploadOutlined />}>Upload Image</Button>
+          
+          <Form.Item 
+            name="image" 
+            label="Banner Image" 
+            rules={[{ required: true, message: 'Please upload an image!' }]}
+            extra="Image size must be 1MB or less"
+          >
+            <Upload 
+              maxCount={1} 
+              listType="picture" 
+              beforeUpload={beforeUploadImage} 
+              onChange={handleImageChange}
+            >
+              <Button icon={<UploadOutlined />}>Upload Image (Max 1MB)</Button>
             </Upload>
           </Form.Item>
 
-          <Form.Item name="photo" label="Photo" rules={[{ required: true, message: 'Please upload a photo!' }]}>
-            <Upload maxCount={1} listType="picture" beforeUpload={() => false} onChange={handlePhotoChange}>
-              <Button icon={<UploadOutlined />}>Upload Photo</Button>
+          <Form.Item 
+            name="photo" 
+            label="Photo" 
+            rules={[{ required: true, message: 'Please upload a photo!' }]}
+            extra="Photo size must be 1MB or less"
+          >
+            <Upload 
+              maxCount={1} 
+              listType="picture" 
+              beforeUpload={beforeUploadPhoto} 
+              onChange={handlePhotoChange}
+            >
+              <Button icon={<UploadOutlined />}>Upload Photo (Max 1MB)</Button>
             </Upload>
           </Form.Item>
 

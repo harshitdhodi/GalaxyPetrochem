@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/table';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BrandsList = () => {
   const [formData, setFormData] = useState({ name: '', slug: '', photo: null });
@@ -23,12 +25,14 @@ const BrandsList = () => {
   const [editingBrand, setEditingBrand] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
+
   const fetchBrands = async () => {
     try {
       const res = await axios.get('/api/brand');
       setBrands(res.data.data || []);
     } catch (err) {
       console.error('Error fetching brands:', err);
+      toast.error("Failed to fetch brands");
     }
   };
 
@@ -36,18 +40,30 @@ const BrandsList = () => {
     fetchBrands();
   }, []);
 
+  // Add this constant near the top of the component
+  const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB in bytes
+
+  // Updated handleChange (for add brand form)
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'photo') {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File too large! Maximum allowed size is 1 MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+        e.target.value = ''; // clear the invalid file from input
+        return;
+      }
+
       setFormData({ ...formData, photo: file });
       setPreview(URL.createObjectURL(file));
     } else if (name === 'name') {
       const slug = value
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
-        .replace(/^-+|-+$/g, ''); // Trim leading or trailing hyphens
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
       setFormData({ ...formData, name: value, slug });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -80,24 +96,37 @@ const BrandsList = () => {
       data.append('name', formData.name);
       data.append('slug', formData.slug);
       data.append('photo', formData.photo);
+
       await axios.post('/api/brand/addBrand', data);
+
       setFormData({ name: '', slug: '', photo: null });
       setPreview(null);
       fetchBrands();
+
+      toast.success("Brand added successfully");   // ← fixed
+
     } catch (err) {
       console.error('Error adding brand:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to add brand';
+      toast.error(errorMessage);                   // ← fixed
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this brand?')) {
+      return;
+    }
+
     try {
       await axios.delete(`/api/brand/${id}`);
-      alert('Deleted successfully');
       fetchBrands();
+      toast.success("Brand deleted successfully");
     } catch (err) {
       console.error('Error deleting brand:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to delete brand';
+      toast.error(errorMessage);
     }
   };
 
@@ -110,6 +139,7 @@ const BrandsList = () => {
       setIsEditing(true);
     } catch (err) {
       console.error('Error fetching brand for edit:', err);
+      toast.error("Failed to fetch brand details");
     }
   };
 
@@ -129,8 +159,12 @@ const BrandsList = () => {
       setEditingBrand(null);
       setPreview(null);
       fetchBrands();
+      toast.success("Brand updated successfully");
     } catch (err) {
       console.error('Error updating brand:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to update brand';
+      toast.error(errorMessage);
+
     } finally {
       setLoading(false);
     }
@@ -139,6 +173,7 @@ const BrandsList = () => {
   return (
     <>
       <nav className="text-sm mb-4">
+        <ToastContainer />
         <ol className="flex space-x-2">
           <li>
             <Link to="/dashboard" className="text-purple-900 hover:underline">
@@ -295,7 +330,15 @@ const BrandsList = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
-                      const file = e.target.files[0];
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      if (file.size > MAX_FILE_SIZE) {
+                        toast.error(`File too large! Maximum allowed size is 1 MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+                        e.target.value = ''; // clear invalid selection
+                        return;
+                      }
+
                       setEditingBrand({ ...editingBrand, photo: file });
                       setPreview(URL.createObjectURL(file));
                     }}

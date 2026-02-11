@@ -18,12 +18,14 @@ createFoldersIfNotExist();
 // Set up storage for files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Create separate folders for different file types
     let folder;
-    
     switch (file.fieldname) {
       case 'images':
-        folder = 'uploads2/images';
+        // Organize by year/month to avoid directory limits
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        folder = path.join('uploads2/images', String(year), month);
         break;
       case 'msds':
         folder = 'uploads2/msds';
@@ -35,20 +37,18 @@ const storage = multer.diskStorage({
         folder = 'uploads2';
     }
     
+    // Ensure folder exists
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder, { recursive: true, mode: 0o755 });
+    }
+    
     cb(null, folder);
   },
   filename: function (req, file, cb) {
-    // For PDF and MSDS files, keep the original filename
     if (file.fieldname === 'pdf' || file.fieldname === 'msds') {
-      // Sanitize the filename to avoid issues
       const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-      
-      // Optional: Add timestamp prefix to avoid overwriting files with same name
-      // const filename = `${Date.now()}_${sanitizedFilename}`;
-      
       cb(null, sanitizedFilename);
     } else {
-      // For images, use timestamp-based naming
       const ext = path.extname(file.originalname);
       const filename = `${Date.now()}${ext}`;
       cb(null, filename);

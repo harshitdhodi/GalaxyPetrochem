@@ -58,7 +58,24 @@ export default function BlogPage() {
 
     fetchBanner();
   }, [slug, path]); // Add both as dependencies
-
+const PlaceholderImage = () => (
+  <div className="h-48 w-full bg-gray-100 flex items-center justify-center rounded mb-4">
+    <svg
+      className="w-16 h-16 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 16l4-4a3 3 0 014 0l4 4m-2-2l1-1a3 3 0 014 0l2 2M4 20h16"
+      />
+    </svg>
+  </div>
+);
+                            
   const blogs = selectedCategory
     ? Array.isArray(categoryBlogs) ? categoryBlogs : []
     : Array.isArray(allBlogs) ? allBlogs : [];

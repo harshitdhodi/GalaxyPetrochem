@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {  Edit2, Trash } from 'lucide-react';
 const TestimonialTable = ({ testimonials, setSelected, fetchTestimonials }) => {
   const [expandedMessageId, setExpandedMessageId] = useState(null);
 
-  const handleDelete = async (id) => {
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
+
+  try {
     await axios.delete(`/api/testimonial/delete/${id}`);
+    toast.success("Testimonial deleted successfully");
     fetchTestimonials();
-  };
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to delete testimonial");
+  }
+};
 
   const toggleMessage = (id) => {
     setExpandedMessageId(expandedMessageId === id ? null : id);
@@ -69,13 +78,16 @@ const TestimonialTable = ({ testimonials, setSelected, fetchTestimonials }) => {
                   onClick={() => setSelected(item)}
                   className="text-blue-600 hover:underline"
                 >
-                  Edit
+                  <Edit2 size={16} />
                 </button>
                 <button
                   onClick={() => handleDelete(item._id)}
                   className="text-red-600 hover:underline"
                 >
-                  Delete
+                  <Trash
+                    size={16}
+                    className="text-red-600 hover:underline"
+                  />
                 </button>
               </td>
             </tr>

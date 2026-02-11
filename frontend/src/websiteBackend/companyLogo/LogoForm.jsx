@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useUpdateLogoMutation, useGetLogoQuery } from '@/slice/logo/LogoSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LogoForm = () => {
     const [updateLogo, { isLoading }] = useUpdateLogoMutation();
     const { data: existingLogo, isFetching } = useGetLogoQuery();
+
+    
+    // File size limit in bytes (1MB = 1024 * 1024 bytes)
+    const MAX_FILE_SIZE = 1024 * 1024; // 1MB
     
     const [formData, setFormData] = useState({
         headerLogo: null,
@@ -47,6 +53,14 @@ const LogoForm = () => {
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size
+            if (file.size > MAX_FILE_SIZE) {
+                toast.success('File size exceeds 1MB. Please choose a smaller file.');
+                // Clear the file input
+                e.target.value = '';
+                return;
+            }
+
             setFormData(prev => ({ ...prev, [type]: file }));
             setPreview(prev => ({ ...prev, [type]: URL.createObjectURL(file) }));
         }
@@ -69,15 +83,17 @@ const LogoForm = () => {
             });
 
             await updateLogo(formDataToSend).unwrap();
-            alert('Logo updated successfully!');
+            toast.success('Logo updated successfully');
         } catch (err) {
             console.error('Failed to update logo:', err);
-            alert('Failed to update logo. Please try again.');
+            const errorMessage = err?.data?.message || 'Failed to update logo. Please try again.';
+            toast.error(errorMessage);
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+           <ToastContainer />
             <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">Update Company Logo</h2>
             
             {isFetching ? (
@@ -90,7 +106,9 @@ const LogoForm = () => {
                         { label: 'Footer Logo', name: 'footerLogo', previewKey: 'footerLogo' }
                     ].map(({ label, name, previewKey }) => (
                         <div key={name} className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                {label} <span className="text-xs text-gray-500 font-normal">(Max 1MB)</span>
+                            </label>
                             <input 
                                 type="file" 
                                 name={name} 
@@ -98,6 +116,7 @@ const LogoForm = () => {
                                 onChange={(e) => handleFileChange(e, name)} 
                                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 file:text-gray-700 file:bg-white hover:file:bg-gray-100"
                             />
+                            <p className="text-xs text-gray-500 mt-1">Image size must be 1MB or less</p>
                             {preview[previewKey] && (
                                 <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
                                     <p className="text-sm text-gray-600 mb-2">Preview:</p>
@@ -135,7 +154,7 @@ const LogoForm = () => {
                     <button 
                         type="submit" 
                         disabled={isLoading} 
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300">
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300 disabled:bg-indigo-400 disabled:cursor-not-allowed">
                         {isLoading ? 'Updating...' : 'Update Logo'}
                     </button>
                 </form>

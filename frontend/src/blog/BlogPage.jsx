@@ -3,7 +3,8 @@ import { Table, Button, Popconfirm, Typography, Image } from 'antd';
 import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useGetAllBlogsQuery, useDeleteBlogMutation } from '@/slice/blog/blog';
-
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 const { Text } = Typography;
 
 const BlogTable = () => {
@@ -19,8 +20,10 @@ const BlogTable = () => {
     try {
       await deleteBlog(id).unwrap();
       refetch();
+      toast.success('Blog deleted successfully!');
     } catch (error) {
       console.error('Failed to delete blog:', error);
+      toast.error('Failed to delete blog. Please try again.');
     }
   };
 
@@ -115,6 +118,7 @@ const BlogTable = () => {
   
   return (
     <div className="space-y-4">
+      <ToastContainer />
       <div className="flex justify-between mb-4 p-5">
         <div>
           <h2 className='text-2xl font-semibold'>Blogs</h2>

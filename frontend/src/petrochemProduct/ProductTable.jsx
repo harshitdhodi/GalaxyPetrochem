@@ -1,4 +1,4 @@
-import { Delete, Edit } from "lucide-react";
+import { Delete, Edit, Search } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -12,6 +12,7 @@ const ProductTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Number of items per page
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -50,6 +51,7 @@ const ProductTable = () => {
       console.error("Error fetching brands:", error);
     }
   };
+
   const handleEdit = (id) => {
     navigate(`/products/edit/${id}`);
   };
@@ -86,16 +88,44 @@ const ProductTable = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    if (!selectedBrand) {
-      return products;
+    let filtered = products;
+
+    // Filter by brand
+    if (selectedBrand) {
+      filtered = filtered.filter(product => product.brandId?._id === selectedBrand);
     }
-    return products.filter(product => product.brandId?._id === selectedBrand);
-  }, [products, selectedBrand]);
+
+    // Filter by search text (product name, category, brand name)
+    if (searchText.trim()) {
+      const searchLower = searchText.trim().toLowerCase();
+      filtered = filtered.filter(product => {
+        const productName = product.name?.toLowerCase() || "";
+        const category = product.categorySlug?.toLowerCase() || "";
+        const subCategory = product.subCategorySlug?.toLowerCase() || "";
+        const brandName = product.brandId?.name?.toLowerCase() || "";
+
+        return (
+          productName.includes(searchLower) ||
+          category.includes(searchLower) ||
+          subCategory.includes(searchLower) ||
+          brandName.includes(searchLower)
+        );
+      });
+    }
+
+    return filtered;
+  }, [products, selectedBrand, searchText]);
 
   const handleBrandChange = (e) => {
     setSelectedBrand(e.target.value);
     setCurrentPage(1); // Reset to first page on filter change
   };
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -179,10 +209,34 @@ const ProductTable = () => {
           </Link>
         </div>
       </div>
+
+      {/* Search Input */}
+      <div className="p-6 border-b">
+        <div className="relative max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by product name, category, or brand..."
+            value={searchText}
+            onChange={handleSearchChange}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {searchText && (
+            <button
+              onClick={() => setSearchText("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
       
       {filteredProducts.length === 0 ? (
         <div className="p-6 text-center text-gray-500">
-          No products found. Click "Add New Product" to create one.
+          {searchText || selectedBrand ? "No products found matching your criteria." : "No products found. Click \"Add New Product\" to create one."}
         </div>
       ) : (
         <>

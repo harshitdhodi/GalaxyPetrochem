@@ -5,6 +5,30 @@ exports.createMenuListing = async (req, res) => {
     try {
         const { parent, children } = req.body;
 
+        // Check if a menu listing with the same parent name already exists
+        const existingMenuByName = await MenuListing.findOne({ 
+            'parent.name': parent.name 
+        });
+
+        if (existingMenuByName) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A menu listing with this parent name already exists' 
+            });
+        }
+
+        // Check if a menu listing with the same parent path already exists
+        const existingMenuByPath = await MenuListing.findOne({ 
+            'parent.path': parent.path 
+        });
+
+        if (existingMenuByPath) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A menu listing with this parent path already exists' 
+            });
+        }
+
         const newMenuListing = new MenuListing({ parent, children });
         await newMenuListing.save();
 

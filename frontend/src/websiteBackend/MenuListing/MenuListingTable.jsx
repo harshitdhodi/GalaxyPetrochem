@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Button, Popconfirm, Space, Typography, Card } from "antd";
+import { Table, Button, Popconfirm, Space, Typography, Card, message } from "antd";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useGetAllMenuListingsQuery, useDeleteMenuListingMutation } from "@/slice/menuListing/menuList";
@@ -16,8 +16,14 @@ const MenuListingTable = () => {
   };
 
   const handleDelete = async (id) => {
-    await deleteMenuListing(id);
-    refetch(); // Refetch the data after deletion
+    try {
+      await deleteMenuListing(id).unwrap();
+      message.success("Menu listing deleted successfully");
+      refetch(); // Refetch the data after deletion
+    } catch (error) {
+      message.error("Failed to delete menu listing");
+      console.error("Error deleting menu:", error);
+    }
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -60,7 +66,12 @@ const MenuListingTable = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Popconfirm title="Are you sure?" onConfirm={() => handleDelete(record.key)}>
+          <Popconfirm 
+            title="Are you sure?" 
+            onConfirm={() => handleDelete(record.key)}
+            okText="Yes"
+            cancelText="No"
+          >
             <Button type="danger" shape="circle" icon={<DeleteOutlined />} />
           </Popconfirm>
 

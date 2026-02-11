@@ -9,12 +9,28 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useGetAllCategoriesQuery } from '@/slice/blog/blogCategory';
 import { ChevronRight } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 const generateSlug = (title) => {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 };
+
+// ─── Reusable required label helper ───────────────────────────────────────────
+const RequiredLabel = ({ htmlFor, children }) => (
+  <label htmlFor={htmlFor} className="block text-sm font-medium mb-1">
+    {children} <span className="text-red-500" aria-hidden="true">*</span>
+  </label>
+);
+
+const OptionalLabel = ({ htmlFor, children }) => (
+  <label htmlFor={htmlFor} className="block text-sm font-medium mb-1">
+    {children}
+  </label>
+);
 
 export default function BlogForm() {
   const { id } = useParams();
@@ -44,145 +60,131 @@ export default function BlogForm() {
     status: '',
     category: '',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   });
 
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [formErrors, setFormErrors] = useState({});
 
   const { data: blog, isLoading: isFetching, error: fetchError } = useGetBlogByIdQuery(id, {
     skip: !id,
   });
   const [createBlog, { isLoading: isCreating }] = useCreateBlogMutation();
   const [updateBlog, { isLoading: isUpdating }] = useUpdateBlogMutation();
-
   const { data: categories } = useGetAllCategoriesQuery();
 
-  const [formErrors, setFormErrors] = useState({});
+  // ─── Handlers ───────────────────────────────────────────────────────────────
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Clear error for the field being changed
-    setFormErrors(prev => ({ ...prev, [name]: '' }));
-
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
     setFormData((prev) => {
-      const newData = {
-        ...prev,
-        [name]: value,
-      };
-      if (name === 'title') {
-        newData.slug = generateSlug(value);
-      }
-      return newData;
+      const updated = { ...prev, [name]: value };
+      if (name === 'title') updated.slug = generateSlug(value);
+      return updated;
     });
   };
 
   const handleDetailsChange = (value) => {
-    setFormData((prev) => ({
-      ...prev,
-      details: value,
-    }));
+    setFormErrors((prev) => ({ ...prev, details: '' }));
+    setFormData((prev) => ({ ...prev, details: value }));
   };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
-    setFormData((prev) => ({
-      ...prev,
-      image: files,
-    }));
-
-    // Create image previews
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(newPreviews);
+    setFormData((prev) => ({ ...prev, image: files }));
+    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['link', 'image'],
-      ['clean']
-    ],
+  // ─── Validation ─────────────────────────────────────────────────────────────
+
+  const validate = () => {
+    const errors = {};
+    if (!formData.title.trim())    errors.title    = 'Title is required';
+    if (!formData.category)        errors.category = 'Category is required';
+    if (!formData.date)            errors.date     = 'Date is required';
+    if (!formData.details.trim() || formData.details === '<p><br></p>')
+                                   errors.details  = 'Details are required';
+    if (!id && formData.image.length === 0)
+                                   errors.image    = 'At least one image is required';
+    return errors;
   };
+
+  // ─── Submit ─────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
-    const errors = {};
-    if (!formData.title.trim()) errors.title = 'Title is required';
-    if (!formData.category) errors.category = 'Category is required';
-    if (!formData.date) errors.date = 'Date is required';
-    if (!formData.details.trim()) errors.details = 'Details are required';
-
+    const errors = validate();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      toast.error('Please fill in all required fields.', { autoClose: 4000 });
       return;
     }
 
     const formDataToSubmit = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'image') {
-        value.forEach((file) => {
-          formDataToSubmit.append('image', file);
-        });
+        value.forEach((file) => formDataToSubmit.append('image', file));
       } else if (Array.isArray(value)) {
-        value.forEach((item) => {
-          formDataToSubmit.append(key, item);
-        });
+        value.forEach((item) => formDataToSubmit.append(key, item));
       } else {
         formDataToSubmit.append(key, value.toString());
       }
     });
 
-    if (id) {
-      formDataToSubmit.append('id', id);
-    }
+    if (id) formDataToSubmit.append('id', id);
 
     try {
       if (id) {
         await updateBlog({ id, formData: formDataToSubmit }).unwrap();
-        console.log('Blog updated successfully');
+        toast.success('Blog updated successfully!', { autoClose: 4000 });
       } else {
         await createBlog(formDataToSubmit).unwrap();
-        console.log('Blog created successfully');
+        toast.success('Blog created successfully!', { autoClose: 4000 });
       }
-      navigate('/blog-table');
+      setTimeout(() => navigate('/blog-table'), 1500);
     } catch (error) {
       console.error('Error submitting blog:', error);
+      const msg =
+        error?.data?.message ||
+        error?.error ||
+        (id ? 'Failed to update blog.' : 'Failed to create blog.');
+      toast.error(msg, { autoClose: 5000 });
     }
   };
+
+  // ─── Populate form on edit ───────────────────────────────────────────────────
 
   useEffect(() => {
     if (blog) {
       setFormData({
-        title: blog.title || '',
-        date: blog.date || '',
-        details: blog.details || '',
-        image: [],
-        alt: blog.alt || [],
-        imageTitle: blog.imageTitle || [],
-        slug: blog.slug || '',
-        postedBy: blog.postedBy || '',
-        visits: blog.visits || 0,
-        metatitle: blog.metatitle || '',
+        title:           blog.title           || '',
+        date:            blog.date            || '',
+        details:         blog.details         || '',
+        image:           [],
+        alt:             blog.alt             || [],
+        imageTitle:      blog.imageTitle      || [],
+        slug:            blog.slug            || '',
+        postedBy:        blog.postedBy        || '',
+        visits:          blog.visits          || 0,
+        metatitle:       blog.metatitle       || '',
         metadescription: blog.metadescription || '',
-        metakeywords: blog.metakeywords || '',
-        metacanonical: blog.metacanonical || '',
-        metalanguage: blog.metalanguage || '',
-        metaschema: blog.metaschema || '',
-        otherMeta: blog.otherMeta || '',
-        url: blog.url || '',
-        priority: blog.priority || 0,
-        changeFreq: blog.changeFreq || '',
-        lastmod: blog.lastmod || new Date(),
-        status: blog.status || '',
-        category: blog.category?._id || '',
-        createdAt: blog.createdAt || new Date(),
-        updatedAt: blog.updatedAt || new Date()
+        metakeywords:    blog.metakeywords    || '',
+        metacanonical:   blog.metacanonical   || '',
+        metalanguage:    blog.metalanguage    || '',
+        metaschema:      blog.metaschema      || '',
+        otherMeta:       blog.otherMeta       || '',
+        url:             blog.url             || '',
+        priority:        blog.priority        || 0,
+        changeFreq:      blog.changeFreq      || '',
+        lastmod:         blog.lastmod         || new Date(),
+        status:          blog.status          || '',
+        category:        blog.category?._id   || '',
+        createdAt:       blog.createdAt       || new Date(),
+        updatedAt:       blog.updatedAt       || new Date(),
       });
 
-      // Set image previews for existing images
       if (blog.image && Array.isArray(blog.image)) {
         setImagePreviews(blog.image.map((img) => `/api/image/download/${img}`));
       }
@@ -190,147 +192,230 @@ export default function BlogForm() {
   }, [blog]);
 
   useEffect(() => {
-    // Cleanup function to revoke object URLs
     return () => {
       imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
     };
   }, [imagePreviews]);
 
+  // ─── Quill modules ──────────────────────────────────────────────────────────
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image'],
+      ['clean'],
+    ],
+  };
+
+  // ─── Guards ─────────────────────────────────────────────────────────────────
+
   if (id && isFetching) return <div>Loading...</div>;
   if (fetchError) return <div>Error: {fetchError.message || 'An error occurred'}</div>;
 
+  // ─── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <>
+    <ToastContainer />
+      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-4 text-sm">
-        <span
-          onClick={() => navigate('/dashboard')}
-          className="cursor-pointer hover:text-primary"
-        >
+        <span onClick={() => navigate('/dashboard')} className="cursor-pointer hover:text-primary">
           Dashboard
         </span>
         <ChevronRight className="h-4 w-4" />
-        <span
-          onClick={() => navigate('/blog-table')}
-          className="cursor-pointer hover:text-primary"
-        >
+        <span onClick={() => navigate('/blog-table')} className="cursor-pointer hover:text-primary">
           Blogs
         </span>
         <ChevronRight className="h-4 w-4" />
-        <span className="text-muted-foreground">
-          {id ? 'Edit Blog' : 'Create Blog'}
-        </span>
+        <span className="text-muted-foreground">{id ? 'Edit Blog' : 'Create Blog'}</span>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Required fields note */}
+      <p className="text-sm text-gray-500 mb-4">
+        Fields marked with <span className="text-red-500">*</span> are required.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+
+        {/* Category — required */}
         <div>
-          <label className="block text-sm font-medium">Blog Category</label>
+          <RequiredLabel htmlFor="category">Blog Category</RequiredLabel>
           <select
+            id="category"
             name="category"
             value={formData.category}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              category: e.target.value
-            }))}
-            className={`w-full rounded-md border ${formErrors.category ? "border-red-500" : "border-gray-300"
-              } p-2`}
-            required
+            onChange={(e) => {
+              setFormErrors((prev) => ({ ...prev, category: '' }));
+              setFormData((prev) => ({ ...prev, category: e.target.value }));
+            }}
+            className={`w-full rounded-md border p-2 ${
+              formErrors.category ? 'border-red-500' : 'border-gray-300'
+            }`}
           >
             <option value="">Select a category</option>
-            {categories?.map(cat => (
+            {categories?.map((cat) => (
               <option key={cat._id} value={cat._id}>
                 {cat.category}
               </option>
             ))}
           </select>
           {formErrors.category && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.category}</p>
+            <p className="text-red-500 text-xs mt-1">{formErrors.category}</p>
           )}
         </div>
+
+        {/* Title — required */}
         <div>
-          <label className="block text-sm font-medium">Title</label>
+          <RequiredLabel htmlFor="title">Title</RequiredLabel>
           <Input
+            id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
             placeholder="Enter blog title"
-            required
             className={formErrors.title ? 'border-red-500' : ''}
           />
           {formErrors.title && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>
+            <p className="text-red-500 text-xs mt-1">{formErrors.title}</p>
           )}
         </div>
-
+  {/* Slug — auto-generated, read-only */}
         <div>
-          <label className="block text-sm font-medium">Date</label>
+          <OptionalLabel htmlFor="slug">Slug <span className="text-red-500" aria-hidden="true">*</span> </OptionalLabel>
           <Input
+            id="slug"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            placeholder="Auto-generated from title"
+            // readOnly
+            // className="bg-gray-50 text-gray-500 cursor-not-allowed"
+          />
+        </div>
+        {/* Date — required */}
+        <div>
+          <RequiredLabel htmlFor="date">Date</RequiredLabel>
+          <Input
+            id="date"
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            required
+            className={formErrors.date ? 'border-red-500' : ''}
           />
+          {formErrors.date && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.date}</p>
+          )}
         </div>
 
+        {/* Details — required */}
         <div>
-          <label className="block text-sm font-medium">Details</label>
-          <ReactQuill
-            modules={modules}
-            theme="snow"
-            value={formData.details}
-            onChange={handleDetailsChange} 
-            placeholder="Enter blog details"
-          /> 
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Images</label>
-          <Input type="file" multiple onChange={handleFileChange} />
-          <div className="mt-2 flex flex-wrap gap-2">
-            {imagePreviews.map((preview, index) => (
-              <img
-                key={index}
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="h-16 w-16 object-cover rounded"
-              />
-            ))}
+          <RequiredLabel htmlFor="details">Details</RequiredLabel>
+          <div className={formErrors.details ? 'border border-red-500 rounded-md' : ''}>
+            <ReactQuill
+              id="details"
+              modules={modules}
+              theme="snow"
+              value={formData.details}
+              onChange={handleDetailsChange}
+              placeholder="Enter blog details"
+            />
           </div>
+          {formErrors.details && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.details}</p>
+          )}
         </div>
 
-        <div key="slug">
-          <label className="block text-sm font-medium">Slug</label>
+        {/* Images — required on create only */}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium mb-1">
+            Images{!id && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+          </label>
           <Input
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            placeholder="Slug will be generated automatically"
-            readOnly
+            id="image"
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            className={formErrors.image ? 'border-red-500' : ''}
+            accept="image/*"
           />
+          {formErrors.image && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.image}</p>
+          )}
+          {imagePreviews.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {imagePreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="h-16 w-16 object-cover rounded"
+                />
+              ))}
+            </div>
+          )}
         </div>
+{/* Status Dropdown */}
+<div>
+  <OptionalLabel htmlFor="status">Status <span className="text-red-500" aria-hidden="true">*</span></OptionalLabel>
+  <select
+    id="status"
+    name="status"
+    value={formData.status}
+    onChange={handleChange}
+    className="w-full rounded-md border border-gray-300 p-2"
+  >
+    <option value="">Select Status</option>
+    <option value="active">Active</option>
+    <option value="inactive">Inactive</option>
+  </select>
+</div>
 
-        {['alt', 'imageTitle', 'postedBy', 'metatitle', 'metadescription', 'metakeywords', 'metacanonical', 'metalanguage', 'metaschema', 'otherMeta', 'priority', 'status'].map((field) => (
+      
+
+        {/* Optional fields */}
+        {[
+          { field: 'alt',             label: 'Alt Text'         },
+          { field: 'imageTitle',      label: 'Image Title'      },
+          { field: 'postedBy',        label: 'Posted By'        },
+          { field: 'metatitle',       label: 'Meta Title'       },
+          { field: 'metadescription', label: 'Meta Description' },
+          { field: 'metakeywords',    label: 'Meta Keywords'    },
+          { field: 'metacanonical',   label: 'Meta Canonical'   },
+          { field: 'metalanguage',    label: 'Meta Language'    },
+          { field: 'metaschema',      label: 'Meta Schema'      },
+          { field: 'otherMeta',       label: 'Other Meta'       },
+          { field: 'priority',        label: 'Priority'         },
+          // { field: 'status',          label: 'Status'           },
+        ].map(({ field, label }) => (
           <div key={field}>
-            <label className="block text-sm font-medium">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            <OptionalLabel htmlFor={field}>{label}</OptionalLabel>
             <Input
+              id={field}
               name={field}
               value={formData[field]}
               onChange={handleChange}
-              placeholder={`Enter ${field}`}
+              placeholder={`Enter ${label.toLowerCase()}`}
             />
           </div>
         ))}
 
-        <div className="flex justify-end space-x-4">
-          <Button type="button" variant="ghost" onClick={() => navigate('/blogs')}>
+        {/* Actions */}
+        <div className="flex justify-end space-x-4 pt-2 text-black">
+          <Button className="bg-gray-300 hover:bg-gray-600 text-black" type="button" variant="ghost" onClick={() => navigate('/blog-table')}>
             Cancel
           </Button>
           <Button type="submit" disabled={isCreating || isUpdating}>
-            {id ? 'Update Blog' : 'Create Blog'}
+            {isCreating || isUpdating
+              ? 'Saving...'
+              : id
+              ? 'Update Blog'
+              : 'Create Blog'}
           </Button>
         </div>
       </form>
     </>
   );
 }
-

@@ -26,6 +26,16 @@ exports.createProduct = async (req, res) => {
     console.log("Files received:", req.files);
     console.log("Form data:", req.body);
 
+    // Check if a product with the same name already exists
+    const existingProduct = await Product.findOne({ name: name.trim() });
+
+    if (existingProduct) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'A product with this name already exists' 
+      });
+    }
+
     // Handle multiple image files with metadata
     const images = [];
     if (req.files && req.files.images) {
@@ -54,7 +64,7 @@ exports.createProduct = async (req, res) => {
       categorySlug,
       subCategorySlug,
       slug,
-      name,
+      name: name.trim(), // Trim whitespace
       tagline,
       specifiction,
       details,
@@ -74,6 +84,7 @@ exports.createProduct = async (req, res) => {
     await product.save();
 
     res.status(201).json({ 
+      success: true,
       message: "Product created successfully", 
       product: {
         id: product._id,
@@ -88,10 +99,26 @@ exports.createProduct = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating product:", error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({ error: error.message });
+    
+    // Handle mongoose unique constraint error
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'A product with this name already exists' 
+      });
     }
-    res.status(500).json({ error: error.message });
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
   }
 };
 

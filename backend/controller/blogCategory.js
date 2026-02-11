@@ -2,32 +2,56 @@ const BlogCategory = require('../model/blogCategory'); // Assuming the model is 
 
 // Create a new category
 const createCategory = async (req, res) => {
-    console.log(req.body)
-    const { category, slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority } = req.body;
- 
-    try {
-      // Check if a category-slug pair already exists
-      const existingCategory = await BlogCategory.findOne({ category, slug });
-      if (existingCategory) {
-        return res.status(400).json({ message: 'This category with this slug already exists' });
-      }
-  
-      // Create a new category
-      const newCategory = new BlogCategory({
-        category, slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority
-      });
-  
-      // Save the new category
-      const savedCategory = await newCategory.save();
-      res.status(201).json(savedCategory);
-    } catch (error) {
-        console.log(error)
-      res.status(500).json({ message: 'Server error', error });
-    }
-  };
-  
-  
+  const {
+    category,
+    slug,
+    metatitle,
+    metadescription,
+    metakeywords,
+    metacanonical,
+    metalanguage,
+    metaschema,
+    otherMeta,
+    url,
+    priority
+  } = req.body;
 
+  try {
+    // Check if category already exists (case-insensitive)
+    const existingCategory = await BlogCategory.findOne({
+      category: { $regex: new RegExp(`^${category}$`, 'i') }
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({
+        message: 'Category already exists'
+      });
+    }
+
+    const newCategory = new BlogCategory({
+      category,
+      slug,
+      metatitle,
+      metadescription,
+      metakeywords,
+      metacanonical,
+      metalanguage,
+      metaschema,
+      otherMeta,
+      url,
+      priority
+    });
+
+    const savedCategory = await newCategory.save();
+    res.status(201).json(savedCategory);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+  
 // Get all categories
 const getAllCategories = async (req, res) => {
   try {
@@ -55,14 +79,38 @@ const getCategoryById = async (req, res) => {
 
 // Update a category by ID
 const updateCategory = async (req, res) => {
-  const { id } = req.query;
-  const { category, slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority } = req.body;
+  const { id } = req.params;
+  const { 
+    category, slug, metatitle, metadescription, metakeywords, 
+    metacanonical, metalanguage, metaschema, otherMeta, url, priority 
+  } = req.body;
 
   try {
-    // Find the category by ID and update it
+    // ✅ Check for duplicates excluding the current document
+    const duplicate = await BlogCategory.findOne({
+      _id: { $ne: id },           // exclude current document
+      $or: [
+        { category: category.trim() },
+        { slug: slug.trim() }
+      ]
+    });
+
+    if (duplicate) {
+      const conflictField = duplicate.category === category.trim() ? 'Category name' : 'Slug';
+      return res.status(409).json({ 
+        message: `${conflictField} already exists. Please use a different one.` 
+      });
+    }
+
     const updatedCategory = await BlogCategory.findByIdAndUpdate(
       id,
-      { category, slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, updatedAt: Date.now() },
+      { 
+        category: category.trim(), 
+        slug: slug.trim(), 
+        metatitle, metadescription, metakeywords, 
+        metacanonical, metalanguage, metaschema, otherMeta, url, priority, 
+        updatedAt: Date.now() 
+      },
       { new: true }
     );
 
@@ -71,6 +119,7 @@ const updateCategory = async (req, res) => {
     }
 
     res.status(200).json(updatedCategory);
+
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }

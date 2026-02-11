@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Space, Card } from "antd";
+import { Form, Input, Button, Space, Card, message } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCreateMenuListingMutation, useUpdateMenuListingMutation, useGetMenuListingByIdQuery, useGetAllMenuListingsQuery } from "@/slice/menuListing/menuList";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,13 +22,24 @@ const MenuListingForm = () => {
   }, [data, form]);
 
   const handleSubmit = async (values) => {
-    if (id) {
-      await updateMenuListing({ id, ...values });
-    } else {
-      await createMenuListing(values);
+    try {
+      if (id) {
+        await updateMenuListing({ id, ...values }).unwrap();
+        message.success("Menu listing updated successfully");
+      } else {
+        await createMenuListing(values).unwrap();
+        message.success("Menu listing created successfully");
+      }
+      await refetchAllMenuListings();
+      navigate("/menu-listing-table");
+    } catch (error) {
+      // Display the specific error message from the API response
+      const errorMessage = error?.data?.message || 
+                          error?.message || 
+                          (id ? "Failed to update menu listing" : "Failed to create menu listing");
+      message.error(errorMessage);
+      console.error("Error:", error);
     }
-    await refetchAllMenuListings();
-    navigate("/menu-listing-table");
   };
 
   if (isLoading) return <p>Loading...</p>;

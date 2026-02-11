@@ -4,39 +4,47 @@ const path = require("path");
 const Category = require('../model/chemicalCategory');
 // Create a new product
 exports.createProduct = async (req, res) => {
-  try {
-    const { category, name, price, details,categorySlug, metaTitle, metaDescription, metaKeyword, metaSchema , slug, table } = req.body;
+    try {
+        const { name, category, categorySlug, slug, price, images, table, details, metaTitle, metaDescription, metaKeyword, metaSchema } = req.body;
 
-    // Process uploaded images
-    let images = [];
-    if (req.files && req.files.images) {
-      images = req.files.images.map(file => ({
-        url: `${file.filename}`,
-        altText: name,
-        title: name
-      }));
+        // Check if a product with the same name already exists
+        const existingProduct = await Product.findOne({ name: name });
+
+        if (existingProduct) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A product with this name already exists' 
+            });
+        }
+
+        const newProduct = new Product({ 
+            name,
+            category,
+            categorySlug,
+            slug,
+            price,
+            images,
+            table,
+            details,
+            metaTitle,
+            metaDescription,
+            metaKeyword,
+            metaSchema
+        });
+
+        await newProduct.save();
+
+        res.status(201).json({ success: true, data: newProduct });
+    } catch (error) {
+        // Handle mongoose unique constraint error
+        if (error.code === 11000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'A product with this name already exists' 
+            });
+        }
+        res.status(500).json({ success: false, message: error.message });
     }
-
-    const product = new Product({
-      category,
-      categorySlug,
-      slug,
-      name,
-      price,
-      images,
-      table,
-      details,
-      metaTitle,
-      metaDescription,
-      metaKeyword,
-      metaSchema
-    });
-
-    await product.save();
-    res.status(201).json({ message: "Product created successfully", product });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
 // Get all products

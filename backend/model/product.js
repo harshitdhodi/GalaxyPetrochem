@@ -4,7 +4,7 @@ const ProductSchema = new mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: "ChemicalCategory", required: true },
   categorySlug: { type: String, required: true },
   slug: { type: String, required: true },
-  name: { type: String, required: true },
+  name: { type: String, required: true , unique: true },
   price: { type: Number, required: true },
   images: [{
     url: {

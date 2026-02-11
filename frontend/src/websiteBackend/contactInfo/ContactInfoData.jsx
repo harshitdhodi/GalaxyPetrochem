@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAddUserMutation, useUpdateUserMutation, useGetAllUsersQuery } from '@/slice/contactInfo/contactInfo';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const ContactInfoForm = () => {
     const [formData, setFormData] = useState({
         address: '',
@@ -21,9 +22,9 @@ const ContactInfoForm = () => {
         if (allUsers && allUsers.length > 0) {
             const existingData = allUsers[0];
             setFormData({
-                address: existingData.address,
-                mobiles: existingData.mobiles,
-                emails: existingData.emails,
+                address: existingData.address || '',
+                mobiles: existingData.mobiles || [''],
+                emails: existingData.emails || [''],
                 imgTitle: existingData.imgTitle || [''],
                 altName: existingData.altName || [''],
                 photo: [],
@@ -39,14 +40,13 @@ const ContactInfoForm = () => {
         setFormData(prev => ({
             ...prev,
             photo: files,
-            previewUrls: [...newPreviewUrls],
-            imgTitle: files.map(() => ''),
-            altName: files.map(() => '')
+            previewUrls: [...prev.previewUrls, ...newPreviewUrls], // append instead of replace if desired
+            imgTitle: [...prev.imgTitle, ...files.map(() => '')],
+            altName: [...prev.altName, ...files.map(() => '')]
         }));
     };
-
     // Clean up object URLs when component unmounts
-    useEffect(() => {
+   useEffect(() => {
         return () => {
             formData.previewUrls.forEach(url => {
                 if (url.startsWith('blob:')) {
@@ -56,37 +56,21 @@ const ContactInfoForm = () => {
         };
     }, [formData.previewUrls]);
 
-    const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const submitFormData = new FormData();
         submitFormData.append('address', formData.address);
-        formData.mobiles.forEach(mobile => {
-            submitFormData.append('mobiles[]', mobile);
-        });
-        formData.emails.forEach(email => {
-            submitFormData.append('emails[]', email);
-        });
-        
-        // Handle arrays for image-related fields
-        formData.imgTitle.forEach((title, index) => {
-            submitFormData.append('imgTitle[]', title);
-        });
-        
-        formData.altName.forEach((alt, index) => {
-            submitFormData.append('altName[]', alt);
-        });
-        
-        // Handle multiple photo uploads
+        formData.mobiles.forEach(mobile => submitFormData.append('mobiles[]', mobile));
+        formData.emails.forEach(email => submitFormData.append('emails[]', email));
+        formData.imgTitle.forEach(title => submitFormData.append('imgTitle[]', title));
+        formData.altName.forEach(alt => submitFormData.append('altName[]', alt));
+
+        // Handle photos
         if (formData.photo.length > 0) {
-            formData.photo.forEach(file => {
-                submitFormData.append('photo[]', file);
-            });
-        } else if (allUsers && allUsers[0]?.photo) {
-            // If no new photos selected, keep the existing ones
-            allUsers[0].photo.forEach(photoUrl => {
-                submitFormData.append('photo[]', photoUrl);
-            });
+            formData.photo.forEach(file => submitFormData.append('photo[]', file));
+        } else if (allUsers?.[0]?.photo) {
+            allUsers[0].photo.forEach(photo => submitFormData.append('photo[]', photo));
         }
 
         try {
@@ -95,16 +79,28 @@ const ContactInfoForm = () => {
                     id: allUsers[0]._id, 
                     formData: submitFormData 
                 }).unwrap();
+
+                toast.success("Contact information updated successfully!");
             } else {
                 await addUser(submitFormData).unwrap();
+
+                toast.success("Contact information added successfully!");
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error saving contact info:', error);
+
+            // Show more specific message if backend returns one
+            const errorMsg = error?.data?.message 
+                || error?.error 
+                || 'Failed to save contact information. Please try again.';
+
+            toast.error(errorMsg);
         }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-4">
+            <ToastContainer />
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Address Field */}
                 <div>
@@ -203,7 +199,7 @@ const ContactInfoForm = () => {
                 </div>
 
                 {/* Multiple image upload */}
-                <div>
+                {/* <div>
                     <label className="block text-sm font-medium text-gray-700">Logo Images</label>
                     <input
                         type="file"
@@ -266,7 +262,7 @@ const ContactInfoForm = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </div> */}
 
                 <button
                     type="submit"

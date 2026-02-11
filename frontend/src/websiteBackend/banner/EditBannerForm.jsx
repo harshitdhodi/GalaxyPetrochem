@@ -19,6 +19,9 @@ const EditBannerForm = () => {
   const [updateBanner] = useUpdateBannerMutation();
   const { refetch: refetchAllBanners } = useGetAllBannersQuery();
 
+  // File size limit in bytes (1MB = 1024 * 1024 bytes)
+  const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+
   // Jodit Editor configuration
   const editorConfig = {
     readonly: false,
@@ -92,15 +95,47 @@ const EditBannerForm = () => {
     }
   }, [banner, form]);
 
+  const beforeUploadImage = (file) => {
+    const isLt1M = file.size <= MAX_FILE_SIZE;
+    if (!isLt1M) {
+      message.error('Image must be smaller than 1MB!');
+      return Upload.LIST_IGNORE; // Prevent upload
+    }
+    return false; // Prevent auto upload
+  };
+
+  const beforeUploadPhoto = (file) => {
+    const isLt1M = file.size <= MAX_FILE_SIZE;
+    if (!isLt1M) {
+      message.error('Photo must be smaller than 1MB!');
+      return Upload.LIST_IGNORE; // Prevent upload
+    }
+    return false; // Prevent auto upload
+  };
+
   const handleImageChange = (info) => {
+    const file = info.fileList[0];
+    
+    // Check file size
+    if (file?.originFileObj && file.size > MAX_FILE_SIZE) {
+      return;
+    }
+
     setImageChanged(true);
     form.setFieldsValue({
-      imgName: info.file.name,
+      imgName: info.file?.name || '',
       image: info.fileList,
     });
   };
 
   const handlePhotoChange = (info) => {
+    const file = info.fileList[0];
+    
+    // Check file size
+    if (file?.originFileObj && file.size > MAX_FILE_SIZE) {
+      return;
+    }
+
     setPhotoChanged(true);
     form.setFieldsValue({
       photo: info.fileList,
@@ -212,11 +247,12 @@ const EditBannerForm = () => {
             label="Banner Image"
             valuePropName="fileList"
             getValueFromEvent={(e) => e && e.fileList}
+            extra="Image size must be 1MB or less"
           >
             <Upload
               maxCount={1}
               listType="picture"
-              beforeUpload={() => false}
+              beforeUpload={beforeUploadImage}
               onChange={handleImageChange}
               defaultFileList={
                 banner?.image
@@ -225,7 +261,7 @@ const EditBannerForm = () => {
               }
             >
               <Button icon={<UploadOutlined />}>
-                {imageChanged ? 'Change Image' : 'Upload New Image'}
+                {imageChanged ? 'Change Image (Max 1MB)' : 'Upload New Image (Max 1MB)'}
               </Button>
             </Upload>
           </Form.Item>
@@ -235,11 +271,12 @@ const EditBannerForm = () => {
             label="Photo"
             valuePropName="fileList"
             getValueFromEvent={(e) => e && e.fileList}
+            extra="Photo size must be 1MB or less"
           >
             <Upload
               maxCount={1}
               listType="picture"
-              beforeUpload={() => false}
+              beforeUpload={beforeUploadPhoto}
               onChange={handlePhotoChange}
               defaultFileList={
                 banner?.photo
@@ -248,7 +285,7 @@ const EditBannerForm = () => {
               }
             >
               <Button icon={<UploadOutlined />}>
-                {photoChanged ? 'Change Photo' : 'Upload New Photo'}
+                {photoChanged ? 'Change Photo (Max 1MB)' : 'Upload New Photo (Max 1MB)'}
               </Button>
             </Upload>
           </Form.Item>
