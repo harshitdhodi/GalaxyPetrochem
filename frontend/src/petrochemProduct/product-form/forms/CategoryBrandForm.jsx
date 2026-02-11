@@ -5,6 +5,7 @@ const CategoryBrandForm = ({
   handleInputChange,
   handleCategoryChange,
   categories = [],
+  handleBrandChange,
   brands = [],
 }) => {
   const [localSubcategories, setLocalSubcategories] = useState([]);
@@ -87,12 +88,6 @@ const CategoryBrandForm = ({
     handleInputChange({ target: { name: 'subCategorySlug', value: subCategorySlug } });
   };
 
-  // Handle brand change
-  const handleBrandChange = (e) => {
-    const brandId = e.target.value;
-    handleInputChange({ target: { name: 'brandId', value: brandId } });
-  };
-
   // Handle category change (override to ensure _id is passed)
   const handleCategoryChangeOverride = (e) => {
     const categoryId = e.target.value;
@@ -109,13 +104,13 @@ const CategoryBrandForm = ({
 
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
-      <h2 className="text-lg font-semibold mb-4">Category & Brand Information</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <h2 className="text-lg font-semibold mb-4">Category, Brand & Subcategory</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
           <select
             name="brandId"
-            value={brandId}
+            value={brandId || ''}
             onChange={handleBrandChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           >
@@ -131,11 +126,6 @@ const CategoryBrandForm = ({
                 No brands available
               </option>
             )}
-            {brandId && !brands.find((b) => b._id === brandId) && (
-              <option value={brandId} disabled>
-                {formData.brandId?.name || 'Brand not found'}
-              </option>
-            )}
           </select>
         </div>
 
@@ -144,7 +134,7 @@ const CategoryBrandForm = ({
           <select
             name="categoryId"
             value={categoryId}
-            onChange={handleCategoryChangeOverride}
+            onChange={handleCategoryChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           >
             <option value="">Select Category</option>
@@ -157,11 +147,6 @@ const CategoryBrandForm = ({
             ) : (
               <option value="" disabled>
                 No categories available
-              </option>
-            )}
-            {categoryId && !categories.find((c) => c._id === categoryId) && (
-              <option value={categoryId} disabled>
-                {formData.categoryId?.category || 'Category not found'}
               </option>
             )}
           </select>
@@ -186,16 +171,6 @@ const CategoryBrandForm = ({
             ) : (
               <option value="" disabled>
                 No subcategories available
-              </option>
-            )}
-            {subCategoryId && !localSubcategories.find((s) => s._id === subCategoryId) && (
-              <option value={subCategoryId} disabled>
-                Subcategory not found
-              </option>
-            )}
-            {!subCategoryId && formData.subCategorySlug && (
-              <option value="" disabled>
-                {formData.subCategorySlug} (ID not set)
               </option>
             )}
           </select>
@@ -224,6 +199,7 @@ const CategoryBrandForm = ({
             readOnly
           />
         </div>
+        
       </div>
     </div>
   );

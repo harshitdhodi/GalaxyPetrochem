@@ -5,7 +5,7 @@ const BasicInformation = ({ product, brands, handleChange, handleNameChange }) =
         <h3 className="text-lg font-semibold">Basic Information</h3>
   
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500 text-lg">*</span> </label>
           <input
             type="text"
             name="name"
@@ -39,7 +39,7 @@ const BasicInformation = ({ product, brands, handleChange, handleNameChange }) =
         </div>
   
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Brand <span className="text-red-500 text-lg">*</span>  </label>
           <select
             name="brandId"
             value={product.brandId}

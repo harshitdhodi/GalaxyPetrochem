@@ -5,7 +5,7 @@ const BasicInfoForm = ({ formData, handleInputChange, generateSlug }) => {
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
           <div className="flex gap-2">
@@ -40,7 +40,7 @@ const BasicInfoForm = ({ formData, handleInputChange, generateSlug }) => {
           />
         </div>
         
-        <div className="md:col-span-2">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Tagline</label>
           <input
             type="text"

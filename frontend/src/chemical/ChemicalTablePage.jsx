@@ -124,71 +124,60 @@ const navigate = useNavigate();
   };
 
   const handleDelete = async (chemical) => {
-  try {
-    const confirmResult = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-    });
-
-    if (confirmResult.isConfirmed) {
-      const response = await axios.delete(`/api/chemical/delete?id=${chemical._id}`);
-
-    if (response.data.success || response.data.message === "Chemical deleted successfully") {
-      // Update the state to remove the deleted chemical
-      setChemicals((prevChemicals) =>
-        prevChemicals.filter((c) => c._id !== chemical._id)
-      );
-
-      // Re-fetch the chemicals after successful deletion
-      await fetchChemicals();
-
-      await Swal.fire({
-        title: 'Deleted!',
-        text: 'The chemical has been deleted.',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false,
+    try {
+      const confirmResult = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
       });
-    } else {
-      throw new Error(response.data.message || 'Failed to delete the chemical');
-    }
-  } else {
-    Swal.fire({
-      title: 'Cancelled',
-      text: 'Your chemical is safe!',
-      icon: 'info',
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  }
-} catch (error) {
-  console.error("Error deleting chemical:", error);
-  if (error.message === "Chemical deleted successfully") {
-    // This is actually a success case
-    Swal.fire({
-      title: 'Deleted!',
-      text: 'The chemical has been deleted.',
-      icon: 'success',
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  } else {
-    Swal.fire({
-      title: 'Error!',
-      text: error.message || 'An error occurred while deleting the chemical.',
-      icon: 'error',
-      confirmButtonText: 'Ok',
-    });
-  }
-}
-};
   
-
-
+      if (confirmResult.isConfirmed) {
+        console.log('Attempting to delete chemical with ID:', chemical._id); // Debug log
+        
+        const response = await axios.delete(`/api/chemical/delete?id=${chemical._id}`, {
+          withCredentials: true  // Important for session-based auth
+        });
+  
+        console.log('Delete response:', response.data); // Debug log
+  
+        if (response.data.success || response.data.message === "Chemical deleted successfully") {
+          // Update the state to remove the deleted chemical
+          setChemicals(prevChemicals => 
+            prevChemicals.filter(c => c._id !== chemical._id)
+          );
+  
+          // Show success message
+          await Swal.fire({
+            title: 'Deleted!',
+            text: 'The chemical has been deleted.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        } else {
+          throw new Error(response.data.message || 'Failed to delete the chemical');
+        }
+      } else {
+        await Swal.fire({
+          title: 'Cancelled',
+          text: 'Your chemical is safe!',
+          icon: 'info',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting chemical:", error);
+      Swal.fire({
+        title: 'Error!',
+        text: error.message || 'Failed to delete the chemical',
+        icon: 'error',
+      });
+    }
+  };
 
   return (
     <div className="w-full">

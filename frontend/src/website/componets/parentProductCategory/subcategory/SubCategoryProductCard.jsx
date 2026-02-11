@@ -22,7 +22,7 @@ function SubCategoryProductCard({ title, image, products, slug, subCategorySlug 
                 <div className="h-1 w-16 bg-[#0a3161]"></div>
                 </div>
                 <p
-                    className='flex items-center gap-2 text-[#e85920] font-semibold'
+                    className='flex items-center gap-2 cursor-pointer text-[#e85920] font-semibold'
                     onClick={handleViewMore}
                 >
                      View All <ArrowRight className="" />

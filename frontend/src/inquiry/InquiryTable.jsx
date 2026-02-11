@@ -16,7 +16,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, EllipsisVertical, MoreVertical, Plus } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, EllipsisVertical, MoreVertical, Plus } from "lucide-react";
 import FollowUpModal from "./FollowUpModel";
 import { useDeleteInquiryMutation } from "@/slice/inquiry/inquiry";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -43,10 +43,12 @@ export default function InquiryList() {
     const { data: inquiryData = [], isLoading, isError } = useGetInquiriesQuery();
     console.log(inquiryData)
     const [itemsPerPage, setItemsPerPage] = useState(15);
+    const [currentPage, setCurrentPage] = useState(1);
     const [data, setData] = useState(inquiryData);
     const [deleteInquiry] = useDeleteInquiryMutation();
     const { data: statuses, isLoading: statusesLoading } = useGetAllStatusesQuery();
     console.log(statuses)
+    
     // State for filters
     const [companyNameFilter, setCompanyNameFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState(null);
@@ -74,6 +76,18 @@ export default function InquiryList() {
         );
     });
 
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+
+    // Reset to page 1 when filters change
+    const handleFilterChange = (setter) => (value) => {
+        setter(value);
+        setCurrentPage(1);
+    };
+
     // Get selected inquiry emails
     const selectedInquiryEmails = filteredData
         ?.filter((inquiry) => selectedInquiries.includes(inquiry._id))
@@ -97,7 +111,6 @@ export default function InquiryList() {
             },
         });
     };
-
 
     // Handle status update for a specific inquiry
     const handleStatusUpdate = (inquiry, newStatus) => {
@@ -126,6 +139,18 @@ export default function InquiryList() {
                 ? prev.filter((id) => id !== inquiryId)
                 : [...prev, inquiryId]
         );
+    };
+
+    // Pagination handlers
+    const goToFirstPage = () => setCurrentPage(1);
+    const goToLastPage = () => setCurrentPage(totalPages);
+    const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    const goToPreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
+    // Handle items per page change
+    const handleItemsPerPageChange = (value) => {
+        setItemsPerPage(Number(value));
+        setCurrentPage(1); // Reset to first page
     };
 
     return (
@@ -164,47 +189,30 @@ export default function InquiryList() {
                         Add Inquiry
                     </Button>
                 </Link>
-
             </div>
 
             <Table className="border">
                 <TableHeader>
                     <TableRow className="border-b bg-gray-100">
-                        <TableHead className="w-12"></TableHead>
                         <TableHead className="lg:w-[100px] w-[50px] sticky left-0 bg-background z-50">Date</TableHead>
                         <TableHead className="text-left">Info</TableHead>
-                        {/* <TableHead className="text-left">Email</TableHead> */}
                         <TableHead className="text-left">Message</TableHead>
-                        <TableHead className="text-left">Follow Up</TableHead>
                         <TableHead className="w-[80px] text-left">Actions</TableHead>
                     </TableRow>
                     <TableRow className="border-b">
-                        <TableHead></TableHead>
-                        <TableHead></TableHead>
                         <TableHead>
                             <Input
                                 placeholder="Search Info"
                                 className="w-[200px]"
                                 value={nameFilter || ""}
-                                onChange={(e) => setNameFilter(e.target.value)}
+                                onChange={(e) => handleFilterChange(setNameFilter)(e.target.value)}
                             />
                         </TableHead>
-                        {/* <TableHead>
-                            <Input
-                                placeholder="Email"
-                                className="w-[200px]"
-                                value={emailFilter}
-                                onChange={(e) => setEmailFilter(e.target.value)}
-                            />
-                        </TableHead> */}
                         <TableHead>
                             <Select
                                 value={statusFilter || "reset"}
-                                onValueChange={(value) => setStatusFilter(value === "reset" ? null : value)}
+                                onValueChange={(value) => handleFilterChange(setStatusFilter)(value === "reset" ? null : value)}
                             >
-                                {/* <SelectTrigger className="w-[160px]">
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger> */}
                                 <SelectContent>
                                     <SelectItem value="reset">All Statuses</SelectItem>
                                     {statuses?.data?.map((status) => (
@@ -220,36 +228,22 @@ export default function InquiryList() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {filteredData.map((item, index) => (
+                    {paginatedData.map((item, index) => (
                         <TableRow key={index} className="border-b">
-                            <TableCell className="p-5">
-                                <Checkbox
-                                    checked={selectedInquiries.includes(item._id)}
-                                    onCheckedChange={() => handleInquirySelect(item._id)}
-                                />
-                            </TableCell>
                             <TableCell className="sticky left-0 bg-background">{item.createdAt.slice(0, 10)}</TableCell>
                             <TableCell>
                                 <div className="space-y-1">
                                     <div className="font-medium">{item.firstName} {item.lastName},</div>
                                     {item.organisation} ,
                                     <div className="text-sm text-muted-foreground">
-                                    {item.email}
+                                        {item.email}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
-                                    
                                         {item.phone} • {item.address} 
                                     </div>
                                 </div>
                             </TableCell>
-                            {/* <TableCell>{item.email}</TableCell> */}
                             <TableCell>{item.message}</TableCell>
-                            <TableCell className="text-left">
-                                <FollowUpModal
-                                    inquiry={item}
-                                    onFollowUpAdded={handleFollowUpAdded}
-                                />
-                            </TableCell>
                             <TableCell className="text-center">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -275,7 +269,7 @@ export default function InquiryList() {
             <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center gap-2">
                     <span className="text-sm">Items per page:</span>
-                    <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+                    <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
                         <SelectTrigger className="w-[70px]">
                             <SelectValue>{itemsPerPage}</SelectValue>
                         </SelectTrigger>
@@ -287,8 +281,62 @@ export default function InquiryList() {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                    {`1-${Math.min(itemsPerPage, filteredData.length)} of ${filteredData.length}`}
+
+                <div className="flex items-center gap-2">
+                    <div className="text-sm text-muted-foreground">
+                        {filteredData.length > 0 
+                            ? `${startIndex + 1}-${Math.min(endIndex, filteredData.length)} of ${filteredData.length}`
+                            : '0 of 0'
+                        }
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={goToFirstPage}
+                            disabled={currentPage === 1}
+                            className="h-8 w-8 text-gray-800"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-4 w-4 -ml-3" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={goToPreviousPage}
+                            disabled={currentPage === 1}
+                            className="h-8 w-8 text-gray-800"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        
+                        <div className="flex items-center gap-1 px-2">
+                            <span className="text-sm font-medium">{currentPage}</span>
+                            <span className="text-sm text-muted-foreground">of</span>
+                            <span className="text-sm font-medium">{totalPages || 1}</span>
+                        </div>
+
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="h-8 w-8 text-gray-800"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={goToLastPage}
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="h-8 w-8"
+                        >
+                            <ChevronRight className="h-4 w-4 text-gray-800 " />
+                            <ChevronRight className="h-4 w-4 -ml-3 text-gray-800" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

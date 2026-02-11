@@ -3,102 +3,129 @@ import { useNavigate } from "react-router-dom";
 
 export default function SearchBar() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedChemical, setSelectedChemical] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [chemicals, setChemicals] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [isSticky, setIsSticky] = useState(false); // New state for sticky behavior
+  const [isSticky, setIsSticky] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
+  // Handle clicks outside the search bar to hide suggestions
   useEffect(() => {
-    if (!searchTerm || searchTerm.length < 2) {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+        setShowSearchModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // API call function
+  const fetchChemicals = async (term) => {
+    const trimmedTerm = term.trim();
+    if (!trimmedTerm || trimmedTerm.length < 2) {
       setChemicals([]);
       setShowSuggestions(false);
       return;
     }
-
-    const fetchChemicals = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(searchTerm)}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch chemicals.");
-        }
-        const data = await response.json();
-
-        setChemicals(data || []);
-        setShowSuggestions(data.length > 0);
-      } catch (err) {
-        setError(err.message || "An error occurred.");
-        setChemicals([]);
-        setShowSuggestions(false);
-      } finally {
-        setIsLoading(false);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(trimmedTerm)}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch chemicals.");
       }
-    };
+      const data = await response.json();
+      setChemicals(data || []);
+      setShowSuggestions(data.length > 0);
+    } catch (err) {
+      setError(err.message || "An error occurred.");
+      setChemicals([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const debounceTimer = setTimeout(fetchChemicals, 300);
+  // Fetch suggestions when searchTerm changes
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => fetchChemicals(searchTerm), 300);
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
 
+  // Handle scroll for sticky behavior
   useEffect(() => {
     const handleScroll = () => {
-      const scrollThreshold = window.innerHeight * 0.2; // 20% of the viewport height
+      const scrollThreshold = window.innerHeight * 0.2;
       setIsSticky(window.scrollY > scrollThreshold);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleChemicalSelect = (chemical) => {
-    setShowSuggestions(false);
-    setSearchTerm("");
-    setShowSearchModal(false);
-    navigate(`/search?tab=${chemical.slug}`);
+    setSelectedChemical(chemical);
+    setSearchTerm(chemical.name.trim());
+    setShowSuggestions(false); // Explicitly hide suggestions
+    setShowSearchModal(false); // Close mobile modal
+    // Optionally navigate immediately
+    // navigate(`/search?tab=${chemical.slug}`);
   };
 
-  const handleSearch = () => {
-    const selectedChemical = chemicals.find(
-      (chemical) => chemical.name.toLowerCase() === searchTerm.toLowerCase()
+  const handleSearch = async () => {
+    const term = (selectedChemical ? selectedChemical.name : searchTerm).trim();
+    if (!term) {
+      alert("Please enter or select a product to search.");
+      return;
+    }
+
+    await fetchChemicals(term);
+
+    const selected = selectedChemical || chemicals.find(
+      (chemical) => chemical.name.toLowerCase() === term.toLowerCase()
     );
 
-    if (selectedChemical?.slug) {
+    if (selected?.slug) {
       setSearchTerm("");
+      setSelectedChemical(null);
       setShowSearchModal(false);
-      navigate(`/search?tab=${selectedChemical.slug}`);
+      setShowSuggestions(false); // Ensure suggestions are hidden
+      navigate(`/search?tab=${selected.slug}`);
     } else {
       alert("Please select a valid product to search.");
     }
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={searchRef}>
       {/* Search Icon for Mobile */}
       <button
-  className={`p-2 bg-[#E95821] sm:hidden text-white rounded-full fixed z-50 ${
-    isSticky ? "top-5 right-16" : "top-5 right-16"
-  }`}
-  onClick={() => setShowSearchModal(true)}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-4 w-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-</button>
+        className={`p-2 bg-[#E95821] sm:hidden text-white rounded-full fixed z-50 ${
+          isSticky ? "top-5 right-16" : "top-5 right-16"
+        }`}
+        onClick={() => setShowSearchModal(true)}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </button>
 
       {/* Desktop Search Bar */}
       <div className="hidden md:block w-full max-w-[35rem] mx-auto">
@@ -108,6 +135,7 @@ export default function SearchBar() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
+              setSelectedChemical(null);
               setShowSuggestions(e.target.value.length >= 2);
             }}
             className="w-full px-4 py-2 rounded-l-full focus:outline-none"
@@ -158,10 +186,13 @@ export default function SearchBar() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Search Products</h2>
               <button
-                onClick={() => setShowSearchModal(false)}
+                onClick={() => {
+                  setShowSearchModal(false);
+                  setShowSuggestions(false); // Hide suggestions when closing modal
+                }}
                 className="text-2xl font-bold"
               >
-                &times;
+                ×
               </button>
             </div>
 
@@ -172,6 +203,7 @@ export default function SearchBar() {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
+                  setSelectedChemical(null);
                   setShowSuggestions(e.target.value.length >= 2);
                 }}
                 className="w-full px-4 py-2 rounded-l-full focus:outline-none"
@@ -214,12 +246,12 @@ export default function SearchBar() {
 
             {/* Mobile Suggestions */}
             {showSuggestions && chemicals.length > 0 && (
-              <div className="mt-4 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute left-0 right-0 z-50 mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
                 {chemicals.map((chemical) => (
                   <button
                     key={chemical._id}
                     onClick={() => handleChemicalSelect(chemical)}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
                   >
                     {chemical.name}
                   </button>

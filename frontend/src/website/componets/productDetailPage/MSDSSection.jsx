@@ -5,7 +5,7 @@ import { useGetWhatsUpInfoQuery } from '@/slice/whatsUpInfo/WhatsUpInfo';
 import { useGetAllCataloguesQuery } from '@/slice/catalogue/catalogueslice';
 import { WhatsAppOutlined } from '@ant-design/icons';
 
-export default function MSDSSection({ msds, specs, name, onInquiry }) {
+export default function MSDSSection({ msds, pdf, name, onInquiry }) {
   const { data: whatsUpInfo, isLoading: isWhatsUpLoading } = useGetWhatsUpInfoQuery();
   const { data: catalogues, isLoading: isCataloguesLoading } = useGetAllCataloguesQuery(); // Fetch catalogues
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -33,20 +33,15 @@ export default function MSDSSection({ msds, specs, name, onInquiry }) {
         {name} MSDS (Material Safety Data Sheet) or SDS, COA and Specs
       </h2>
       <div className="flex flex-wrap gap-4 mb-3">
-        {catalogues && catalogues.length > 0 ? (
-          catalogues.map((catalogue) => (
-            <div key={catalogue._id} className="w-full md:w-1/3 lg:w-1/4">
-              <Button
-                onClick={() => window.open(`/api/image/view/${specs}`, '_blank')}
-                className="w-full bg-[#e85920] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-2"
-              >
-                Catalogue
-              </Button>
-            </div>
-          ))
-        ) : (
-          <div>No catalogues available for download.</div>
+        {pdf && (
+          <Button
+            onClick={() => window.open(`/api/image/view/${pdf}`, '_blank')}
+            className="w-full md:w-1/4 bg-[#e85920] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-2"
+          >
+            Data Sheet
+          </Button>
         )}
+       
         
         <Button
           onClick={() => window.open(`/api/image/view/${msds}`, '_blank')}

@@ -10,7 +10,7 @@ const router = express.Router();
 // Helper function to fetch product metadata
 async function fetchProductMeta(slug, metaInfo, res) {
   try {
-    const productResponse = await axios.get(`http://localhost:3036/api/petrochemProduct/getbySlug?slug=${slug}`);
+    const productResponse = await axios.get(`http://localhost:3040/api/petrochemProduct/getbySlug?slug=${slug}`);
     console.log('Product API response:', productResponse.data);
     const product = productResponse.data;
 
@@ -21,7 +21,7 @@ async function fetchProductMeta(slug, metaInfo, res) {
         title: productData.metaTitle || productData.name || metaInfo.title,
         description: productData.metaDescription || productData.name || metaInfo.description,
         keywords: productData.metaKeyword || productData.name || metaInfo.keywords,
-        ogImage: productData.images?.[0]?.url ? `/Uploads/${productData.images[0].url}` : metaInfo.ogImage,
+        ogImage: productData.images?.[0]?.url ? `/uploads2/${productData.images[0].url}` : metaInfo.ogImage,
       };
     } else {
       console.log('Invalid product data:', product);
@@ -86,7 +86,7 @@ router.get('*', async (req, res, next) => {
       let subCategorySlug = pathSegments[0];
       if (pathSegments.length === 2 && pathSegments[0] !== 'industrial-oils') {
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getAllCategories`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getAllCategories`);
           const categories = categoryResponse.data.categories || [];
           isValidSubCategory = categories.some(cat =>
             cat.subCategories.some(subCat => subCat.slug === subCategorySlug)
@@ -118,7 +118,7 @@ router.get('*', async (req, res, next) => {
         const subCategorySlug = pathSegments[1];
 
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${categorySlug}`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getSpecificCategory?slug=${categorySlug}`);
           category = categoryResponse.data.category;
 
           if (category) {
@@ -131,7 +131,7 @@ router.get('*', async (req, res, next) => {
                 title: subCategory.metatitle || subCategory.category || metaInfo.title,
                 description: subCategory.metadescription || detailsText || metaInfo.description,
                 keywords: subCategory.metakeywords || subCategory.category || metaInfo.keywords,
-                ogImage: subCategory.photo ? `/Uploads/${subCategory.photo}` : metaInfo.ogImage,
+                ogImage: subCategory.photo ? `/uploads2/${subCategory.photo}` : metaInfo.ogImage,
               };
             }
           }
@@ -143,7 +143,7 @@ router.get('*', async (req, res, next) => {
       // Handle category paths (e.g., /industrial-oils)
       if (isCategoryPath) {
         try {
-          const categoryResponse = await axios.get(`http://localhost:3036/api/chemicalCategory/getSpecificCategory?slug=${currentPath}`);
+          const categoryResponse = await axios.get(`http://localhost:3040/api/chemicalCategory/getSpecificCategory?slug=${currentPath}`);
           category = categoryResponse.data.category;
 
           if (category) {
@@ -154,7 +154,7 @@ router.get('*', async (req, res, next) => {
               title: category.metatitle || category.category || metaInfo.title,
               description: category.metadescription || detailsText || metaInfo.description,
               keywords: category.metakeywords || subCategoryNames || metaInfo.keywords,
-              ogImage: category.photo ? `/Uploads/${category.photo}` : metaInfo.ogImage,
+              ogImage: category.photo ? `/uploads2/${category.photo}` : metaInfo.ogImage,
             };
           }
         } catch (apiError) {
@@ -162,8 +162,6 @@ router.get('*', async (req, res, next) => {
         }
       }
     }
-
-    console.log('Final metaInfo:', metaInfo);
 
     const escapeHtml = (str) =>
       str ? String(str).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"') : '';

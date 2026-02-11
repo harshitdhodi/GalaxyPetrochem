@@ -10,9 +10,9 @@ const cache = apicache.middleware;
 
 router.get("/download/:filename", cache("1 day"), async (req, res) => {
   const { filename } = req.params;
-  const { w = 1200, q = 80 } = req.query;
-  const filePath = path.join(__dirname, "../uploads/images", `${filename.split(".")[0]}-${w}.webp`);
-  const originalPath = path.join(__dirname, "../uploads/images", filename);
+  const { w = 1600  } = req.query;
+  const filePath = path.join(__dirname, "../uploads2/images", `${filename.split(".")[0]}-${w}.webp`);
+  const originalPath = path.join(__dirname, "../uploads2/images", filename);
 
   const startTime = Date.now();
 
@@ -32,7 +32,7 @@ router.get("/download/:filename", cache("1 day"), async (req, res) => {
 
     const optimizedImage = await sharp(originalPath)
       .resize({ width: parseInt(w, 10), withoutEnlargement: true })
-      .webp({ quality: parseInt(q, 10) })
+      .webp({ quality: 80 })
       .toBuffer();
 
     res.setHeader("X-Cache", "MISS");
@@ -47,8 +47,8 @@ router.get("/download/:filename", cache("1 day"), async (req, res) => {
 // PDF Viewing
 router.get("/view/:filename", (req, res) => {
   const { filename } = req.params;
-  const filePath = path.join(__dirname, "../uploads/pdf", filename);
-  const filePath2 = path.join(__dirname, "../uploads/msds", filename);
+  const filePath = path.join(__dirname, "../uploads2/pdf", filename);
+  const filePath2 = path.join(__dirname, "../uploads2/msds", filename);
 
   const sendPDF = (filePathToSend) => {
     res.setHeader("Content-Type", "application/pdf");
@@ -81,7 +81,7 @@ router.get("/view/:filename", (req, res) => {
 // PDF Download
 router.get("/pdf/download/:filename", (req, res) => {
   const { filename } = req.params;
-  const filePath = path.join(__dirname, "../uploads/images", filename);
+  const filePath = path.join(__dirname, "../uploads2/images", filename);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ message: "File not found" });
@@ -98,10 +98,10 @@ router.get("/pdf/download/:filename", (req, res) => {
 // PDF View (including catalogs fallback)
 router.get("/pdf/view/:filename", (req, res) => {
   const { filename } = req.params;
-  let filePath = path.join(__dirname, "../uploads/images", filename);
+  let filePath = path.join(__dirname, "../uploads2/images", filename);
 
   if (!fs.existsSync(filePath)) {
-    filePath = path.join(__dirname, "../uploads/catalogs", filename);
+    filePath = path.join(__dirname, "../uploads2/catalogs", filename);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: "File not found" });
     }
@@ -126,7 +126,7 @@ router.get("/:docType/view/:filename", (req, res) => {
     return res.status(400).json({ message: "Invalid document type" });
   }
 
-  const filePath = path.join(__dirname, `../uploads/${docType}`, filename);
+  const filePath = path.join(__dirname, `../uploads2/${docType}`, filename);
 
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", "inline");

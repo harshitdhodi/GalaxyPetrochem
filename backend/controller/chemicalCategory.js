@@ -56,7 +56,7 @@ const insertSubCategory = async (req, res) => {
     // Handle the photo upload if there's a file in the request
     let photo = null;
     if (req.file) {
-      photo = req.file.filename; // Assuming you're using multer for handling file uploads
+      photo = req.file.filename; // Assuming you're using multer for handling file uploads2
     }
 
     // Push the new subcategory to the category document
@@ -78,7 +78,12 @@ const insertSubSubCategory = async (req, res) => {
   const { categoryId, subCategoryId } = req.query;
   const { category,alt,imgtitle,slug,details,
      metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
-  const photo=req.file.filename
+  
+  let photo = null;
+  if (req.file) {
+    photo = req.file.filename;
+  }
+  
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
 
@@ -149,11 +154,13 @@ const updateCategory = async (req, res) => {
 
     res.status(200).json(updatedCategory);
   } catch (error) {
+    console.log('Error updating category:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
 
 const sharp = require('sharp');
+const chemicalCategory = require("../model/chemicalCategory");
 const updateSubCategory = async (req, res) => {
   const { categoryId, subCategoryId } = req.query;
 
@@ -305,9 +312,11 @@ const deletecategory = async (req, res) => {
     }
 
     
-    const photoPath = path.join(__dirname, '../logos', category.photo);
-    deleteFile(photoPath);
-
+// Only delete the photo if it exists
+if (category.photo) {
+  const photoPath = path.join(__dirname, '../logos', category.photo);
+  deleteFile(photoPath);
+}
 
     // Proceed to delete the category
     const deletedCategory = await ProductCategory.findByIdAndDelete(id);
@@ -325,63 +334,79 @@ const deletecategory = async (req, res) => {
 
     res.status(200).json({ message: 'Category deleted successfully and references removed from products' });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Server error', error });
   }
 };
 
-const deletesubcategory = async (req, res) => {
-  // Delete subcategory
-  const { categoryId, subCategoryId } = req.query;
 
+const deletesubcategory = async (req, res) => {
+  const { categoryId, subCategoryId } = req.query;
 
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
     if (!categoryDoc) {
-  
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    const subCategoryIndex = categoryDoc.subCategories.findIndex(subCat => subCat._id.toString() === subCategoryId);
+    const subCategoryIndex = categoryDoc.subCategories.findIndex(
+      subCat => subCat._id.toString() === subCategoryId
+    );
+
     if (subCategoryIndex === -1) {
-    
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
     const subCategory = categoryDoc.subCategories[subCategoryIndex];
-   
-    // Check if there are sub-subcategories
+
+    // Prevent deletion if it still has sub-subcategories
     if (subCategory.subSubCategory && subCategory.subSubCategory.length > 0) {
- 
-      return res.status(400).json({ message: 'Subcategory has associated sub-subcategories and cannot be deleted' });
+      return res.status(400).json({
+        message: 'Cannot delete subcategory — it still contains sub-subcategories'
+      });
     }
 
-    const photoPath = path.join(__dirname, '../logos', subCategory.photo);
-    deleteFile(photoPath);
+    // ────────────────────────────────────────────────
+    // Safely handle photo deletion — only if photo exists
+    if (subCategory.photo?.trim()) {
+      const photoPath = path.join(__dirname, '../logos', subCategory.photo);
+      try {
+        deleteFile(photoPath);
+        // Optional: console.log(`Deleted subcategory photo: ${photoPath}`);
+      } catch (fsErr) {
+        console.warn(`Failed to delete subcategory photo "${subCategory.photo}": ${fsErr.message}`);
+        // → we continue anyway — photo deletion should not fail the request
+      }
+    }
+    // ────────────────────────────────────────────────
 
-    // Remove the subcategory from the array
+    // Remove subcategory from array
     categoryDoc.subCategories.splice(subCategoryIndex, 1);
 
     await categoryDoc.save();
-   
 
-    // Find and update all products that reference this subcategory, removing the subcategory reference
+    // Clean up references in Product documents
     await Product.updateMany(
       { subcategories: subCategoryId },
       { $pull: { subcategories: subCategoryId } }
     );
 
-    res.status(200).json({ message: 'Subcategory deleted successfully and references removed from products' });
+    return res.status(200).json({
+      message: 'Subcategory deleted successfully and references removed from products'
+    });
+
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Delete subcategory failed:', error);
+    return res.status(500).json({
+      message: 'Server error while deleting subcategory',
+      error: error.message
+    });
   }
 };
 
 
 const deletesubsubcategory = async (req, res) => {
-  // Delete sub-subcategory
   const { categoryId, subCategoryId, subSubCategoryId } = req.query;
-
 
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
@@ -394,30 +419,44 @@ const deletesubsubcategory = async (req, res) => {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
-    const subSubCategoryIndex = subCategory.subSubCategory.findIndex(subSubCat => subSubCat._id.toString() === subSubCategoryId);
+    const subSubCategoryIndex = subCategory.subSubCategory.findIndex(
+      subSubCat => subSubCat._id.toString() === subSubCategoryId
+    );
+
     if (subSubCategoryIndex === -1) {
-     
       return res.status(404).json({ message: 'Sub-subcategory not found' });
     }
 
-    const photoPath = path.join(__dirname, '../logos', subCategory.subSubCategory[subSubCategoryIndex].photo);
-    deleteFile(photoPath);
+    const subSubCat = subCategory.subSubCategory[subSubCategoryIndex];
 
-   
+    // ────────────────────────────────────────────────
+    // Safely handle photo deletion
+    if (subSubCat.photo) {                    // only try if photo exists
+      const photoPath = path.join(__dirname, '../logos', subSubCat.photo);
+      deleteFile(photoPath);                  // your delete function
+      // Optional: log if you want to debug
+      // console.log(`Deleted photo: ${photoPath}`);
+    }
+    // ────────────────────────────────────────────────
 
     subCategory.subSubCategory.splice(subSubCategoryIndex, 1);
 
     await categoryDoc.save();
+
     await Product.updateMany(
       { subSubcategories: subSubCategoryId },
       { $pull: { subSubcategories: subSubCategoryId } }
     );
-    res.status(200).json({ message: 'SubSubcategory deleted successfully and references removed from services' });
+
+    res.status(200).json({ 
+      message: 'SubSubcategory deleted successfully and references removed from products' 
+    });
 
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error(`Delete sub-subcategory error: ${error.message}`, error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
-}
+};
 
 const getAll = async (req, res) => {
   try {
@@ -802,7 +841,8 @@ const getSpecificSubcategoryBySlug = async (req, res) => {
     }
 
     // Step 3: Fetch all products that belong to this subcategory
-    const products = await Product.find({ subCategoryId: subCategory._id });
+    const products = await Product.find({ subCategoryId: subCategory._id })
+      .populate("brandId");
 
     // Step 4: Return both the subcategory and its products
     res.status(200).json({
@@ -861,38 +901,84 @@ const getAllCategoriesWithProducts = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await ProductCategory.find().lean();
+    // Fetch only the 'category' field (the actual name field in your schema)
+    const categories = await chemicalCategory.find()
+      .select('category')         // ← changed from 'name' to 'category'
+      .lean();
 
     if (!categories.length) {
-      return res.status(404).json({ message: 'No categories found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'No categories found' 
+      });
     }
 
-    res.status(200).json({ categories });
+    // Extract just the category names into a clean array
+    const categoryNames = categories
+      .map(doc => doc.category?.trim())   // trim to clean up any extra spaces
+      .filter(Boolean);                   // remove any null/empty values
+
+    return res.status(200).json({
+      success: true,
+      count: categoryNames.length,
+      data: categoryNames
+    });
+
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Error fetching category names:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Server error',
+      error: error.message 
+    });
   }
 };
 
+
+
+
 const getAllSubcategories = async (req, res) => {
   try {
-    const categories = await ProductCategory.find().lean();
+    const categories = await chemicalCategory.find()
+      .select('category slug subCategories.category subCategories.slug')
+      .lean();
 
     if (!categories.length) {
       return res.status(404).json({ message: 'No categories found' });
     }
 
-    const result = categories.map(category => ({
-      categoryId: category._id,
-      categoryName: category.name,
-      categorySlug: category.slug,
-      subCategories: category.subCategories || []
-    }));
+    const subcategories = [];
 
-    res.status(200).json({ data: result });
+    categories.forEach(cat => {
+      if (cat.subCategories && cat.subCategories.length > 0) {
+        cat.subCategories.forEach(sub => {
+          subcategories.push({
+            parentCategory: cat.category,
+            parentSlug: cat.slug,
+            subcategoryName: sub.category,
+            subcategorySlug: sub.slug
+          });
+        });
+      }
+    });
+
+    if (subcategories.length === 0) {
+      return res.status(404).json({ message: 'No subcategories found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: subcategories.length,
+      data: subcategories
+    });
+
   } catch (error) {
-    console.error('Error fetching subcategories with categories:', error);
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Error fetching subcategories:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 };
 

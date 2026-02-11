@@ -11,7 +11,7 @@ const ProductDetails = ({ product, handleChange }) => {
       <h3 className="text-lg font-semibold">Product Details</h3>
 
       {/* Specification */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Specification</label>
         <JoditEditor
           ref={specRef}
@@ -21,7 +21,7 @@ const ProductDetails = ({ product, handleChange }) => {
             handleChange({ target: { name: "specifiction", value: newContent } })
           }
         />
-      </div>
+      </div> */}
 
       {/* Details */}
       <div>

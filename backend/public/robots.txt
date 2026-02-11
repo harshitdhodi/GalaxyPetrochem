@@ -1,0 +1,20 @@
+# robots.txt for your web application
+
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /register/
+Disallow: /account/
+Disallow: /customer-table/
+Disallow: /api/
+Disallow: /uploads2/
+
+
+# Sitemap location
+Sitemap: https://www.galaxypetro.in/sitemap.xml
+

@@ -4,6 +4,7 @@ import axios from "axios";
 import company from "../../../assets/petrochemical.webp";
 import { ArrowRight, Award, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import ReadMoreButton from "./slideshow/ReadMoreButton";
 
 export default function CompanyInfo() {
   const [aboutData, setAboutData] = useState(null);
@@ -27,7 +28,7 @@ export default function CompanyInfo() {
       <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-100 opacity-20 -mr-32 -mb-32"></div>
       <div className="absolute top-1/4 left-0 w-32 h-32 rounded-full bg-purple-100 opacity-20 -ml-16"></div>
 
-      <div className="max-w-[78rem] mx-auto pb-10 relative z-10">
+      <div className="max-w-[78rem] mx-auto pb-10 relative z-0">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* Image Section */}
           <div className="flex justify-center w-full order-2 lg:order-1">
@@ -63,7 +64,7 @@ export default function CompanyInfo() {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col justify-center h-full order-1 lg:order-2">
+          <div className="flex flex-col mt-5 sm:mt-0 justify-center h-full order-1 lg:order-2">
             <div>
               <p
                 className="text-xl text-gray-600 leading-relaxed"
@@ -79,6 +80,7 @@ export default function CompanyInfo() {
                 className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-[#fff] px-8 text-base font-medium text-gray-700 shadow transition hover:shadow-md hover:text-white hover:bg-[#e84c20] hover:translate-y-[-2px]"
               >
                 Our Products
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/brands"
@@ -86,7 +88,14 @@ export default function CompanyInfo() {
               >
                 Our Brands
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
+              </Link> 
+              <Link
+                to="/about-us"
+                className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-white px-8 text-base font-medium text-gray-700 shadow transition group hover:bg-[#e84c20] hover:text-white hover:translate-y-[-2px]"
+              >
+                Read More
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link> 
             </div>
           </div>
         </div>

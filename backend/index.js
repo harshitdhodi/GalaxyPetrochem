@@ -1,22 +1,54 @@
- 
-const express = require('express');
+   const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const favicon = require('serve-favicon');
 const admin = require("./route/admin");
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const sharp = require('sharp');
 const compression = require('compression');
 const app = express();
-require('dotenv').config();  
+require('dotenv').config();   
 const cookieParser = require('cookie-parser');
 const { generateAllSitemaps } = require('./route/sitemap');
 const handleDynamicRoutes = require('./route/serverMeta');
+
+// Configure favicon for all routes, including static files
+const faviconPath = path.join(__dirname, 'public', 'favicon.svg');
+app.use((req, res, next) => {
+  if (req.url === '/favicon.ico' || req.url === '/favicon.svg') {
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    if (req.url.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      return res.sendFile(path.join(__dirname, 'public', 'favicon.svg'));
+    } else {
+      res.setHeader('Content-Type', 'image/x-icon');
+      return res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+    }
+  }
+  next();
+});
+
+// Basic middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 app.use(compression({ threshold: 1024 }));
+
+app.get('/robots.txt', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'robots.txt');
+
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(404).send('robots.txt not found');
+    }
+
+    res.set('Content-Type', 'text/plain'); // Correct MIME type for robots.txt
+    res.send(data);
+  });
+});
 
 app.get('/sitemap.xml', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'sitemap.xml');
@@ -35,8 +67,6 @@ app.get('/sitemap.xml', (req, res) => {
 
 app.get('/sitemap1.xml', (req, res) => {
   const filePath = path.join(__dirname, 'public', 'sitemap1.xml');
-
-
   fs.readFile(filePath, (err, data) => {
     if (err) {
       console.error(err);
@@ -76,8 +106,8 @@ app.get('/category-sitemap.xml', (req, res) => {
   });
 });
 
-app.get('/chemical-sitemap.xml', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'chemical-sitemap.xml');
+app.get('/products-sitemap.xml', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'products-sitemap.xml');
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -118,6 +148,10 @@ app.get('/product-image-sitemap.xml', (req, res) => {
   });
 });
 app.use(handleDynamicRoutes);  
+
+
+
+
 // Custom image optimization route (Cache removed)
 app.get('/images/:filename', async (req, res) => {
   const { filename } = req.params;
@@ -147,12 +181,31 @@ app.get('/images/:filename', async (req, res) => {
 
 
 
-// Static file serving with no caching
+// Serve static files from the 'public' directory, excluding favicon files
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false,
-  lastModified: false,
-  setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'public, max-age=3600'); // cache for 1 hour
+  maxAge: '1y',
+  setHeaders: (res, path) => {
+    // Skip favicon files as they're handled by our custom middleware
+    if (path.endsWith('favicon.ico') || path.endsWith('favicon.svg')) {
+      return;
+    }
+    if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+  }
+}));
+
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, 'dist'), {
+  maxAge: '1h',
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
   }
 }));
 
@@ -207,6 +260,7 @@ const apiRoutes = [
   ['/api/industry', require('./route/industryExperty')],
   ['/api/missionVision', require('./route/missionVision')],
   ['/api/petrochemProduct', require('./route/petroChemProduct')],
+  ['/api/gallery', require('./route/gallary')],
   
 ];
  
@@ -214,14 +268,6 @@ const apiRoutes = [
 apiRoutes.forEach(([route, handler]) => {
   app.use(route, handler);
 });
-
-app.use(express.static(path.join(__dirname, 'dist'), {
-  etag: false, 
-  lastModified: false, 
-  setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'dist, max-age=3600'); // cache for 1 hour
-  }
-}));
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {
@@ -238,14 +284,14 @@ mongoose.connect(process.env.DATABASE_URI, {
   console.error('Failed to connect to MongoDB', err);
 });
 // Server startup 
-const PORT = process.env.PORT || 3036;
+const PORT = process.env.PORT || 3040;
 app.listen(PORT, () => {
   console.log(`Environment Variables:`, {
     EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Not Set',
     EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Not Set',
   });
-  console.log(`Server running on port ${PORT}`);
   // generateAllSitemaps(); // Generate sitemaps on startup
+  console.log(`Server running on port ${PORT}`);
 }); 
 // SMTP Connection Test
 const nodemailer = require('nodemailer');

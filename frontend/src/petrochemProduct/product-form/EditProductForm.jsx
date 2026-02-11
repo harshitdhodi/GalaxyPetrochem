@@ -1,7 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useGetAllChemicalCategoriesQuery } from '@/slice/chemicalSlice/chemicalCategory';
 import BasicInfoForm from './forms/BasicInfoForm';
 import CategoryBrandForm from './forms/CategoryBrandForm';
@@ -14,7 +15,6 @@ const UpdatePetrochemicalProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [subcategories, setSubcategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -57,12 +57,12 @@ const UpdatePetrochemicalProduct = () => {
         // Process images
         const images = Array.isArray(productData.images)
           ? productData.images.map((img) => ({
-              file: null,
-              url: img.url || `/Uploads/images/${img.name}`,
-              name: img.name || '',
-              altText: img.altText || '',
-              title: img.title || '',
-            }))
+            file: null,
+            url: img.url || `/Uploads/images/${img.name}`,
+            name: img.name || '',
+            altText: img.altText || '',
+            title: img.title || '',
+          }))
           : [];
 
         // Extract IDs
@@ -102,10 +102,11 @@ const UpdatePetrochemicalProduct = () => {
         }
 
         setLoading(false);
+        toast.success('Product data loaded successfully');
       } catch (err) {
-        setError('Failed to fetch product data. Please try again.');
         setLoading(false);
         console.error('Error fetching product:', err);
+        toast.error('Failed to fetch product data. Please try again.');
       }
     };
 
@@ -116,6 +117,7 @@ const UpdatePetrochemicalProduct = () => {
         setBrands(data);
       } catch (err) {
         console.error('Error fetching brands:', err);
+        toast.error('Failed to load brands');
         setBrands([]);
       }
     };
@@ -123,6 +125,18 @@ const UpdatePetrochemicalProduct = () => {
     fetchProduct();
     fetchBrands();
   }, [id]);
+
+  // Handle file change
+  const handleFileChange = (e, fieldName) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: file,  // Store the file object
+      }));
+      toast.success(`${fieldName.toUpperCase()} file selected`);
+    }
+  };
 
   // Fetch subcategories when category changes
   const fetchSubcategories = async (categoryId) => {
@@ -136,6 +150,7 @@ const UpdatePetrochemicalProduct = () => {
       setSubcategories(data);
     } catch (err) {
       console.error('Error fetching subcategories:', err);
+      toast.error('Failed to load subcategories');
       setSubcategories([]);
     }
   };
@@ -199,11 +214,15 @@ const UpdatePetrochemicalProduct = () => {
       ...prev,
       slug,
     }));
+    toast.success('Slug generated successfully');
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Show loading toast
+    const toastId = toast.loading('Updating product...');
 
     try {
       setFormSubmitting(true);
@@ -214,9 +233,18 @@ const UpdatePetrochemicalProduct = () => {
       // Create FormData object
       const formDataToSend = new FormData();
 
+      // Append PDF and MSDS files if they are file objects
+      if (formData.pdf && typeof formData.pdf === 'object') {
+        formDataToSend.append('pdf', formData.pdf);
+      }
+
+      if (formData.msds && typeof formData.msds === 'object') {
+        formDataToSend.append('msds', formData.msds);
+      }
+
       // Append non-image fields
       Object.keys(formData).forEach((key) => {
-        if (key !== 'images') {
+        if (key !== 'images' && key !== 'pdf' && key !== 'msds') {
           formDataToSend.append(key, formData[key]);
         }
       });
@@ -250,81 +278,111 @@ const UpdatePetrochemicalProduct = () => {
         },
       });
 
+      // Update loading toast to success
+      toast.update(toastId, {
+        render: 'Product updated successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      });
+
       setFormSubmitting(false);
-      navigate('/products-table');
+
+      setTimeout(() => {
+        navigate('/products-table');
+      }, 1500);
     } catch (err) {
       setFormSubmitting(false);
-      setError('Failed to update product. Please try again.');
       console.error('Error updating product:', err);
+      
+      // Update loading toast to error
+      toast.update(toastId, {
+        render: err.response?.data?.message || 'Failed to update product. Please try again.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+      });
     }
   };
 
   if (loading || categoriesLoading) {
-    return <div className="text-center p-8">Loading product data...</div>;
-  }
-
-  if (error) {
     return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded my-4">
-        {error}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading product data...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Update Petrochemical Product</h1>
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <CategoryBrandForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-          handleCategoryChange={handleCategoryChange}
-          handleSubcategoryChange={handleSubcategoryChange}
-          handleBrandChange={handleBrandChange}
-          categories={categories || []}
-          subcategories={subcategories || []}
-          brands={brands}
-        />
-        <BasicInfoForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-          generateSlug={generateSlug}
-        />
-        <ProductDetailsForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-        />
-        <DocumentsForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-        />
-        <ImagesForm
-          formData={formData}
-          setFormData={setFormData}
-        />
-        <SeoForm
-          formData={formData}
-          handleInputChange={handleInputChange}
-        />
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/products-table')}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={formSubmitting}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400"
-          >
-            {formSubmitting ? 'Saving...' : 'Update Product'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="max-w-4xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-6">Update Petrochemical Product</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <CategoryBrandForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleCategoryChange={handleCategoryChange}
+            handleSubcategoryChange={handleSubcategoryChange}
+            handleBrandChange={handleBrandChange}
+            categories={categories || []}
+            subcategories={subcategories || []}
+            brands={brands}
+          />
+          <BasicInfoForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+            generateSlug={generateSlug}
+          />
+          <ProductDetailsForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+          />
+          <DocumentsForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleFileChange={handleFileChange}
+          />
+          <ImagesForm
+            formData={formData}
+            setFormData={setFormData}
+          />
+          <SeoForm
+            formData={formData}
+            handleInputChange={handleInputChange}
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/products-table')}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={formSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+            >
+              {formSubmitting ? 'Saving...' : 'Update Product'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 };
 

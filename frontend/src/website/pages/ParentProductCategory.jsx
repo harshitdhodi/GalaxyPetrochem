@@ -47,7 +47,7 @@ function ParentProductCategory() {
   }, []);
 
   if (loading || isBannerLoading) {
-    return <p className="text-center">Loading...</p>;
+    return <p className="text-center min-h-[60vh] flex justify-center">Loading...</p>;
   }
 
   return (
@@ -61,7 +61,7 @@ function ParentProductCategory() {
         )}
 
         {/* Breadcrumb - centered horizontally, below the title */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-0">
           <nav className=" px-4 py-2 rounded-md text-white text-sm sm:text-md font-semibold">
             <Link to="/">
               <span className="    text-[12px] sm:text-[15px]">Home</span>
@@ -77,7 +77,7 @@ function ParentProductCategory() {
       <div className="container mx-auto px-4 max-w-7xl pt-5">
         <h2 className="text-4xl text-[#0a3161] font-bold mb-3">Our Categories</h2>
       </div>
-      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 pb-5 max-w-7xl lg:gap-10">
+      <div className="container  mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 pb-5 max-w-7xl lg:gap-10">
         {allCategories.length === 0 ? (
           <p>No categories found.</p>
         ) : (

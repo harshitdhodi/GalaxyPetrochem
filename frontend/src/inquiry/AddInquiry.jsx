@@ -17,18 +17,22 @@ import {
     FormLabel,
     FormMessage
 } from "@/components/ui/form";
-import { useAddInquiryMutation, } from "@/slice/inquiry/inquiry";
+import { useAddInquiryMutation } from "@/slice/inquiry/inquiry";
 import { useGetAllSourcesQuery } from "@/slice/source/source";
+import { useGetAllStatusesQuery } from '@/slice/status/status';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { useGetAllStatusesQuery } from '@/slice/status/status';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BreadcrumbWithCustomSeparator } from '@/breadCrumb/BreadCrumb';
+
 const breadcrumbItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Inquiry Table", href: "/inquiry-list" },
     { label: "Inquiry Form", href: null }, // No `href` indicates the current page
 ]
+
 // Define validation schema
 const inquirySchema = z.object({
     firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
@@ -58,7 +62,7 @@ export default function AddInquiryForm({ onClose }) {
         defaultValues: {
             firstName: "",
             lastName: "",
-            organisation: "",
+            // organisation: "",
             department: "",
             email: "",
             phone: "",
@@ -66,13 +70,16 @@ export default function AddInquiryForm({ onClose }) {
             country: "",
             message: "",
             needCallback: false,
-            status: "", // Default value if statuses are not fetched yet
-            source: "" // Default empty value for source
+            status: "",
+            source: ""
         }
     });
 
     // Handle form submission
     const onSubmit = async (data) => {
+        // Show loading toast
+        const toastId = toast.loading('Adding inquiry...');
+
         try {
             const inquiryData = {
                 ...data,
@@ -81,21 +88,53 @@ export default function AddInquiryForm({ onClose }) {
 
             await addInquiry(inquiryData).unwrap();
 
-            // Reset form and navigate
+            // Update loading toast to success
+            toast.update(toastId, {
+                render: 'Inquiry added successfully!',
+                type: 'success',
+                isLoading: false,
+                autoClose: 3000,
+            });
+
+            // Reset form
             form.reset();
-            navigate('/inquiry-list');
+
+            // Navigate after a short delay
+            setTimeout(() => {
+                navigate('/inquiry-list');
+            }, 1500);
         } catch (error) {
-            // Display error feedback
-            alert(error?.data?.message || "Failed to add inquiry.");
+            console.error('Error adding inquiry:', error);
+            
+            // Update loading toast to error
+            toast.update(toastId, {
+                render: error?.data?.message || 'Failed to add inquiry. Please try again.',
+                type: 'error',
+                isLoading: false,
+                autoClose: 4000,
+            });
         }
     };
 
     return (
         <>
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
+
             <div className="ml-1">
                 <BreadcrumbWithCustomSeparator items={breadcrumbItems} />
-
             </div>
+
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-4">
                     <h2 className="text-xl font-semibold mb-4">Add New Inquiry</h2>
@@ -106,7 +145,7 @@ export default function AddInquiryForm({ onClose }) {
                             name="firstName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>First Name</FormLabel>
+                                    <FormLabel>First Name <span className="text-red-500 text-lg">*</span></FormLabel>
                                     <FormControl>
                                         <Input placeholder="Enter first name" {...field} />
                                     </FormControl>
@@ -120,7 +159,7 @@ export default function AddInquiryForm({ onClose }) {
                             name="lastName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Last Name</FormLabel>
+                                    <FormLabel>Last Name <span className="text-red-500 text-lg">*</span></FormLabel>
                                     <FormControl>
                                         <Input placeholder="Enter last name" {...field} />
                                     </FormControl>
@@ -130,26 +169,26 @@ export default function AddInquiryForm({ onClose }) {
                         />
                     </div>
 
-                    <FormField
+                    {/* <FormField
                         control={form.control}
                         name="organisation"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Organisation</FormLabel>
+                                <FormLabel>Organisation <span className="text-red-500 text-lg">*</span></FormLabel>
                                 <FormControl>
                                     <Input placeholder="Enter organisation name" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
-                    />
+                    /> */}
 
                     <FormField
                         control={form.control}
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>Email <span className="text-red-500 text-lg">*</span></FormLabel>
                                 <FormControl>
                                     <Input
                                         type="email"
@@ -167,12 +206,14 @@ export default function AddInquiryForm({ onClose }) {
                         name="phone"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Phone Number</FormLabel>
+                                <FormLabel>Phone Number <span className="text-red-500 text-lg">*</span></FormLabel>
                                 <FormControl>
                                     <Input
                                         type="tel"
                                         placeholder="Enter 10-digit phone"
                                         {...field}
+                                        maxLength={10}
+                                        minLength={10}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -219,7 +260,7 @@ export default function AddInquiryForm({ onClose }) {
                         name="message"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Message</FormLabel>
+                                <FormLabel>Message <span className="text-red-500 text-lg">*</span></FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="Enter message"
@@ -238,7 +279,8 @@ export default function AddInquiryForm({ onClose }) {
                             <FormItem>
                                 <FormLabel>Need Callback</FormLabel>
                                 <FormControl>
-                                    <Input
+                                    <Input 
+                                    className="w-5 h-5"
                                         type="checkbox"
                                         {...field}
                                     />
@@ -253,7 +295,7 @@ export default function AddInquiryForm({ onClose }) {
                         name="status"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Status</FormLabel>
+                                <FormLabel>Status <span className="text-red-500 text-lg">*</span></FormLabel>
                                 {statusesLoading ? (
                                     <div>Loading statuses...</div>
                                 ) : (
@@ -285,7 +327,7 @@ export default function AddInquiryForm({ onClose }) {
                         name="source"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Source</FormLabel>
+                                <FormLabel>Source <span className="text-red-500 text-lg">*</span></FormLabel>
                                 {sourcesLoading ? (
                                     <div>Loading sources...</div>
                                 ) : (
@@ -312,8 +354,15 @@ export default function AddInquiryForm({ onClose }) {
                         )}
                     />
 
-
                     <div className="flex justify-end space-x-2 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                            onClick={() => navigate('/inquiry-list')}
+                        >
+                            Cancel
+                        </Button>
                         <Button
                             type="submit"
                             disabled={isAdding}

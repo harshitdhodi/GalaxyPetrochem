@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import React from "react"; 
+import React from "react";
+
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
 
 const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
   const [imageMetadata, setImageMetadata] = useState(
@@ -12,7 +14,7 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
     })) || []
   );
 
-  // Sync imageMetadata with product.images
+  // Sync imageMetadata when product.images length changes
   useEffect(() => {
     if (imageMetadata.length !== product.images.length) {
       setImageMetadata(
@@ -22,12 +24,31 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
         }))
       );
     }
-  }, [product.images.length, imageMetadata.length]);
+  }, [product.images.length]);
 
   const handleFileInputChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      const newImages = files.map((file) => ({
+    if (files.length === 0) return;
+
+    const validFiles = [];
+    const invalidFiles = [];
+
+    files.forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        invalidFiles.push(file.name);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      alert(
+        `The following file(s) exceed 1MB limit and were skipped:\n${invalidFiles.join("\n")}`
+      );
+    }
+
+    if (validFiles.length > 0) {
+      const newImages = validFiles.map((file) => ({
         file,
         url: URL.createObjectURL(file),
         altText: "",
@@ -35,10 +56,13 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
       }));
       handleImageChange(newImages);
     }
+
+    // Reset input value so same file can be selected again if needed
+    e.target.value = "";
   };
 
   const handleMetadataChange = (index, field, value) => {
-    // Update local state
+    // Update local metadata state
     const updatedMetadata = [...imageMetadata];
     updatedMetadata[index] = {
       ...updatedMetadata[index],
@@ -46,14 +70,29 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
     };
     setImageMetadata(updatedMetadata);
 
-    // Update the images array in the parent component
+    // Update parent images array (metadata only - not replacing file/url)
     const updatedImages = [...product.images];
     updatedImages[index] = {
       ...updatedImages[index],
-      [field]: value
+      [field]: value,
     };
-    
-    handleImageChange(updatedImages, true);
+
+    handleImageChange(updatedImages, true); // true = metadata update only
+  };
+
+  // Optional: Add size validation for PDF & MSDS too
+  const handleDocumentChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File "${file.name}" exceeds 1MB limit. Maximum allowed size is 1MB.`);
+      e.target.value = ""; // clear input
+      return;
+    }
+
+    // If valid → pass to parent handler
+    handleFileChange(e);
   };
 
   return (
@@ -70,7 +109,9 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
           onChange={handleFileInputChange}
           multiple
         />
-        <p className="text-sm text-gray-500">You can select multiple images</p>
+        <p className="text-sm text-gray-500">
+          Max 1MB per image • You can select multiple images
+        </p>
       </div>
 
       {/* Image Previews and Metadata */}
@@ -127,10 +168,25 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
             id="pdf"
             type="file"
             name="pdf"
-            onChange={handleFileChange}
+            onChange={handleDocumentChange}   // ← now validated
             accept=".pdf"
           />
+          <p className="text-sm text-gray-500 mt-1">Max 1MB</p>
+          {product.pdf && typeof product.pdf === "string" && (
+            <p className="text-sm text-gray-500 mt-1">
+              Current file:{" "}
+              <a
+                href={`/api/image/view/${product.pdf}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {product.pdf}
+              </a>
+            </p>
+          )}
         </div>
+
         <div>
           <Label htmlFor="msds" className="block text-sm font-medium">
             MSDS Document
@@ -139,9 +195,23 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
             id="msds"
             type="file"
             name="msds"
-            onChange={handleFileChange}
+            onChange={handleDocumentChange}   // ← now validated
             accept=".pdf"
           />
+          <p className="text-sm text-gray-500 mt-1">Max 1MB</p>
+          {product.msds && typeof product.msds === "string" && (
+            <p className="text-sm text-gray-500 mt-1">
+              Current file:{" "}
+              <a
+                href={`/api/image/view/${product.msds}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {product.msds}
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </Card>

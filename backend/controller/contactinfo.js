@@ -80,7 +80,7 @@ exports.updateUser = async (req, res) => {
       // Delete old images if they exist
       if (user.photo && user.photo.length > 0) {
         user.photo.forEach(image => {
-          const oldImagePath = path.join(__dirname, '../uploads/images', image);
+          const oldImagePath = path.join(__dirname, '../uploads2/images', image);
           if (fs.existsSync(oldImagePath)) {
             fs.unlinkSync(oldImagePath);
             console.log('Deleted Old Image:', image);

@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Layout from './layout/Layout';
+import FloatingInquiry from './components/FloatingInquiry';
 import './App.css';
 
 // Loading component for Suspense
@@ -65,7 +66,6 @@ const AddInquiryForm = lazy(() => import('./inquiry/AddInquiry'));
 const EditInquiryForm = lazy(() => import('./inquiry/EditInquiry'));
 const SourceTable = lazy(() => import('./inquiry/source/SourceTable'));
 const StatusTable = lazy(() => import('./inquiry/status/StatusTable'));
-
 // Blog Management - Lazy loaded
 const BlogCategory = lazy(() => import('./BlogCategory/BlogCategoryTable'));
 const Blogcategoryform = lazy(() => import('./BlogCategory/BlogCategoryForm'));
@@ -133,7 +133,14 @@ import UpdatePetrochemicalProduct from './petrochemProduct/product-form/EditProd
 import IndustryManager from './websiteBackend/experties/IndustryManager';
 import MissionVisionForm from './websiteBackend/missionVision/MissionVisionForm';
 import EditAboutUsForm from './websiteBackend/aboutus/EditAboutUs';
-
+// import BrandPage from './website/pages/BrandPage';
+import ThankYouPage from './website/pages/component/Thankyou';
+import BrandPage2 from './website/pages/brands/BrandsPage';
+import GallaryChild from './website/gallary/GallaryChild';
+import GalleryCRUD from './websiteBackend/gallary/GallayMainPage';
+import GallaryPage from './website/gallary/GallaryPage';
+import Marquee from './website/componets/productDetailPage/marquee/Marquee';
+import DownloadPage from './website/componets/download/DownloadPage';
 // Auth Components
 const PrivateRoute = ({ children }) => {
   const token = Cookies.get('jwt');
@@ -147,18 +154,42 @@ const LoginRoute = () => {
 
 // Dynamic meta function
 const AppContent = () => {
-  useDocumentTitle(); // Use the hook here
-<CriticalStyles/>
+  useDocumentTitle();
+  const location = useLocation();
+  
+  // List of paths where FloatingInquiry should be shown (exact matches only)
+  const showFloatingInquiry = [
+    '/',
+    '/categories',
+    '/alphabetsbaseCategory',
+    '/about-us',
+    '/contact-us',
+    '/blogs',
+    '/about',
+    '/introduction',
+    '/vision-mission',
+    '/products',
+    '/brands',
+    '/advance-search',
+    '/privacy-policy',
+    '/terms-and-conditions',
+    '/product-search',
+    '/download'
+  ].includes(location.pathname);
+
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Outlet /> {/* Render the rest of the app */}
-    </Suspense>
+    <>
+      <CriticalStyles /> 
+      <Suspense fallback={<LoadingFallback />}>
+        <Outlet />
+      </Suspense>
+      {showFloatingInquiry && <FloatingInquiry />}
+    </>
   );
 };
 
 // Main App Component
-function App() {
-  
+const App = () => {
   const router = createBrowserRouter([
     {
       path: '/',
@@ -174,8 +205,15 @@ function App() {
           ),
           children: [
             { index: true, element: <Suspense fallback={<LoadingFallback />}><HomePage /></Suspense> },
+            { 
+              path: 'adhesives', 
+              element: <Suspense fallback={<LoadingFallback />}>
+                <ComingSoon pageName="Adhesives" />
+              </Suspense> 
+            },
             { path: 'categories', element: <Suspense fallback={<LoadingFallback />}><ProductCategoryPage /></Suspense> },
             // { path: 'ParentProductCategory', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
+            { path: 'marquee', element: <Suspense fallback={<LoadingFallback />}><Marquee /></Suspense> },
             { path: 'alphabetsbaseCategory', element: <Suspense fallback={<LoadingFallback />}><AlphabetsBaseCategory /></Suspense> },
             { path: ':categorySlug/:slug', element: <Suspense fallback={<LoadingFallback />}><Saperator /></Suspense> },
             { path: 'about-us', element: <Suspense fallback={<LoadingFallback />}><PetrochemicalAboutUs /></Suspense> },
@@ -186,28 +224,31 @@ function App() {
             { path: ':blog/:slug', element: <Suspense fallback={<LoadingFallback />}><BlogSaparator /></Suspense> },
             { path: '/search', element: <Suspense fallback={<LoadingFallback />}><ProductSearchBar /></Suspense> },
             { path: '/about', element: <Suspense fallback={<LoadingFallback />}><AboutDescription /></Suspense> },
+            { path: '/gallery', element: <Suspense fallback={<LoadingFallback />}><GallaryPage /></Suspense> },
             { path: '/introduction', element: <Suspense fallback={<LoadingFallback />}><Introduction /></Suspense> },
             { path: '/vision-mission', element: <Suspense fallback={<LoadingFallback />}><MainContent /></Suspense> },
             { path: '/products', element: <Suspense fallback={<LoadingFallback />}><ParentProductCategory /></Suspense> },
-          
-         
-
+            { path: 'brands/:slug', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
+            { path: 'thank-you', element: <Suspense fallback={<LoadingFallback />}><ThankYouPage /></Suspense> },
+             
+            // { path: 'brand', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
+ 
             // brands section 
-            { path: '/brands', element: <Suspense fallback={<LoadingFallback />}><BrandsPage /></Suspense> },
+            { path: '/brands', element: <Suspense fallback={<LoadingFallback />}><BrandPage2 /></Suspense> },
             { path: '/advance-search', element: <Suspense fallback={<LoadingFallback />}><AdvanceSearch /></Suspense> },
             { path: '/privacy-policy', element: <Suspense fallback={<LoadingFallback />}><PrivacyPolicy /></Suspense> },
             { path: '/terms-and-conditions', element: <Suspense fallback={<LoadingFallback />}><TermsAndConditions /></Suspense> },
             { path: '/product-search', element: <Suspense fallback={<LoadingFallback />}><SearchResultsTable /></Suspense> },
-           
+            { path: '/download', element: <Suspense fallback={<LoadingFallback />}><DownloadPage /></Suspense> },
             // { path: '*', element: <NotFoundPage /> }
           ]
         },
         // Authentication Route
-        { 
-          path: 'login', 
-          element: <Suspense fallback={<LoadingFallback />}><LoginRoute /></Suspense> 
+        {
+          path: 'login',
+          element: <Suspense fallback={<LoadingFallback />}><LoginRoute /></Suspense>
         },
-        
+
         // Protected Routes (Dashboard)
         {
           path: '',
@@ -236,7 +277,7 @@ function App() {
 
             { path: '/products/add', element: <Suspense fallback={<LoadingFallback />}><ProductForm /></Suspense> },
             { path: '/products/edit/:id', element: <Suspense fallback={<LoadingFallback />}><UpdatePetrochemicalProduct /></Suspense> },
- 
+
             { path: '/brands-list', element: <Suspense fallback={<LoadingFallback />}><BrandsList /></Suspense> },
             { path: 'testimonial-table', element: <Suspense fallback={<LoadingFallback />}><TestimonialManager /></Suspense> },
             { path: '/company-info-form', element: <Suspense fallback={<LoadingFallback />}><CompanyForm /></Suspense> },
@@ -274,7 +315,7 @@ function App() {
             { path: 'email-category', element: <Suspense fallback={<LoadingFallback />}><EmailCategoryParent /></Suspense> },
             { path: 'email-category-form', element: <Suspense fallback={<LoadingFallback />}><EmailCategoryParent /></Suspense> },
             { path: 'edit-email-category/:id', element: <Suspense fallback={<LoadingFallback />}><EmailCategoryParent /></Suspense> },
-            
+
             // Inquiry Management Routes
             { path: 'inquiry-list', element: <Suspense fallback={<LoadingFallback />}><InquiryList /></Suspense> },
             { path: 'add-inquiry', element: <Suspense fallback={<LoadingFallback />}><AddInquiryForm /></Suspense> },
@@ -282,6 +323,9 @@ function App() {
             { path: 'source-table', element: <Suspense fallback={<LoadingFallback />}><SourceTable /></Suspense> },
             { path: 'status-table', element: <Suspense fallback={<LoadingFallback />}><StatusTable /></Suspense> },
 
+            // Gallery Management Routes
+            { path: 'gallery-table', element: <Suspense fallback={<LoadingFallback />}><GalleryCRUD /></Suspense> },
+         
             // Blog Management Routes
             { path: 'blog-category-table', element: <Suspense fallback={<LoadingFallback />}><BlogCategory /></Suspense> },
             { path: 'blog-category-form', element: <Suspense fallback={<LoadingFallback />}><Blogcategoryform /></Suspense> },
@@ -302,9 +346,9 @@ function App() {
             { path: 'banner-table', element: <Suspense fallback={<LoadingFallback />}><BannerTable /></Suspense> },
             { path: 'add-banner', element: <Suspense fallback={<LoadingFallback />}><AddBannerForm /></Suspense> },
             { path: 'edit-banner-form/:id', element: <Suspense fallback={<LoadingFallback />}><EditBannerForm /></Suspense> },
-          
-         
-          
+
+
+
             // Career Management Routes
             { path: 'career-table', element: <Suspense fallback={<LoadingFallback />}><CareerTable /></Suspense> },
             { path: 'career/add', element: <Suspense fallback={<LoadingFallback />}><CareerAdminForm /></Suspense> },
@@ -320,7 +364,7 @@ function App() {
             { path: 'contact-info-table', element: <Suspense fallback={<LoadingFallback />}><ContactInfoForm /></Suspense> },
             // { path: 'contact-info/add', element: <Suspense fallback={<LoadingFallback />}><ContactForm /></Suspense> },
             // { path: 'contact-info/edit/:id', element: <Suspense fallback={<LoadingFallback />}><ContactForm /></Suspense> },
-       
+
             // Menu Listing Routes
             { path: 'menu-listing-table', element: <Suspense fallback={<LoadingFallback />}><MenuListingTable /></Suspense> },
             { path: 'menu-listing-form', element: <Suspense fallback={<LoadingFallback />}><MenuListingForm /></Suspense> },
@@ -341,34 +385,37 @@ function App() {
             { path: 'whatsUpInfo-form', element: <Suspense fallback={<LoadingFallback />}><WhatsUpInfoForm /></Suspense> },
 
             // Events
-            { path: 'events', element: <Suspense fallback={<LoadingFallback />}><EventForm /></Suspense> }, 
+            { path: 'events', element: <Suspense fallback={<LoadingFallback />}><EventForm /></Suspense> },
 
             // Blog card
             { path: 'blogCard', element: <Suspense fallback={<LoadingFallback />}><BlogCardForm /></Suspense> },
-      
+
             // Navigation Link
             { path: 'navigationLink', element: <Suspense fallback={<LoadingFallback />}><NavigationLinkTable /></Suspense> },
-            { path: 'navigationLink-form', element: <Suspense fallback={<LoadingFallback />}><NavigationLinkForm /></Suspense> },  
+            { path: 'navigationLink-form', element: <Suspense fallback={<LoadingFallback />}><NavigationLinkForm /></Suspense> },
             { path: 'edit-navigation-link/:id', element: <Suspense fallback={<LoadingFallback />}><NavigationLinkForm /></Suspense> },
-        
+
             // Catalogue Management Routes
             { path: 'catalogue-table', element: <Suspense fallback={<LoadingFallback />}><CatalogueTable /></Suspense> },
             { path: 'catalogue-form', element: <Suspense fallback={<LoadingFallback />}><CatalogueForm /></Suspense> },
             { path: 'edit-catalogue/:id', element: <Suspense fallback={<LoadingFallback />}><CatalogueForm /></Suspense> },
-        
+
             // Privacy Policy Routes
             { path: 'privacypolicy-terms', element: <Suspense fallback={<LoadingFallback />}><PrivacyForm /></Suspense> },
-            { path: 'terms-and-conditions-form', element: <Suspense fallback={<LoadingFallback />}><TermsConditionForm /></Suspense> },
-         
-          
-         
+            { path: 'terms-and-conditions-form', element: <Suspense fallback={<LoadingFallback />}><TermsConditionForm /></Suspense> }
           ]
         }
       ]
     }
   ]);
 
-  return <RouterProvider router={router} />;
-}
+  return (
+    <div className="min-h-screen bg-white">
+      <RouterProvider router={router} />
+    </div>
+  );
+};
+
+const ComingSoon = lazy(() => import('./components/ComingSoon'));
 
 export default App;

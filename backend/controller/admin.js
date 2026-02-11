@@ -66,16 +66,12 @@ const loginAdmin = async (req, res) => {
     if (!admin) {
       return res.status(401).json({ success: false, message: 'Incorrect email ' });
     }
-
     const isPasswordMatch = await bcrypt.compare(password, admin.password);
-
     if (!isPasswordMatch) {
       return res.status(401).json({ success: false, message: 'Incorrect  password' });
     }
-
     const token = createToken(admin._id);
     res.cookie('jwt', token);
-
     return res.status(200).json({ success: true, admin: admin._id, token: token });
   } catch (error) {
     console.log(error)
@@ -135,7 +131,7 @@ const updateAdminProfile = async (req, res) => {
       // Optionally, delete the old photo
       const admin = await Admin.findById(adminId);
       if (admin && admin.photo) {
-        const oldPhotoPath = path.join(__dirname, '../uploads/images', admin.photo);
+        const oldPhotoPath = path.join(__dirname, '../uploads2/images', admin.photo);
         if (fs.existsSync(oldPhotoPath)) {
           fs.unlinkSync(oldPhotoPath);
         }

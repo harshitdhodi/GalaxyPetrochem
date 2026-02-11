@@ -64,7 +64,7 @@ exports.getBannerByPageSlug = async (req, res) => {
 
         console.log("Fetching Banner with pageSlug:", pageSlug);
 
-        const banner = await Banner.find({ pageSlug });
+        const banner = await Banner.find({ pageSlug }).sort({ createdAt: -1 });
 
         if (!banner || banner.length === 0) {
             return res.status(404).json({ message: "Banner not found" });

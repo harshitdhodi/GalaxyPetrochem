@@ -1,28 +1,33 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import Footer from "../home/Footer";
 
 export default function ProductSearchBar() {
-  const [searchParams] = useSearchParams();
-  console.log(searchParams); // Log searchParams to debug
-  const searchTerm = searchParams.get("name"); // Get the 'name' query parameter (e.g., 'enklo')
+  const { search } = useLocation(); // Get the query string from useLocation
+  const searchParams = new URLSearchParams(search); // Create URLSearchParams instance
+  const searchTerm = searchParams.get("tab"); // Get the 'tab' query parameter (e.g., 'Enklo-68')
   const [chemicals, setChemicals] = useState([]); // State to hold the fetched chemical data (array)
   const [isLoading, setIsLoading] = useState(true); // State for loading status
   const [isError, setIsError] = useState(false); // State for error status
-  console.log(searchTerm); // Log searchTerm to debug
+
+  console.log("Search Term:", searchTerm); // Log searchTerm to debug
 
   useEffect(() => {
-    if (!searchTerm) return; // Skip fetching if no search term is provided
+    if (!searchTerm) {
+      setIsLoading(false); // Stop loading if no search term
+      setIsError(true); // Set error if no search term
+      return;
+    }
 
     const fetchChemicalData = async () => {
       try {
-        const response = await fetch(`/api/petrochemProduct/filterProduct?search=${searchTerm}`);
+        const response = await fetch(`/api/petrochemProduct/filterProduct?search=${encodeURIComponent(searchTerm)}`);
         if (response.ok) {
           const data = await response.json();
-          console.log(data); // Log API response to debug
-          setChemicals(data); // Set the fetched chemical data (array)
+          console.log("API Response:", data); // Log API response to debug
+          setChemicals(data || []); // Set the fetched chemical data (array)
         } else {
           setIsError(true); // Set error state if the request failed
         }
@@ -49,7 +54,7 @@ export default function ProductSearchBar() {
     return (
       <div className="flex justify-center w-full">
         <div className="w-full max-w-7xl p-6">
-          <h1 className="text-2xl font-semibold mb-4">No results found</h1>
+          <h1 className="text-2电影 font-semibold mb-4">No results found</h1>
         </div>
       </div>
     );
@@ -67,7 +72,7 @@ export default function ProductSearchBar() {
             Showing {chemicals.length} result{chemicals.length !== 1 ? 's' : ''} for "{searchTerm}"
           </div>
 
-          <Table>
+          <Table className="mb-20">
             <TableHeader className="bg-main">
               <TableRow className="text-white bg-blue-700 hover:bg-blue-700">
                 <TableHead className="text-white">Product Name</TableHead>
@@ -83,7 +88,7 @@ export default function ProductSearchBar() {
                 const categoryName = chemical.categoryId?.category || 'N/A';
                 const subCategoryName = chemical.subCategorySlug
                   ? chemical.subCategorySlug.replace(/-/g, ' ').charAt(0).toUpperCase() +
-                  chemical.subCategorySlug.replace(/-/g, ' ').slice(1).toLowerCase()
+                    chemical.subCategorySlug.replace(/-/g, ' ').slice(1).toLowerCase()
                   : 'N/A';
 
                 return (
@@ -120,7 +125,6 @@ export default function ProductSearchBar() {
                         <p className="pl-2">{subCategoryName}</p>
                       </Link>
                     </TableCell>
-
                     <TableCell>{chemical.brandId?.name || 'N/A'}</TableCell>
                   </TableRow>
                 );
@@ -129,7 +133,7 @@ export default function ProductSearchBar() {
           </Table>
         </div>
       </div>
-      
+   
     </>
   );
 }

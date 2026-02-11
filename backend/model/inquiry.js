@@ -10,6 +10,8 @@ const contactSchema = new mongoose.Schema({
     message: { type: String, required: true },
     needCallback: { type: Boolean, default: false },
     status: { type: String, default: '' },
+    organisation: { type: String, default: '' },
+    department: { type: String, default: '' },
     source: { type: String, default: '' }
 }, { timestamps: true });
 

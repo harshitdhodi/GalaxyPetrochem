@@ -6,39 +6,35 @@ const formatText = (text) => {
   if (!text) return '';
   return text
     .split(/[-\s]+/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
 
-export function Breadcrumb({ chemicalName,subCategorySlug, categorySlug, categoryName, slug2, subcategoryName }) {
-  console.log(subCategorySlug)
+export function Breadcrumb({ chemicalName, subCategorySlug, categorySlug, categoryName, slug2, subcategoryName }) {
   return (
-    <nav className="mb-6 md:mx-5 mt-2 lg:mx-5  xl:ml-0 pb-3">
-      <ol className="list-none inline-flex">
-        <li className="flex items-center">
-          <Link to="/" className="text-[12px]   rounded-md sm:text-[15px] text-white">Home</Link>
-          <span className="mx-2 text-white">/</span>
-        </li>
-        <li className="flex items-center">
-          <Link to="/categories" className="text-[12px] sm:text-[15px] text-white   rounded-md">Products</Link>
-          <span className="mx-2 text-white">/</span>
-        </li>
-        <li className="flex items-center">
-          <span className="text-[12px] sm:text-[15px]">
-            <Link to={`/${categorySlug}`} className="text-white   rounded-md">
-              {formatText(categorySlug)}
-            </Link>
-          </span>
-        </li>
-        {subcategoryName && (
-          <li className="flex items-center">
-            <span className="mx-2 text-white">/</span>
-            <span className="text-[15px] text-white   rounded-md">
-              {formatText(subcategoryName)}
-            </span>
-          </li>
-        )}
-      </ol>
+    <nav className="mb-6 mt-2 pb-3 z-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+            {/* First row: Home / Products */}
+            <div className="flex items-center text-sm text-white whitespace-nowrap">
+              <Link to="/" className="rounded-md">Home</Link>
+              <span className="mx-2">/</span>
+              <Link to="/products" className="rounded-md">Products</Link>
+            </div>
+
+            {/* Second row: path-style /category/subcategory */}
+            <div className="flex items-center text-sm text-white mt-1 sm:mt-0 sm:ml-4 whitespace-nowrap">
+              <span className="mr-2">/</span>
+              <Link to={`/${categorySlug}`} className="rounded-md">{formatText(categorySlug)}</Link>
+              {subcategoryName && (
+                <>
+                  <span className="mx-2">/</span>
+                  <Link to={`/${categorySlug}/${subCategorySlug || subcategoryName}`} className="rounded-md">{formatText(subcategoryName)}</Link>
+                </>
+              )}
+            </div>
+          </div>
+      </div>
     </nav>
   );
 }
