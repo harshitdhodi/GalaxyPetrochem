@@ -293,48 +293,43 @@ const updatesubsubcategory = async (req, res) => {
 
 const deletecategory = async (req, res) => {
   const { id } = req.query;
-  console.log(id)
+  console.log(id);
+
   try {
-    // Find the category by its ID
     const category = await ProductCategory.findById(id);
 
-    // Check if the category exists
     if (!category) {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Check if there are subcategories or sub-subcategories
-    const hasSubcategories = category.subCategories.length > 0;
-    const hasSubSubcategories = category.subCategories.some(subCat => subCat.subSubCategory.length > 0);
-
-    if (hasSubcategories || hasSubSubcategories) {
-      return res.status(400).json({ message: 'Category has associated subcategories or sub-subcategories and cannot be deleted' });
+    // Delete main category photo
+    if (category.photo) {
+      const photoPath = path.join(__dirname, '../logos', category.photo);
+      deleteFile(photoPath);
     }
 
-    
-// Only delete the photo if it exists
-if (category.photo) {
-  const photoPath = path.join(__dirname, '../logos', category.photo);
-  deleteFile(photoPath);
-}
+    // Delete all subcategory photos
+    category.subCategories?.forEach((subCat) => {
+      if (subCat.photo) {
+        const subPhotoPath = path.join(__dirname, '../logos', subCat.photo);
+        deleteFile(subPhotoPath);
+      }
 
-    // Proceed to delete the category
-    const deletedCategory = await ProductCategory.findByIdAndDelete(id);
+      // Delete all sub-subcategory photos
+      subCat.subSubCategory?.forEach((subSubCat) => {
+        if (subSubCat.photo) {
+          const subSubPhotoPath = path.join(__dirname, '../logos', subSubCat.photo);
+          deleteFile(subSubPhotoPath);
+        }
+      });
+    });
 
-    if (!deletedCategory) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
+    // Delete the whole category document (subcategories are embedded, so they go too)
+    await ProductCategory.findByIdAndDelete(id);
 
-
-    // Find and update all products that reference this category, removing the category reference
-    await Product.updateMany(
-      { categories: id },
-      { $pull: { categories: id } }
-    );
-
-    res.status(200).json({ message: 'Category deleted successfully and references removed from products' });
+    res.status(200).json({ message: 'Category and all subcategories deleted successfully' });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ message: 'Server error', error });
   }
 };

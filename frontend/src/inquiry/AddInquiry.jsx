@@ -30,14 +30,14 @@ import { BreadcrumbWithCustomSeparator } from '@/breadCrumb/BreadCrumb';
 const breadcrumbItems = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Inquiry Table", href: "/inquiry-list" },
-    { label: "Inquiry Form", href: null }, // No `href` indicates the current page
+    { label: "Inquiry Form", href: null },
 ]
 
-// Define validation schema
+// ✅ FIX 1: Removed `organisation` from schema (it was required in schema but not rendered/in defaultValues)
+// ✅ FIX 3: Replaced `.nonempty()` with `.min(1)` for status and source
 const inquirySchema = z.object({
     firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
     lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
-    organisation: z.string().min(2, { message: "Organisation name must be at least 2 characters" }),
     department: z.string().optional(),
     email: z.string().email({ message: "Invalid email address" }),
     phone: z.string()
@@ -46,8 +46,8 @@ const inquirySchema = z.object({
     country: z.string().optional(),
     message: z.string().min(10, { message: "Message must be at least 10 characters" }),
     needCallback: z.boolean().default(false),
-    status: z.string().nonempty({ message: "Please select a status" }),
-    source: z.string().nonempty({ message: "Please select a source" })
+    status: z.string().min(1, { message: "Please select a status" }),
+    source: z.string().min(1, { message: "Please select a source" }),
 });
 
 export default function AddInquiryForm({ onClose }) {
@@ -56,13 +56,11 @@ export default function AddInquiryForm({ onClose }) {
     const { data: sources, isLoading: sourcesLoading } = useGetAllSourcesQuery();
     const navigate = useNavigate();
 
-    // Initialize form with zod resolver
     const form = useForm({
         resolver: zodResolver(inquirySchema),
         defaultValues: {
             firstName: "",
             lastName: "",
-            // organisation: "",
             department: "",
             email: "",
             phone: "",
@@ -75,20 +73,17 @@ export default function AddInquiryForm({ onClose }) {
         }
     });
 
-    // Handle form submission
     const onSubmit = async (data) => {
-        // Show loading toast
         const toastId = toast.loading('Adding inquiry...');
 
         try {
             const inquiryData = {
                 ...data,
-                date: new Date().toISOString().split('T')[0] // Current date
+                date: new Date().toISOString().split('T')[0]
             };
 
             await addInquiry(inquiryData).unwrap();
 
-            // Update loading toast to success
             toast.update(toastId, {
                 render: 'Inquiry added successfully!',
                 type: 'success',
@@ -96,17 +91,14 @@ export default function AddInquiryForm({ onClose }) {
                 autoClose: 3000,
             });
 
-            // Reset form
             form.reset();
 
-            // Navigate after a short delay
             setTimeout(() => {
                 navigate('/inquiry-list');
             }, 1500);
         } catch (error) {
             console.error('Error adding inquiry:', error);
-            
-            // Update loading toast to error
+
             toast.update(toastId, {
                 render: error?.data?.message || 'Failed to add inquiry. Please try again.',
                 type: 'error',
@@ -169,20 +161,6 @@ export default function AddInquiryForm({ onClose }) {
                         />
                     </div>
 
-                    {/* <FormField
-                        control={form.control}
-                        name="organisation"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Organisation <span className="text-red-500 text-lg">*</span></FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Enter organisation name" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    /> */}
-
                     <FormField
                         control={form.control}
                         name="email"
@@ -228,10 +206,7 @@ export default function AddInquiryForm({ onClose }) {
                             <FormItem>
                                 <FormLabel>Address</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Enter address"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Enter address" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -245,10 +220,7 @@ export default function AddInquiryForm({ onClose }) {
                             <FormItem>
                                 <FormLabel>Country</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Enter country"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Enter country" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -262,29 +234,28 @@ export default function AddInquiryForm({ onClose }) {
                             <FormItem>
                                 <FormLabel>Message <span className="text-red-500 text-lg">*</span></FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Enter message"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Enter message" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
+                    {/* ✅ FIX 2: Checkbox now uses `checked` and `onChange` correctly */}
                     <FormField
                         control={form.control}
                         name="needCallback"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Need Callback</FormLabel>
+                            <FormItem className="flex items-center gap-2">
                                 <FormControl>
-                                    <Input 
-                                    className="w-5 h-5"
+                                    <Input
                                         type="checkbox"
-                                        {...field}
+                                        className="w-5 h-5 cursor-pointer"
+                                        checked={field.value}
+                                        onChange={(e) => field.onChange(e.target.checked)}
                                     />
                                 </FormControl>
+                                <FormLabel className="!mt-0">Need Callback</FormLabel>
                                 <FormMessage />
                             </FormItem>
                         )}
