@@ -2,12 +2,24 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// Use absolute path to avoid issues
+const UPLOAD_BASE_DIR = path.join(__dirname, '../uploads2'); // Adjust based on your structure
+// OR if this file IS in the backend root:
+// const UPLOAD_BASE_DIR = path.join(__dirname, 'uploads2');
+
 // Ensure the necessary folders exist
 const createFoldersIfNotExist = () => {
-  const folders = ['uploads2/images', 'uploads2/msds', 'uploads2/pdf'];
+  const folders = ['images', 'msds', 'pdf'];
+  
   folders.forEach(folder => {
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder, { recursive: true });
+    const folderPath = path.join(UPLOAD_BASE_DIR, folder);
+    if (!fs.existsSync(folderPath)) {
+      try {
+        fs.mkdirSync(folderPath, { recursive: true, mode: 0o755 });
+        console.log(`✓ Created folder: ${folderPath}`);
+      } catch (error) {
+        console.error(`✗ Error creating folder ${folderPath}:`, error);
+      }
     }
   });
 };
@@ -15,43 +27,68 @@ const createFoldersIfNotExist = () => {
 // Call the function to create folders
 createFoldersIfNotExist();
 
+// Helper function to ensure directory exists
+const ensureDirectoryExists = (dirPath) => {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true, mode: 0o755 });
+      console.log(`Created directory: ${dirPath}`);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Failed to create directory ${dirPath}:`, error);
+    return false;
+  }
+};
+
 // Set up storage for files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     let folder;
-    switch (file.fieldname) {
-      case 'images':
-        // Organize by year/month to avoid directory limits
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        folder = path.join('uploads2/images', String(year), month);
-        break;
-      case 'msds':
-        folder = 'uploads2/msds';
-        break;
-      case 'pdf':
-        folder = 'uploads2/pdf';
-        break;
-      default:
-        folder = 'uploads2';
-    }
     
-    // Ensure folder exists
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder, { recursive: true, mode: 0o755 });
+    try {
+      switch (file.fieldname) {
+        case 'images':
+          // Organize by year/month to avoid directory limits
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          folder = path.join(UPLOAD_BASE_DIR, 'images', String(year), month);
+          break;
+        case 'msds':
+          folder = path.join(UPLOAD_BASE_DIR, 'msds');
+          break;
+        case 'pdf':
+          folder = path.join(UPLOAD_BASE_DIR, 'pdf');
+          break;
+        default:
+          folder = UPLOAD_BASE_DIR;
+      }
+      
+      // Ensure folder exists before multer tries to write
+      if (ensureDirectoryExists(folder)) {
+        cb(null, folder);
+      } else {
+        cb(new Error(`Failed to create upload directory: ${folder}`));
+      }
+    } catch (error) {
+      console.error('Error in destination function:', error);
+      cb(error);
     }
-    
-    cb(null, folder);
   },
   filename: function (req, file, cb) {
-    if (file.fieldname === 'pdf' || file.fieldname === 'msds') {
-      const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-      cb(null, sanitizedFilename);
-    } else {
-      const ext = path.extname(file.originalname);
-      const filename = `${Date.now()}${ext}`;
-      cb(null, filename);
+    try {
+      if (file.fieldname === 'pdf' || file.fieldname === 'msds') {
+        const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, sanitizedFilename);
+      } else {
+        const ext = path.extname(file.originalname);
+        const filename = `${Date.now()}${ext}`;
+        cb(null, filename);
+      }
+    } catch (error) {
+      console.error('Error in filename function:', error);
+      cb(error);
     }
   }
 });
@@ -72,11 +109,8 @@ const upload = multer({
     });
 
     if (file.fieldname === 'images') {
-      // For images, check image formats - add more accepted types
       const allowedTypes = /jpeg|jpg|png|gif|webp|svg|bmp|tiff/i;
       const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-      
-      // Expand the accepted mimetypes
       const allowedMimetypes = [
         'image/jpeg',
         'image/jpg',
@@ -87,7 +121,6 @@ const upload = multer({
         'image/bmp',
         'image/tiff'
       ];
-      
       const mimetype = allowedMimetypes.includes(file.mimetype);
 
       if (extname || mimetype) {
@@ -102,22 +135,20 @@ const upload = multer({
         cb(new Error(`Only image files are allowed. Received: ${file.mimetype} with extension ${path.extname(file.originalname)}`), false);
       }
     } else if (file.fieldname === 'pdf') {
-      // For PDF files, check PDF format
-      const isPDF = file.mimetype === 'application/pdf' || path.extname(file.originalname).toLowerCase() === '.pdf';
+      const isPDF = file.mimetype === 'application/pdf' || 
+                    path.extname(file.originalname).toLowerCase() === '.pdf';
       if (isPDF) {
         return cb(null, true);
       } else {
         cb(new Error(`Only PDF files are allowed for this field. Received: ${file.mimetype}`), false);
       }
     } else if (file.fieldname === 'msds') {
-      // For MSDS files, check allowed formats (PDF, DOC, DOCX)
       const validExtensions = ['.pdf', '.doc', '.docx'];
       const validMimetypes = [
         'application/pdf',
-        'application/msword', 
+        'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
-      
       const extname = validExtensions.includes(path.extname(file.originalname).toLowerCase());
       const mimetype = validMimetypes.includes(file.mimetype);
 
@@ -127,7 +158,6 @@ const upload = multer({
         cb(new Error(`Only PDF, DOC, and DOCX files are allowed for MSDS. Received: ${file.mimetype}`), false);
       }
     } else {
-      // Default case for other file types
       cb(null, true);
     }
   }
