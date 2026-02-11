@@ -10,9 +10,21 @@ const SkeletonCard = () => (
   </div>
 );
 
-// Capitalize utility with safe fallback
-function capitalizeWords(str) {
-  return str ? str.replace(/\b\w/g, char => char.toUpperCase()) : "";
+/** Format name with consistent title casing; preserve known acronyms (HLP, API, etc.). */
+function formatTitleCase(str) {
+  if (!str || typeof str !== 'string') return str;
+  const acronyms = new Set(['HLP', 'API', 'ISO', 'SAE', 'AW', 'EP', 'PAO', 'PAG', 'ASTM', 'DIN', 'VG']);
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      const upper = word.toUpperCase();
+      if (acronyms.has(upper)) return upper;
+      if (/^\d+$/.test(word)) return word;
+      const lower = word.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
 }
 
 export default function CategoryCards({ categories }) {
@@ -72,12 +84,12 @@ export default function CategoryCards({ categories }) {
                 {/* Image Container */}
                 <img
                   src={category.photo ? `/api/logo/download/${category.photo}` : "/placeholder.jpg"}
-                  alt={category.alt || "Category Image"}
+                  alt={formatTitleCase(category.alt || category.category || "Category Image")}
                   className="object-fill sm:object-fill min-w-[200px] max-w-[400px] mt-5  sm:min-h-[350px] max-h-[300px] sm:max-h-[250px] w-full h-auto transition-transform duration-300 group-hover:scale-105"
                   fetchPriority={index < 2 ? "high" : "auto"}
                   loading={index < 4 ? "lazy" : "eager"}
                   decoding="async"
-                  title={category.alt || "Category"}
+                  title={formatTitleCase(category.alt || category.category || "Category")}
                 />
 
                 {/* Overlay */}
@@ -85,7 +97,7 @@ export default function CategoryCards({ categories }) {
 
                 {/* Hover Button */}
                 <div className="absolute bottom-0 left-0 transform group-hover:bg-[#995d96]  -translate-y-1/2 translate-x-0 transition-transform duration-300 ease-in-out bg-[#e84c20] py-2 px-4 rounded-r-md text-white font-medium flex items-center">
-                  {category.category}
+                  {formatTitleCase(category.category)}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </div>
               </Link>

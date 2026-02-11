@@ -16,7 +16,7 @@ const ChemicalcategorySchema = new mongoose.Schema({
   metaschema: { type: String },
   otherMeta: { type: String },
   url: { type: String },
-  priority: { type: Number },
+  priority: { type: Number,default: 0 },
   lastmod: { type: Date, default: Date.now },
   changeFreq: { type: String },
   subCategories: [{

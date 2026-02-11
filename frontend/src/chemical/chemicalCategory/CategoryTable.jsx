@@ -11,7 +11,12 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, ChevronDown, Edit, Trash2, Plus } from 'lucide-react'
-import { useGetAllChemicalCategoriesQuery, useDeleteChemicalCategoryMutation } from '@/slice/chemicalSlice/chemicalCategory'
+import { 
+  useGetAllChemicalCategoriesQuery, 
+  useDeleteChemicalCategoryMutation,
+  useDeleteSubCategoryMutation,
+  useDeleteSubSubCategoryMutation
+} from '@/slice/chemicalSlice/chemicalCategory'
 import { Link, useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 
@@ -19,7 +24,11 @@ const CategoryRow = ({ item, level, parentIds = {}, onDelete }) => {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = React.useState(false)
   const hasSubcategories = item.subCategories?.length > 0 || item.subSubCategory?.length > 0
-  const [deleteCategory, { isLoading }] = useDeleteChemicalCategoryMutation()
+  
+  // Use different mutations based on level
+  const [deleteCategory, { isLoading: isLoadingCategory }] = useDeleteChemicalCategoryMutation()
+  const [deleteSubCategory, { isLoading: isLoadingSubCategory }] = useDeleteSubCategoryMutation()
+  const [deleteSubSubCategory, { isLoading: isLoadingSubSubCategory }] = useDeleteSubSubCategoryMutation()
   
   const currentLevelIds = {
     ...parentIds,
@@ -37,40 +46,62 @@ const CategoryRow = ({ item, level, parentIds = {}, onDelete }) => {
     navigate(editPath)
   }
 
-  const handleDelete = async () => {
-    try {
-      const confirmResult = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'This action cannot be undone!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel',
-      });
+const handleDelete = async () => {
+  try {
+    const confirmResult = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    });
 
-      if (confirmResult.isConfirmed) {
-        await deleteCategory(item._id).unwrap()
-        
-        await Swal.fire({
-          title: 'Deleted!',
-          text: 'The category has been deleted.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // Call the onDelete callback if provided (to trigger refetch in parent)
-        if (onDelete) onDelete();
+    if (confirmResult.isConfirmed) {
+      // Use appropriate mutation based on level with correct parameters
+      if (level === 0) {
+        // Delete main category - only needs categoryId
+        await deleteCategory({ categoryId: item._id }).unwrap()
+      } else if (level === 1) {
+        // Delete subcategory - needs categoryId and subCategoryId
+        await deleteSubCategory({ 
+          categoryId: parentIds.categoryId, 
+          subCategoryId: item._id 
+        }).unwrap()
+      } else if (level === 2) {
+        // Delete sub-subcategory - needs all three IDs
+        await deleteSubSubCategory({ 
+          categoryId: parentIds.categoryId,
+          subCategoryId: parentIds.subcategoryId,
+          subSubCategoryId: item._id 
+        }).unwrap()
       }
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: error.data?.message || 'Failed to delete the category',
-        icon: 'error',
+      
+      await Swal.fire({
+        title: 'Deleted!',
+        text: 'The category has been deleted.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
       });
+
+      // Call the onDelete callback if provided (to trigger refetch in parent)
+      if (onDelete) onDelete();
     }
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: error.data?.message || 'Failed to delete the category',
+      icon: 'error',
+    });
   }
+}
+
+  // Determine loading state based on level
+  const isLoading = level === 0 ? isLoadingCategory : 
+                    level === 1 ? isLoadingSubCategory : 
+                    isLoadingSubSubCategory
 
   return (
     <>

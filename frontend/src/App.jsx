@@ -66,7 +66,6 @@ const AddInquiryForm = lazy(() => import('./inquiry/AddInquiry'));
 const EditInquiryForm = lazy(() => import('./inquiry/EditInquiry'));
 const SourceTable = lazy(() => import('./inquiry/source/SourceTable'));
 const StatusTable = lazy(() => import('./inquiry/status/StatusTable'));
-
 // Blog Management - Lazy loaded
 const BlogCategory = lazy(() => import('./BlogCategory/BlogCategoryTable'));
 const Blogcategoryform = lazy(() => import('./BlogCategory/BlogCategoryForm'));

@@ -32,12 +32,28 @@ const CatalogueSkeleton = () => (
   </div>
 );
 
+/** Format product name with consistent title casing; preserve known acronyms (HLP, API, etc.). */
+function formatProductName(str) {
+  if (!str || typeof str !== 'string') return str;
+  const acronyms = new Set(['HLP', 'API', 'ISO', 'SAE', 'AW', 'EP', 'PAO', 'PAG', 'ASTM', 'DIN', 'VG']);
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      const upper = word.toUpperCase();
+      if (acronyms.has(upper)) return upper;
+      if (/^\d+$/.test(word)) return word;
+      const lower = word.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
+}
+
 export default function FeaturedProducts({ catalogues, recentProducts }) {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [event, setEvent] = useState(null);
-  console.log( recentProducts)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -112,7 +128,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                         <div className="relative w-full py-12 sm:pb-5 flex items-center justify-center overflow-hidden">
                           {product.images?.length > 0 && product.images[0]?.url ? (
                             <img
-                              alt={product.name}
+                              alt={formatProductName(product.name)}
                               className="object-fill sm:object-fill min-w-[200px] max-w-[300px] sm:max-w-[350px] sm:min-h-[350px] max-h-[250px] sm:max-h-[150px] w-full h-auto transition-transform duration-300 group-hover:scale-105"
                               src={`/api/image/download/${product.images[0].url}`}
                               loading="lazy"
@@ -123,7 +139,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                             />
                           ) : (
                             <img
-                              alt={product.name}
+                              alt={formatProductName(product.name)}
                               className="object-contain mt-16 w-full h-full transition-transform duration-300 group-hover:scale-105"
                               src={defaultImage}
                               loading="lazy"
@@ -135,7 +151,7 @@ export default function FeaturedProducts({ catalogues, recentProducts }) {
                         {/* Product Name */}
                         <div className="absolute inset-0 hover:bg-[#e84c20]/10 bg-blue-600/10 group-hover:bg-opacity-30 transition-all duration-300 flex items-end justify-baseline">
                           <span className="px-4 py-2 bg-[#e84c20] group-hover:bg-[#995d96] rounded-r-lg text-white flex items-center space-x-2 transform translate-x-0 transition-transform duration-300 opacity-100">
-                            {product.name}
+                            {formatProductName(product.name)}
                           </span>
                         </div>
                       </div>

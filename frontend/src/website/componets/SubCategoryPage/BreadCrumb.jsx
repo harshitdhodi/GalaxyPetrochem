@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 export default function Breadcrumb({ chemicals = '', slug = '', categorySlug = ''}) {
   console.log(slug)
   return (
-    <nav className="pt-5 sm:text-xs md:text-sm  lg:text-base text-md pb-3 w-full mb-5 py-2 px-4">
+    <nav className="pt-5 sm:text-xs md:text-sm w-[17rem]  lg:text-base text-md pb-3  mb-5 py-2 px-4">
       <ul className="flex gap-2 flex-wrap">
         <li>
           <Link to="/" className="text-[#ffff] hover:text-[#ffff]">

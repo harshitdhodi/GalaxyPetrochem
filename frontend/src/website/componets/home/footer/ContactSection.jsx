@@ -5,12 +5,19 @@ import ScrollLink from './ScrollLink';
 export default function ContactSection({ contactInfo, navigate }) {
   return (
     <div className='col-span-2 sm:col-span-1'>
-      <h2 className="text-xl font-medium mb-6">Corporate Office:</h2>
+      <h2 className="text-xl font-medium mb-6">Corporate Office</h2>
       {contactInfo ? (
         <div className="space-y-6 text-sm">
           <div className="flex items-start gap-3">
             <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-            <p>{contactInfo.address}</p>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactInfo.address || '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-200  underline-offset-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+            >
+              {contactInfo.address}
+            </a>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-primary flex-shrink-0" />
@@ -20,11 +27,23 @@ export default function ContactSection({ contactInfo, navigate }) {
           </div>
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-            <p>
+            <p className="flex flex-col gap-1">
               {contactInfo.mobiles && contactInfo.mobiles.length > 0 ? (
                 <>
-                  <span>{contactInfo.mobiles[0]}</span>
-                  {contactInfo.mobiles[1] && <span> <br/> {contactInfo.mobiles[1]}</span>}
+                  <a
+                    href={`tel:${(contactInfo.mobiles[0] || '').replace(/\s/g, '')}`}
+                    className="hover:text-gray-200  underline-offset-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                  >
+                    {contactInfo.mobiles[0]}
+                  </a>
+                  {contactInfo.mobiles[1] && (
+                    <a
+                      href={`tel:${(contactInfo.mobiles[1] || '').replace(/\s/g, '')}`}
+                      className="hover:text-gray-200  underline-offset-2 focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                    >
+                      {contactInfo.mobiles[1]}
+                    </a>
+                  )}
                 </>
               ) : (
                 'No contact numbers available'
