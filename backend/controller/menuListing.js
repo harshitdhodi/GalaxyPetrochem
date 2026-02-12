@@ -2,40 +2,82 @@ const MenuListing = require('../model/menuListing');
 
 // Create a new menu listing
 exports.createMenuListing = async (req, res) => {
-    try {
-        const { parent, children } = req.body;
+  try {
+    const { parent, children } = req.body;
 
-        // Check if a menu listing with the same parent name already exists
-        const existingMenuByName = await MenuListing.findOne({ 
-            'parent.name': parent.name 
+    // ✅ CASE 1: Children exist → Check ONLY child uniqueness
+    if (children && children.length > 0) {
+      
+      // Check duplicates within current request
+      const childNames = children.map(c => c.name.trim().toLowerCase());
+      if (childNames.length !== new Set(childNames).size) {
+        return res.status(400).json({
+          success: false,
+          message: 'Duplicate child names in current request'
+        });
+      }
+
+      // If parent._id exists, check child under THAT parent
+      if (parent._id) {
+        const existingParent = await MenuListing.findOne({
+          'parent._id': parent._id,
+          'children.name': { 
+            $in: children.map(c => c.name.trim()) 
+          }
         });
 
-        if (existingMenuByName) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'A menu listing with this parent name already exists' 
-            });
+        if (existingParent) {
+          return res.status(400).json({
+            success: false,
+            message: 'Child menu already exists under this parent'
+          });
         }
-
-        // Check if a menu listing with the same parent path already exists
-        const existingMenuByPath = await MenuListing.findOne({ 
-            'parent.path': parent.path 
+      } 
+      // 🆕 NEW PARENT with children - check by parent name/path + child name
+      else {
+        const existingMenu = await MenuListing.findOne({
+          $or: [
+            { 'parent.name': parent.name.trim() },
+            { 'parent.path': parent.path.trim() }
+          ],
+          'children.name': { 
+            $in: children.map(c => c.name.trim()) 
+          }
         });
 
-        if (existingMenuByPath) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'A menu listing with this parent path already exists' 
-            });
+        if (existingMenu) {
+          return res.status(400).json({
+            success: false,
+            message: 'Child menu already exists under this parent'
+          });
         }
+      }
+    } 
+    // ✅ CASE 2: Only parent (no children) → Check parent uniqueness
+    else if (!children || children.length === 0) {
+      const existingMenu = await MenuListing.findOne({
+        $or: [
+          { 'parent.name': parent.name.trim() },
+          { 'parent.path': parent.path.trim() }
+        ]
+      });
 
-        const newMenuListing = new MenuListing({ parent, children });
-        await newMenuListing.save();
-
-        res.status(201).json({ success: true, data: newMenuListing });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+      if (existingMenu) {
+        return res.status(400).json({
+          success: false,
+          message: 'Parent menu already exists'
+        });
+      }
     }
+
+    const newMenuListing = new MenuListing({ parent, children });
+    await newMenuListing.save();
+
+    res.status(201).json({ success: true, data: newMenuListing });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // Get all menu listings
@@ -97,23 +139,96 @@ exports.getMenuListingById = async (req, res) => {
 
 // Update a menu listing by ID
 exports.updateMenuListing = async (req, res) => {
-    try {
-        const { name, path, children } = req.body;
+  try {
+    const { id } = req.params;
+    const { parent, children } = req.body;
 
-        const updatedMenuListing = await MenuListing.findByIdAndUpdate(
-            req.params.id,
-            { name, path, children },
-            { new: true, runValidators: true }
-        );
+    // ✅ CASE 1: Children exist → Check ONLY child uniqueness
+    if (children && children.length > 0) {
+      
+      // Check duplicates within current request
+      const childNames = children.map(c => c.name.trim().toLowerCase());
+      if (childNames.length !== new Set(childNames).size) {
+        return res.status(400).json({
+          success: false,
+          message: 'Duplicate child names in current request'
+        });
+      }
 
-        if (!updatedMenuListing) {
-            return res.status(404).json({ success: false, message: "Menu listing not found" });
+      // If parent._id exists, check child under THAT parent (excluding current document)
+      if (parent._id) {
+        const existingParent = await MenuListing.findOne({
+          _id: { $ne: id }, // Exclude current document being updated
+          'parent._id': parent._id,
+          'children.name': { 
+            $in: children.map(c => c.name.trim()) 
+          }
+        });
+
+        if (existingParent) {
+          return res.status(400).json({
+            success: false,
+            message: 'Child menu already exists under this parent'
+          });
         }
+      } 
+      // Check by parent name/path + child name (excluding current document)
+      else {
+        const existingMenu = await MenuListing.findOne({
+          _id: { $ne: id }, // Exclude current document being updated
+          $or: [
+            { 'parent.name': parent.name.trim() },
+            { 'parent.path': parent.path.trim() }
+          ],
+          'children.name': { 
+            $in: children.map(c => c.name.trim()) 
+          }
+        });
 
-        res.status(200).json({ success: true, data: updatedMenuListing });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        if (existingMenu) {
+          return res.status(400).json({
+            success: false,
+            message: 'Child menu already exists under this parent'
+          });
+        }
+      }
+    } 
+    // ✅ CASE 2: Only parent (no children) → Check parent uniqueness
+    else if (!children || children.length === 0) {
+      const existingMenu = await MenuListing.findOne({
+        _id: { $ne: id }, // Exclude current document being updated
+        $or: [
+          { 'parent.name': parent.name.trim() },
+          { 'parent.path': parent.path.trim() }
+        ]
+      });
+
+      if (existingMenu) {
+        return res.status(400).json({
+          success: false,
+          message: 'Parent menu already exists'
+        });
+      }
     }
+
+    const updatedMenu = await MenuListing.findByIdAndUpdate(
+      id,
+      { parent, children },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedMenu) {
+      return res.status(404).json({
+        success: false,
+        message: 'Menu listing not found'
+      });
+    }
+
+    res.status(200).json({ success: true, data: updatedMenu });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // Delete a menu listing by ID

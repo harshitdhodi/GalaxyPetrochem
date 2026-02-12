@@ -58,24 +58,36 @@ export default function BlogPage() {
 
     fetchBanner();
   }, [slug, path]); // Add both as dependencies
-const PlaceholderImage = () => (
-  <div className="h-48 w-full bg-gray-100 flex items-center justify-center rounded mb-4">
-    <svg
-      className="w-16 h-16 text-gray-400"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 16l4-4a3 3 0 014 0l4 4m-2-2l1-1a3 3 0 014 0l2 2M4 20h16"
-      />
-    </svg>
-  </div>
-);
-                            
+
+  // Placeholder Image Component
+  const PlaceholderImage = () => (
+    <div className="h-48 w-full bg-gray-100 flex items-center justify-center rounded mb-4">
+      <svg
+        className="w-16 h-16 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 16l4-4a3 3 0 014 0l4 4m-2-2l1-1a3 3 0 014 0l2 2M4 20h16"
+        />
+      </svg>
+    </div>
+  );
+
+  // Helper function to check if image URL is valid
+  const isValidImageUrl = (imageUrl) => {
+    if (!imageUrl) return false;
+    // Check if it's just the base path without an actual image identifier
+    if (imageUrl === '/api/image/download/' || imageUrl === '/api/image/download') return false;
+    // Check if there's content after the base path
+    const imagePath = imageUrl.replace('/api/image/download/', '');
+    return imagePath.length > 0;
+  };
+
   const blogs = selectedCategory
     ? Array.isArray(categoryBlogs) ? categoryBlogs : []
     : Array.isArray(allBlogs) ? allBlogs : [];
@@ -134,7 +146,7 @@ const PlaceholderImage = () => (
         ) : (
           <>
             <h2 className="text-2xl font-bold text-[#995d96] pb-2">Blogs in: "{categoryName}"</h2>
-            <div className="h-1 w-[5%] bg-[#9c5d95]  mb-6"></div>
+            <div className="h-1 w-[5%] bg-[#9c5d95] mb-6"></div>
           </>
         )}
 
@@ -143,35 +155,58 @@ const PlaceholderImage = () => (
           <div className="text-center text-gray-500">Loading blogs...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs?.map((blog) => (
-              <Link to={`/${blog.slug}`} key={blog._id}>
-                <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
-                  <img
-                    src={`/api/image/download/${blog.image}`}
-                    alt={blog.title}
-                    className="h-48 w-full object-cover rounded mb-4"
-                  />
-                  <h3 className="text-xl font-semibold text-[#052852] mb-2">{blog.title}</h3>
-                  <div className="flex items-center justify-between ">
-                    <p className="text-sm text-gray-600 ">{new Date(blog.date).toLocaleDateString()}</p>
-                    <div className="flex text-gray-600 items-center gap-1">
-                      <Eye className="w-4 h-4 " />
-                      <p>{blog.visits}</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 my-4 line-clamp-3">
-                    {blog.details.replace(/<[^>]*>/g, '').slice(0, 120)}...
-                  </p>
+            {blogs?.map((blog) => {
+              const imageUrl = `/api/image/download/${blog.image}`;
+              const hasValidImage = isValidImageUrl(imageUrl);
 
-                  <a
-                    href={`/${blog.slug}`}
-                    className="inline-block bg-[#e84c20] text-white px-4 py-2 rounded hover:bg-[#c83e1b] transition"
-                  >
-                    Read More
-                  </a>
-                </div>
-              </Link>
-            ))}
+              return (
+                <Link to={`/${blog.slug}`} key={blog._id}>
+                  <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
+                    {hasValidImage ? (
+                      <img
+                        src={imageUrl}
+                        alt={blog.title}
+                        className="h-48 w-full object-cover rounded mb-4"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          e.target.style.display = 'none';
+                          const placeholder = e.target.parentElement.querySelector('.placeholder-fallback');
+                          if (placeholder) {
+                            placeholder.style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : (
+                      <PlaceholderImage />
+                    )}
+                    {hasValidImage && (
+                      <div className="placeholder-fallback" style={{ display: 'none' }}>
+                        <PlaceholderImage />
+                      </div>
+                    )}
+
+                    <h3 className="text-xl font-semibold text-[#052852] mb-2">{blog.title}</h3>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600">{new Date(blog.date).toLocaleDateString()}</p>
+                      <div className="flex text-gray-600 items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        <p>{blog.visits}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 my-4 line-clamp-3">
+                      {blog.details.replace(/<[^>]*>/g, '').slice(0, 120)}...
+                    </p>
+
+                    <a
+                      href={`/${blog.slug}`}
+                      className="inline-block bg-[#e84c20] text-white px-4 py-2 rounded hover:bg-[#c83e1b] transition"
+                    >
+                      Read More
+                    </a>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

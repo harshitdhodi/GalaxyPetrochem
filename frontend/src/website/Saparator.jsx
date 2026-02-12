@@ -6,184 +6,102 @@ import SubCategoryProductList from './componets/parentProductCategory/subcategor
 import ProductDetailPage from './componets/productDetailPage/ProductDetailPage';
 import Simple404Page from './pages/404';
 
-export default function Separator() {
+export default function Saperator() {
   const location = useLocation();
   const { slug } = useParams();
-
-  const [validProductSlugs, setValidProductSlugs] = useState([]);
+  const [validSlugs, setValidSlugs] = useState([]);
+  const [categorySlugs, setCategorySlugs] = useState([]);
   const [subcategorySlugs, setSubcategorySlugs] = useState([]);
-  const [supportedBaseCategories, setSupportedBaseCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isSlugValid, setIsSlugValid] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-
       try {
-        // Fetch all three endpoints in parallel
-        const [productRes, subRes, categoryRes] = await Promise.all([
+        setIsLoading(true);
+        
+        // Fetch all data in parallel
+        const [productResponse, categoryResponse] = await Promise.all([
           axios.get('/api/petrochemProduct/getAllSlugs'),
-          axios.get('/api/chemicalCategory/getAllSubcategories'),
-          axios.get('/api/chemicalCategory/getAllCategories')
+          axios.get('/api/chemicalCategory/getAllSubcategories')
         ]);
+        
+        console.log("categoryResponse---", categoryResponse.data);
+        
+        // Set product slugs
+        const slugs = productResponse.data.slugs || [];
+        setValidSlugs(slugs);
+        setIsSlugValid(slugs.includes(slug));
+        console.log("product slugs---", slugs);
 
-        console.log('Fetched Data:', {
-          products: productRes.data,
-          subcategories: subRes.data,
-          categories: categoryRes.data
-        });
-
-        // Set product slugs (normalized to lowercase)
-        const productSlugs = (productRes.data.slugs || [])
-          .map(s => s.trim().toLowerCase());
-        console.log('Valid Product Slugs:', productSlugs);
-        setValidProductSlugs(productSlugs);
-
-        // Set subcategory slugs (normalized to lowercase)
-        if (subRes.data?.success && Array.isArray(subRes.data?.data)) {
-          const slugs = subRes.data.data
-            .filter(item => item.subcategorySlug)
-            .map(item => item.subcategorySlug.trim().toLowerCase());
-          console.log('Subcategory Slugs:', slugs);
-          setSubcategorySlugs(slugs);
+        // Extract parent category slugs and subcategory slugs
+        if (categoryResponse.data.success && categoryResponse.data.data) {
+          // Get unique parent category slugs
+          const parentSlugs = categoryResponse.data.data.map(item => item.parentSlug);
+          const uniqueParentSlugs = [...new Set(parentSlugs)]; // Remove duplicates
+          setCategorySlugs(uniqueParentSlugs);
+          console.log("category slugs---", uniqueParentSlugs);
+          
+          // Get all subcategory slugs
+          const subCategorySlugs = categoryResponse.data.data.map(item => item.subcategorySlug);
+          setSubcategorySlugs(subCategorySlugs);
+          console.log("subcategory slugs---", subCategorySlugs);
         }
 
-        // Set dynamic base categories (normalized to lowercase)
-        if (categoryRes.data?.success && Array.isArray(categoryRes.data?.data)) {
-          const categories = categoryRes.data.data
-            .filter(item => item.categorySlug)
-            .map(item => item.categorySlug.trim().toLowerCase());
-          console.log('Supported Base Categories:', categories);
-          setSupportedBaseCategories(categories);
-        } else if (Array.isArray(categoryRes.data?.categories)) {
-          const categories = categoryRes.data.categories
-            .filter(item => item.slug)
-            .map(item => item.slug.trim().toLowerCase());
-          console.log('Supported Base Categories (alt):', categories);
-          setSupportedBaseCategories(categories);
-        } else if (Array.isArray(categoryRes.data)) {
-          // In case API returns array directly
-          const categories = categoryRes.data
-            .filter(item => item.categorySlug || item.slug)
-            .map(item => (item.categorySlug || item.slug).trim().toLowerCase());
-          console.log('Supported Base Categories (direct array):', categories);
-          setSupportedBaseCategories(categories);
-        }
-
-      } catch (err) {
-        console.error('Error fetching dynamic data:', err);
-        setError(err.message);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [slug]);
 
-  // Analyze current path
+  // Extract path segments
   const pathSegments = location.pathname.split('/').filter(Boolean);
-  const baseCategory = pathSegments[0]?.toLowerCase();
-  const subCategorySlugFromUrl = pathSegments[1]?.toLowerCase();
+  const baseCategory = pathSegments[0]; // 'industrial-oils'
+  const subCategorySlug = pathSegments[1]; // 'hydraulic-oils'
 
-  // Debug logging for path analysis
-  useEffect(() => {
-    if (!isLoading) {
-      console.log('Path Analysis:', {
-        pathname: location.pathname,
-        pathSegments,
-        baseCategory,
-        subCategorySlugFromUrl,
-        slug,
-        supportedBaseCategories,
-        subcategorySlugs,
-        validProductSlugs
-      });
-    }
-  }, [location.pathname, isLoading, supportedBaseCategories, subcategorySlugs, validProductSlugs]);
+  console.log("baseCategory:", baseCategory);
+  console.log("subCategorySlug:", subCategorySlug);
+  console.log("categorySlugs includes baseCategory:", categorySlugs.includes(baseCategory));
+  console.log("subcategorySlugs includes subCategorySlug:", subcategorySlugs.includes(subCategorySlug));
 
-  // Check if it's a base category path (e.g., /industrial-oils or /greases)
-  const isBaseCategoryPath = 
-    supportedBaseCategories.length > 0 &&
-    supportedBaseCategories.includes(baseCategory) && 
-    !subCategorySlugFromUrl &&
-    !slug;
-console.log('isBaseCategoryPath:', isBaseCategoryPath);
-  // Check if it's a subcategory path (e.g., /industrial-oils/hydraulic-oils)
-  const isSubCategoryPath = 
-    supportedBaseCategories.length > 0 &&
-    subcategorySlugs.length > 0 &&
-    supportedBaseCategories.includes(baseCategory) && 
-    subCategorySlugFromUrl &&
-    subcategorySlugs.includes(subCategorySlugFromUrl);
-console.log('isSubCategoryPath:', isSubCategoryPath);
-  // Check if it's a product detail page (e.g., /product-slug)
-  const isProductDetailPage = 
-    validProductSlugs.length > 0 &&
-    slug && 
-    validProductSlugs.includes(slug.toLowerCase()) &&
-    pathSegments.length === 1; // Only match single-segment paths
+  const isBaseCategoryPath = categorySlugs.includes(baseCategory) && !subCategorySlug;
 
-  // Additional logging for route matching
-  useEffect(() => {
-    if (!isLoading) {
-      console.log('Route Matching:', {
-        isBaseCategoryPath,
-        isSubCategoryPath,
-        isProductDetailPage,
-        willRender: isBaseCategoryPath || isSubCategoryPath ? 'SubCategoryProductList' : 
-                    isProductDetailPage ? 'ProductDetailPage' : '404'
-      });
-    }
-  }, [isBaseCategoryPath, isSubCategoryPath, isProductDetailPage, isLoading]);
+  const isSubCategoryPath =
+    categorySlugs.includes(baseCategory) &&
+    subcategorySlugs.includes(subCategorySlug);
 
-  // Dynamic page title
+  console.log("isBaseCategoryPath:", isBaseCategoryPath);
+  console.log("isSubCategoryPath:", isSubCategoryPath);
+
   useEffect(() => {
     if (isLoading) {
       document.title = 'Loading...';
     } else if (isBaseCategoryPath || isSubCategoryPath) {
       document.title = 'Subcategory Products';
-    } else if (isProductDetailPage) {
+    } else if (isSlugValid) {
       document.title = 'Product Details';
     } else {
-      document.title = '404 – Page Not Found';
+      document.title = '404';
     }
-  }, [isLoading, isBaseCategoryPath, isSubCategoryPath, isProductDetailPage]);
+  }, [isLoading, isBaseCategoryPath, isSubCategoryPath, isSlugValid]);
 
-  // Loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading content...</p>
-        </div>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-red-600">
-          <p className="text-lg">Error loading page data</p>
-          <p className="text-sm mt-2">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Render appropriate component
-  if (isBaseCategoryPath || isSubCategoryPath) {
-    return <SubCategoryProductList />;
-  }
-  
-  if (isProductDetailPage) {
-    return <ProductDetailPage />;
-  }
-  
-  return <Simple404Page />;
+  return (
+    <div>
+      {isBaseCategoryPath || isSubCategoryPath ? (
+        <SubCategoryProductList />
+      ) : isSlugValid ? (
+        <ProductDetailPage />
+      ) : (
+        <Simple404Page />
+      )}
+    </div>
+  );
 }

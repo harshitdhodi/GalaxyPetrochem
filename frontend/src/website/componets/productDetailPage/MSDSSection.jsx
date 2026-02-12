@@ -42,13 +42,15 @@ export default function MSDSSection({ msds, pdf, name, onInquiry }) {
           </Button>
         )}
        
-        
-        <Button
-          onClick={() => window.open(`/api/image/view/${msds}`, '_blank')}
-          className="w-full md:w-1/4 bg-[#e95821] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
-        >
-          MSDS
-        </Button>
+        {msds && (
+          <Button
+            onClick={() => window.open(`/api/image/view/${msds}`, '_blank')}
+            className="w-full md:w-1/4 bg-[#e95821] hover:bg-[#e85920] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"
+          >
+            MSDS
+          </Button>
+        )}
+       
         <Button
           onClick={onInquiry}
           className="w-full md:w-1/4 bg-[#e85920] hover:bg-[#e95821] transition-colors duration-300 text-white text-md py-5 flex items-center gap-2"

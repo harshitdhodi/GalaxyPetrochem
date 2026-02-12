@@ -136,27 +136,39 @@ const AddBannerForm = () => {
     }
   };
 
-  const renderMenuOptions = (menu) => {
-    return (
-      <React.Fragment key={menu._id}>
-        <Option value={menu.parent.path} style={{ fontWeight: "bold" }}>
-          {menu.parent.name}
-        </Option>
-        {menu.children.map((child) => (
-          <React.Fragment key={child._id}>
-            <Option value={child.path} style={{ paddingLeft: 20 }}>
-              <span> ├── </span>{child.name}
+const renderMenuOptions = (menu) => {
+  return (
+    <React.Fragment key={menu._id}>
+      <Option 
+        key={`parent-${menu._id}`}  // ✅ Unique key
+        value={menu.parent.path} 
+        style={{ fontWeight: "bold" }}
+      >
+        {menu.parent.name}
+      </Option>
+      {menu.children.map((child) => (
+        <React.Fragment key={`child-fragment-${child._id}`}>
+          <Option 
+            key={`child-${child._id}`}  // ✅ Unique key
+            value={child.path} 
+            style={{ paddingLeft: 20 }}
+          >
+            <span> ├── </span>{child.name}
+          </Option>
+          {child.subChildren.map((subChild) => (
+            <Option 
+              key={`subchild-${subChild._id}`}  // ✅ Unique key
+              value={subChild.path} 
+              style={{ paddingLeft: 40 }}
+            >
+              <span>├────</span> {subChild.name}
             </Option>
-            {child.subChildren.map((subChild) => (
-              <Option key={subChild._id} value={subChild.path} style={{ paddingLeft: 40 }}>
-                <span>├────</span> {subChild.name}
-              </Option>
-            ))}
-          </React.Fragment>
-        ))}
-      </React.Fragment>
-    );
-  };
+          ))}
+        </React.Fragment>
+      ))}
+    </React.Fragment>
+  );
+};
 
   return (
     <div>

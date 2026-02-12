@@ -36,9 +36,12 @@ const CategoryNavigation = ({
                 </button>
 
                 {categories.map((category) => {
-                  const count = products.filter(
-                    (p) => p.categoryId._id === category._id && (!selectedBrand || p.brandId._id === selectedBrand),
-                  ).length
+                  const count = products.filter((p) => {
+                    // 👈 Add null checks for categoryId and brandId
+                    const hasValidCategory = p?.categoryId?._id === category._id
+                    const hasValidBrand = !selectedBrand || p?.brandId?._id === selectedBrand
+                    return hasValidCategory && hasValidBrand
+                  }).length
 
                   return (
                     <button

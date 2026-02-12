@@ -44,6 +44,7 @@ export const chemicalCategoryApi = createApi({
       providesTags: ['ChemicalCategories'],
     }),
 
+      
     // Update category
     updateCategory: builder.mutation({
       query: ({ categoryId, formData }) => ({

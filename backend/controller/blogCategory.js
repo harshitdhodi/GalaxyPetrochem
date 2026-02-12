@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const BlogCategory = require('../model/blogCategory'); // Assuming the model is in the models folder
 
 // Create a new category
@@ -79,49 +80,58 @@ const getCategoryById = async (req, res) => {
 
 // Update a category by ID
 const updateCategory = async (req, res) => {
-  const { id } = req.params;
-  const { 
-    category, slug, metatitle, metadescription, metakeywords, 
-    metacanonical, metalanguage, metaschema, otherMeta, url, priority 
+  const { id } = req.query;
+  const {
+    category,
+    slug,
+    metatitle,
+    metadescription,
+    metakeywords,
+    metacanonical,
+    metalanguage,
+    metaschema,
+    otherMeta,
+    url,
+    priority,
   } = req.body;
 
   try {
-    // ✅ Check for duplicates excluding the current document
-    const duplicate = await BlogCategory.findOne({
-      _id: { $ne: id },           // exclude current document
-      $or: [
-        { category: category.trim() },
-        { slug: slug.trim() }
-      ]
-    });
-
-    if (duplicate) {
-      const conflictField = duplicate.category === category.trim() ? 'Category name' : 'Slug';
-      return res.status(409).json({ 
-        message: `${conflictField} already exists. Please use a different one.` 
-      });
+    if (!id) {
+      return res.status(400).json({ message: "Category ID is required" });
     }
 
+    const trimmedCategory = category.trim();
+    const trimmedSlug = slug.trim();
+
+    // ✅ Direct update without duplicate check
     const updatedCategory = await BlogCategory.findByIdAndUpdate(
       id,
-      { 
-        category: category.trim(), 
-        slug: slug.trim(), 
-        metatitle, metadescription, metakeywords, 
-        metacanonical, metalanguage, metaschema, otherMeta, url, priority, 
-        updatedAt: Date.now() 
+      {
+        category: trimmedCategory,
+        slug: trimmedSlug,
+        metatitle,
+        metadescription,
+        metakeywords,
+        metacanonical,
+        metalanguage,
+        metaschema,
+        otherMeta,
+        url,
+        priority,
+        updatedAt: Date.now(),
       },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     if (!updatedCategory) {
-      return res.status(404).json({ message: 'Category not found' });
+      return res.status(404).json({ message: "Category not found" });
     }
 
     res.status(200).json(updatedCategory);
 
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.log(error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 

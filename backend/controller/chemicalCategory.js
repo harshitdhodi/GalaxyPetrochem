@@ -12,26 +12,75 @@ const deleteFile = (filePath) => {
 };
 
 const insertCategory = async (req, res) => {
-  const { category,details,
-    alt,imgtitle,slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
+  const { 
+    category, alt, imgtitle, slug, metatitle, metadescription, details,
+    metakeywords, metacanonical, metalanguage, metaschema, 
+    otherMeta, url, priority, changeFreq 
+  } = req.body;
 
-  const photo = req.file ? req.file.filename : null;
+  let photo = null;
+
+  // Handle uploaded photo (using the same multer style as update)
+  if (req.files && req.files.photo && req.files.photo[0]) {
+    photo = req.files.photo[0].filename;
+  }
+  // Alternative: if you switch to .single('photo') → use req.file?.filename
 
   try {
+    // Check for duplicate category name (your existing logic)
     const existingCategory = await ProductCategory.findOne({ category });
-
     if (existingCategory) {
-      return res.status(400).json({ message: 'Category already exists' });
+      // Optional: clean up uploaded file if duplicate (good practice)
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      return res.status(400).json({ message: 'Category with this name already exists' });
     }
 
-    const newCategory = new ProductCategory({  category,alt,imgtitle,photo,
+    // Create new category
+    const newCategory = new ProductCategory({
+      category,
+      alt,
+      imgtitle,
+      photo,           // will be null if no file uploaded
       details,
-      slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq  });
+      slug,
+      metatitle,
+      metadescription,
+      metakeywords,
+      metacanonical,
+      metalanguage,
+      metaschema,
+      otherMeta,
+      url,
+      priority,
+      changeFreq
+    });
+
     const savedCategory = await newCategory.save();
 
-    res.status(201).json(savedCategory);
+    return res.status(201).json(savedCategory);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    // Clean up uploaded file on error (very important!)
+    if (photo) {
+      const filePath = path.join(__dirname, '../logos', photo);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (unlinkErr) {
+          console.log('Failed to delete temp file after error:', unlinkErr);
+        }
+      }
+    }
+
+    console.error('Error creating category:', error);
+    return res.status(500).json({ 
+      message: 'Server error while creating category', 
+      error: error.message 
+    });
   }
 };
 
@@ -898,9 +947,9 @@ const getAllCategories = async (req, res) => {
   try {
     // Fetch only the 'category' field (the actual name field in your schema)
     const categories = await chemicalCategory.find()
-      .select('category')         // ← changed from 'name' to 'category'
+      .select('category slug')         // ← changed from 'name' to 'category'
       .lean();
-
+console.log(categories);
     if (!categories.length) {
       return res.status(404).json({ 
         success: false,
@@ -909,9 +958,10 @@ const getAllCategories = async (req, res) => {
     }
 
     // Extract just the category names into a clean array
-    const categoryNames = categories
-      .map(doc => doc.category?.trim())   // trim to clean up any extra spaces
-      .filter(Boolean);                   // remove any null/empty values
+    const categoryNames = categories.map(doc => ({
+      category: doc.category?.trim(),
+      slug: doc.slug?.trim()
+    }));
 
     return res.status(200).json({
       success: true,

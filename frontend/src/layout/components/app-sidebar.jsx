@@ -109,13 +109,13 @@ const menuData = [
           { title: "Meta Form", icon: "List", url: "/meta-form" },
         ]
       },
-      {
-        title: "catalogue Management",
-        icon: "Info",
-        children: [
-          { title: "Catalogue List", icon: "List", url: "/catalogue-table" },
-        ]
-      },
+      // {
+      //   title: "catalogue Management",
+      //   icon: "Info",
+      //   children: [
+      //     { title: "Catalogue List", icon: "List", url: "/catalogue-table" },
+      //   ]
+      // },
       {
         title: "WhatsUp Info",
         icon: "Info",

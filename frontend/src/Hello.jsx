@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useGetAllBlogsQuery } from '@/slice/blog/blog';
 import SubCategoryProduct from './website/componets/parentProductCategory/subcategory/SubCategoryProduct';
 import BlogDetailPage from './website/pages/BlogDetailPage';
@@ -7,53 +7,43 @@ import Simple404Page from './website/pages/404';
 
 export default function Hello() {
   const location = useLocation();
-  const { data: blogData, isLoading: isBlogsLoading } = useGetAllBlogsQuery();
-  const [validSubCategoryPaths, setValidSubCategoryPaths] = useState([]);
-  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const { slug } = useParams();
+  const { data: blogData, isLoading: isLoadingBlogs } = useGetAllBlogsQuery();
+  
+  const [validSubCategorySlugs, setValidSubCategorySlugs] = useState([]);
+  const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(true);
 
-  const path = location.pathname;
-
-  // Fetch categories from API
+  // Fetch subcategories from API
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchSubcategories = async () => {
       try {
+        setIsLoadingSubcategories(true);
         const response = await fetch('/api/chemicalCategory/getAllCategories');
-        const data = await response.json();
+        const result = await response.json();
         
-        console.log('API Response:', data); // Debug: Check the structure
+        console.log('result---', result.data); // 👈 For debugging
         
-        // Handle different possible response structures
-        let categories = [];
-        
-        if (Array.isArray(data)) {
-          categories = data;
-        } else if (data.data && Array.isArray(data.data)) {
-          categories = data.data;
-        } else if (data.categories && Array.isArray(data.categories)) {
-          categories = data.categories;
-        } else if (data.results && Array.isArray(data.results)) {
-          categories = data.results;
+        if (result.success && result.data) {
+          // Extract slugs from the new response format
+          const slugs = result.data.map(item => item.slug); // 👈 Changed from subcategorySlug to slug
+          setValidSubCategorySlugs(slugs);
+          console.log('Valid slugs:', slugs); // 👈 For debugging
         }
-        
-        // Transform the categories to paths
-        const paths = categories.map(category => `/${category.slug || category.path || category.name?.toLowerCase().replace(/\s+/g, '-')}`);
-        setValidSubCategoryPaths(paths);
-        
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        // Fallback to hardcoded paths if API fails
-        setValidSubCategoryPaths(['/industrial-oils', '/greases', '/aerosol']);
+        console.error('Error fetching subcategories:', error);
+        setValidSubCategorySlugs([]);
       } finally {
-        setIsCategoriesLoading(false);
+        setIsLoadingSubcategories(false);
       }
     };
 
-    fetchCategories();
+    fetchSubcategories();
   }, []);
 
-  const isSubCategoryPath = validSubCategoryPaths.includes(path);
-  const isBlogPath = blogData?.some(blog => path === `/${blog.slug}`);
-  const isLoading = isBlogsLoading || isCategoriesLoading;
+  const isSubCategoryPath = validSubCategorySlugs.includes(slug);
+  const isBlogPath = blogData?.some(blog => slug === blog.slug);
+  
+  const isLoading = isLoadingSubcategories || isLoadingBlogs;
 
   useEffect(() => {
     if (isLoading) {

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const BlogSchema = new mongoose.Schema({
-  category: { type: String, required: true },
-  slug: { type: String, required: true },
+  category: { type: String, required: true, unique: true },
+  slug: { type: String, required: true , unique: true },
   metatitle: { type: String },
   metadescription: { type: String },
   metakeywords: { type: String },

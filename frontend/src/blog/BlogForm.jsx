@@ -107,6 +107,8 @@ export default function BlogForm() {
                                    errors.details  = 'Details are required';
     if (!id && formData.image.length === 0)
                                    errors.image    = 'At least one image is required';
+    if (!formData.postedBy.trim()) errors.postedBy = 'Posted By is required';
+    if (!formData.status)          errors.status   = 'Status is required';
     return errors;
   };
 
@@ -146,11 +148,23 @@ export default function BlogForm() {
       setTimeout(() => navigate('/blog-table'), 1500);
     } catch (error) {
       console.error('Error submitting blog:', error);
-      const msg =
-        error?.data?.message ||
-        error?.error ||
-        (id ? 'Failed to update blog.' : 'Failed to create blog.');
-      toast.error(msg, { autoClose: 5000 });
+      
+      // Handle validation errors from backend
+      if (error?.data?.error?.errors) {
+        const backendErrors = {};
+        Object.entries(error.data.error.errors).forEach(([field, err]) => {
+          backendErrors[field] = err.message;
+          toast.error(`${field}: ${err.message}`, { autoClose: 5000 });
+        });
+        setFormErrors(backendErrors);
+      } else {
+        // Handle general errors
+        const msg =
+          error?.data?.message ||
+          error?.error ||
+          (id ? 'Failed to update blog.' : 'Failed to create blog.');
+        toast.error(msg, { autoClose: 5000 });
+      }
     }
   };
 
@@ -281,19 +295,19 @@ export default function BlogForm() {
             <p className="text-red-500 text-xs mt-1">{formErrors.title}</p>
           )}
         </div>
-  {/* Slug — auto-generated, read-only */}
+
+        {/* Slug — auto-generated */}
         <div>
-          <OptionalLabel htmlFor="slug">Slug <span className="text-red-500" aria-hidden="true">*</span> </OptionalLabel>
+          <RequiredLabel htmlFor="slug">Slug</RequiredLabel>
           <Input
             id="slug"
             name="slug"
             value={formData.slug}
             onChange={handleChange}
             placeholder="Auto-generated from title"
-            // readOnly
-            // className="bg-gray-50 text-gray-500 cursor-not-allowed"
           />
         </div>
+
         {/* Date — required */}
         <div>
           <RequiredLabel htmlFor="date">Date</RequiredLabel>
@@ -357,29 +371,48 @@ export default function BlogForm() {
             </div>
           )}
         </div>
-{/* Status Dropdown */}
-<div>
-  <OptionalLabel htmlFor="status">Status <span className="text-red-500" aria-hidden="true">*</span></OptionalLabel>
-  <select
-    id="status"
-    name="status"
-    value={formData.status}
-    onChange={handleChange}
-    className="w-full rounded-md border border-gray-300 p-2"
-  >
-    <option value="">Select Status</option>
-    <option value="active">Active</option>
-    <option value="inactive">Inactive</option>
-  </select>
-</div>
 
-      
+        {/* Posted By — required */}
+        <div>
+          <RequiredLabel htmlFor="postedBy">Posted By</RequiredLabel>
+          <Input
+            id="postedBy"
+            name="postedBy"
+            value={formData.postedBy}
+            onChange={handleChange}
+            placeholder="Enter author name"
+            className={formErrors.postedBy ? 'border-red-500' : ''}
+          />
+          {formErrors.postedBy && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.postedBy}</p>
+          )}
+        </div>
+
+        {/* Status — required */}
+        <div>
+          <RequiredLabel htmlFor="status">Status</RequiredLabel>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className={`w-full rounded-md border p-2 ${
+              formErrors.status ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">Select Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          {formErrors.status && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.status}</p>
+          )}
+        </div>
 
         {/* Optional fields */}
         {[
           { field: 'alt',             label: 'Alt Text'         },
           { field: 'imageTitle',      label: 'Image Title'      },
-          { field: 'postedBy',        label: 'Posted By'        },
           { field: 'metatitle',       label: 'Meta Title'       },
           { field: 'metadescription', label: 'Meta Description' },
           { field: 'metakeywords',    label: 'Meta Keywords'    },
@@ -388,7 +421,6 @@ export default function BlogForm() {
           { field: 'metaschema',      label: 'Meta Schema'      },
           { field: 'otherMeta',       label: 'Other Meta'       },
           { field: 'priority',        label: 'Priority'         },
-          // { field: 'status',          label: 'Status'           },
         ].map(({ field, label }) => (
           <div key={field}>
             <OptionalLabel htmlFor={field}>{label}</OptionalLabel>

@@ -7,14 +7,22 @@ const SubcategoryNavigation = ({
   products,
   onSubCategorySelect,
 }) => {
-  // Filter products by selected brand and category
-  const filteredProducts = products.filter(
-    (p) => (!selectedBrand || p.brandId._id === selectedBrand) && p.categoryId._id === selectedCategory,
-  )
+  // Filter products by selected brand and category with null checks
+  const filteredProducts = products.filter((p) => {
+    // 👈 Add null checks for brandId and categoryId
+    const hasValidBrand = !selectedBrand || p?.brandId?._id === selectedBrand
+    const hasValidCategory = p?.categoryId?._id === selectedCategory
+    return hasValidBrand && hasValidCategory
+  })
 
   // Get unique subcategories from filtered products
   const subCategoryMap = new Map()
   filteredProducts.forEach((p) => {
+    // 👈 Add null checks for categoryId and subCategories
+    if (!p?.categoryId?.subCategories || !Array.isArray(p.categoryId.subCategories)) {
+      return
+    }
+    
     const subCategory = p.categoryId.subCategories.find((sc) => sc.slug === p.subCategorySlug)
     if (subCategory && !subCategoryMap.has(subCategory.slug)) {
       subCategoryMap.set(subCategory.slug, {

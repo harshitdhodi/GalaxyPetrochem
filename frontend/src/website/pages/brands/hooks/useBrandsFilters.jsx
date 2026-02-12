@@ -11,10 +11,14 @@ export const useBrandsFilters = (products, brands) => {
   const categories = useMemo(() => {
     const categoriesMap = new Map()
     products.forEach((product) => {
-      const categoryId = product.categoryId._id
-      const categoryName = product.categoryId.category
-      const categorySlug = product.categoryId.slug
-      const subCategories = product.categoryId.subCategories || []
+      // Safely handle products that may not have a populated category
+      const categoryData = product?.categoryId  // 👈 Changed variable name
+      if (!categoryData || !categoryData._id) return
+
+      const categoryId = categoryData._id
+      const categoryName = categoryData.category
+      const categorySlug = categoryData.slug
+      const subCategories = categoryData.subCategories || []
 
       if (!categoriesMap.has(categoryId)) {
         categoriesMap.set(categoryId, {
@@ -26,21 +30,21 @@ export const useBrandsFilters = (products, brands) => {
         })
       }
 
-      const category = categoriesMap.get(categoryId)
-      category.productCount++
+      const categoryEntry = categoriesMap.get(categoryId)  // 👈 Changed variable name
+      categoryEntry.productCount++
 
       subCategories.forEach((subCategory) => {
         const subCategorySlug = subCategory.slug
         const subCategoryName = subCategory.category
-        if (!category.subCategories.has(subCategorySlug)) {
-          category.subCategories.set(subCategorySlug, {
+        if (!categoryEntry.subCategories.has(subCategorySlug)) {
+          categoryEntry.subCategories.set(subCategorySlug, {
             slug: subCategorySlug,
             category: subCategoryName,
             productCount: 0,
           })
         }
         if (product.subCategorySlug === subCategorySlug) {
-          category.subCategories.get(subCategorySlug).productCount++
+          categoryEntry.subCategories.get(subCategorySlug).productCount++
         }
       })
     })
@@ -55,9 +59,13 @@ export const useBrandsFilters = (products, brands) => {
   const mergedBrands = useMemo(() => {
     const brandsMap = new Map()
     products.forEach((product) => {
-      const brandId = product.brandId._id
-      const brandName = product.brandId.name
-      const brandPhoto = product.brandId.photo
+      // Skip products without a properly populated brand
+      const brand = product?.brandId
+      if (!brand || !brand._id) return
+
+      const brandId = brand._id
+      const brandName = brand.name
+      const brandPhoto = brand.photo
       if (!brandsMap.has(brandId)) {
         brandsMap.set(brandId, {
           _id: brandId,
@@ -77,12 +85,14 @@ export const useBrandsFilters = (products, brands) => {
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    let filtered = products
+    let filtered = products.filter((product) => product && product.brandId && product.categoryId)
     if (selectedBrand) {
-      filtered = filtered.filter((product) => product.brandId._id === selectedBrand)
+      filtered = filtered.filter((product) => product.brandId && product.brandId._id === selectedBrand)
     }
     if (selectedCategory) {
-      filtered = filtered.filter((product) => product.categoryId._id === selectedCategory)
+      filtered = filtered.filter(
+        (product) => product.categoryId && product.categoryId._id === selectedCategory
+      )
     }
     if (selectedSubCategory) {
       filtered = filtered.filter((product) => product.subCategorySlug === selectedSubCategory)
@@ -96,7 +106,11 @@ export const useBrandsFilters = (products, brands) => {
 
     filteredProducts.forEach((product) => {
       const subCategorySlug = product.subCategorySlug
-      const subCategory = product.categoryId.subCategories.find((sc) => sc.slug === subCategorySlug)
+      const category = product.categoryId
+      const subCategory =
+        category && Array.isArray(category.subCategories)
+          ? category.subCategories.find((sc) => sc.slug === subCategorySlug)
+          : null
       const subCategoryName = subCategory ? subCategory.category : subCategorySlug
 
       if (!groupedProducts.has(subCategorySlug)) {

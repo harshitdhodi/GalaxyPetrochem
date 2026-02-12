@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, message, Breadcrumb } from "antd";
+import { Form, Input, Select, Button, Breadcrumb } from "antd";
 import axios from "axios";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { Option } = Select;
 
@@ -41,14 +43,17 @@ const StaticMetaForm = () => {
             const metaData = response.data.data;
             form.setFieldsValue({
               pageName: metaData.pageName,
-              pageSlug: metaData.pageSlug, // Set slug from existing data
+              pageSlug: metaData.pageSlug,
               metaTitle: metaData.metaTitle,
               metaDescription: metaData.metaDescription,
               metaKeyword: metaData.metaKeyword,
             });
           }
         })
-        .catch((error) => console.error("Error fetching meta data:", error));
+        .catch((error) => {
+          console.error("Error fetching meta data:", error);
+          toast.error("Failed to fetch meta data");
+        });
     }
   }, [id, form]);
 
@@ -56,8 +61,8 @@ const StaticMetaForm = () => {
   const generateSlug = (pageName) => {
     return pageName
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with dashes
-      .replace(/[^a-z0-9-]/g, ""); // Remove special characters
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
   };
 
   // Handle page selection and auto-fill slug
@@ -70,22 +75,47 @@ const StaticMetaForm = () => {
   const onFinish = async (values) => {
     try {
       if (id) {
-        await axios.put(`/api/meta/update-meta/${id}`, values);
-        message.success("Meta data updated successfully!");
+        const response = await axios.put(`/api/meta/update-meta/${id}`, values);
+        if (response.data.success) {
+          toast.success("Meta data updated successfully!");
+          navigate("/meta-table");
+        }
       } else {
-        await axios.post("/api/meta/add-meta", values);
-        message.success("Meta data added successfully!");
-        form.resetFields();
+        const response = await axios.post("/api/meta/add-meta", values);
+        if (response.data.success) {
+          toast.success("Meta data added successfully!");
+          form.resetFields();
+          navigate("/meta-table");
+        }
       }
-      navigate("/meta-table");
     } catch (error) {
-      message.error("Failed to save meta data.");
+      // Handle error response from backend
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message || "Failed to save meta data";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to save meta data");
+      }
       console.error("Error:", error);
     }
   };
 
   return (
     <div>
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       {/* Breadcrumb */}
       <Breadcrumb style={{ marginBottom: 20 }}>
         <Breadcrumb.Item>
@@ -104,19 +134,41 @@ const StaticMetaForm = () => {
           rules={[{ required: true, message: "Please select a page" }]}
         >
           <Select placeholder="Select a page" loading={loading} onChange={handlePageChange}>
-            <Option value="Static Page">Static Page</Option>
+            {/* Static Page Option */}
+            <Option key="static-page" value="Static Page">
+              Static Page
+            </Option>
+
+            {/* Dynamic Menu Options */}
             {menuList.map((menu) => (
               <React.Fragment key={menu._id}>
-                <Option value={menu.parent.name} style={{ fontWeight: "bold" }}>
+                {/* Parent Menu */}
+                <Option 
+                  key={`parent-${menu._id}`} 
+                  value={menu.parent.name} 
+                  style={{ fontWeight: "bold" }}
+                >
                   {menu.parent.name}
                 </Option>
+
+                {/* Children */}
                 {menu.children.map((child) => (
                   <React.Fragment key={child._id}>
-                    <Option value={child.name} style={{ paddingLeft: 20 }}>
+                    <Option 
+                      key={`child-${child._id}`} 
+                      value={child.name} 
+                      style={{ paddingLeft: 20 }}
+                    >
                       ├── {child.name}
                     </Option>
+
+                    {/* Sub-Children */}
                     {child.subChildren.map((subChild) => (
-                      <Option key={subChild._id} value={subChild.name} style={{ paddingLeft: 40 }}>
+                      <Option 
+                        key={`subchild-${subChild._id}`} 
+                        value={subChild.name} 
+                        style={{ paddingLeft: 40 }}
+                      >
                         ├──── {subChild.name}
                       </Option>
                     ))}
@@ -133,7 +185,7 @@ const StaticMetaForm = () => {
           label="Page Slug"
           rules={[{ required: true, message: "Slug is required" }]}
         >
-          <Input placeholder="Auto-generated slug"  />
+          <Input placeholder="Auto-generated slug" />
         </Form.Item>
 
         <Form.Item
