@@ -124,7 +124,7 @@ const MAX_DOCUMENT_SIZE_BYTES = MAX_DOCUMENT_SIZE_MB * 1024 * 1024;
       setSubCategories(data.data || []);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
-      toast.error("Failed to load subcategories");
+      // toast.error("Failed to load subcategories");
     }
   };
 

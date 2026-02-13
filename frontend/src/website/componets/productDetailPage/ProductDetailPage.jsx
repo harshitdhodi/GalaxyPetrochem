@@ -22,7 +22,6 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const [banners, setBanners] = useState([]);
   const [isBannerLoading, setIsBannerLoading] = useState(true);
-  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Enhanced function to preserve HTML formatting while truncating
  // Enhanced function to preserve HTML formatting while truncating
@@ -289,29 +288,24 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Enhanced Product Description Section — only show when there is content */}
-            {(!isContentEmpty(productData?.details) || !isContentEmpty(productData?.specifiction) || !isContentEmpty(productData?.tableInfo)) && (
+            {/* Specifications section — details are already shown in ProductInfo above */}
+            {(!isContentEmpty(productData?.specifiction) || !isContentEmpty(productData?.tableInfo)) && (
             <div className="mt-5 bg-gradient-to-r from-blue-50 to-blue-100 p-8 rounded-lg shadow-md border border-blue-200">
               <h2 className="text-2xl font-bold mb-6 text-blue-900 border-b border-blue-200 pb-3">
-                Product Description
+                Specifications
               </h2>
 
-              {/* Product Details */}
-              {(productData?.details || productData?.specifiction) && (
-                <div className="mb-6">
-                  <div
-                    className="rich-content-display prose prose-blue max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: showFullDescription
-                        ? enhanceHTMLForDisplay(productData?.details || productData?.specifiction || "No description available.")
-                        : enhanceHTMLForDisplay(truncateHTML(productData?.details || productData?.specifiction || "")),
-                    }}
-                  />
-                </div>
+              {/* Specification content (if different from details) */}
+              {!isContentEmpty(productData?.specifiction) && (
+                <div className="mb-6 rich-content-display prose prose-blue max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: enhanceHTMLForDisplay(productData.specifiction),
+                  }}
+                />
               )}
 
               {/* Table Info (Specifications) */}
-              {showFullDescription && !isContentEmpty(productData?.tableInfo) && (
+              {!isContentEmpty(productData?.tableInfo) && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-4 text-blue-800">Specifications</h3>
                   <div
@@ -322,14 +316,6 @@ export default function ProductDetailPage() {
                   />
                 </div>
               )}
-
-              {/* Show More/Less Button */}
-              <button
-                onClick={() => setShowFullDescription((prev) => !prev)}
-                className="mt-4 px-4 text-blue-600 hover:border-b-2 hover:border-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
-              >
-                {showFullDescription ? "Show Less" : "Show More"}
-              </button>
             </div>
             )}
           </>
@@ -340,133 +326,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Enhanced CSS for rich content display */}
-      <style jsx>{`
-        .rich-content-display {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          line-height: 1.6;
-          color: #374151;
-        }
 
-        .rich-content-display ul {
-          list-style-type: disc !important;
-          list-style-position: inside !important;
-          margin: 16px 0 !important;
-          padding-left: 1em !important;
-        }
-
-        .rich-content-display ol {
-          list-style-type: decimal !important;
-          list-style-position: inside !important;
-          margin: 16px 0 !important;
-          padding-left: 1.5em !important;
-        }
-
-        .rich-content-display li {
-          margin: 8px 0 !important;
-          line-height: 1.6 !important;
-          display: list-item !important;
-        }
-
-        .rich-content-display ul ul {
-          list-style-type: circle !important;
-          list-style-position: inside !important;
-          margin: 8px 0 !important;
-        }
-
-        .rich-content-display ul ul ul {
-          list-style-type: square !important;
-          list-style-position: inside !important;
-        }
-
-        .rich-content-display ol ol {
-          list-style-type: lower-alpha !important;
-          list-style-position: inside !important;
-        }
-
-        .rich-content-display ol ol ol {
-          list-style-type: lower-roman !important;
-          list-style-position: inside !important;
-        }
-
-        .rich-content-display p {
-          margin: 12px 0 !important;
-          line-height: 1.6 !important;
-        }
-
-        .rich-content-display p:empty,
-        .rich-content-display p:has(br:only-child) {
-          display: none !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-
-        .rich-content-display h1,
-        .rich-content-display h2,
-        .rich-content-display h3,
-        .rich-content-display h4,
-        .rich-content-display h5,
-        .rich-content-display h6 {
-          margin-top: 24px !important;
-          margin-bottom: 16px !important;
-          line-height: 1.3 !important;
-          color: #1e40af !important;
-        }
-
-        .rich-content-display h1 { font-size: 1.5rem !important; font-weight: 700 !important; }
-        .rich-content-display h2 { font-size: 1.25rem !important; font-weight: 600 !important; }
-        .rich-content-display h3 { font-size: 1.125rem !important; font-weight: 600 !important; }
-
-        .rich-content-display strong,
-        .rich-content-display b {
-          font-weight: 700 !important;
-          color: #1f2937 !important;
-        }
-
-        .rich-content-display em,
-        .rich-content-display i {
-          font-style: italic !important;
-        }
-
-        .rich-content-display table {
-          width: 100% !important;
-          border-collapse: collapse !important;
-          margin: 16px 0 !important;
-          border: 1px solid #d1d5db !important;
-        }
-
-        .rich-content-display th,
-        .rich-content-display td {
-          border: 1px solid #d1d5db !important;
-          padding: 12px !important;
-          text-align: left !important;
-        }
-
-        .rich-content-display th {
-          background-color: #f3f4f6 !important;
-          font-weight: 600 !important;
-        }
-
-        .rich-content-display blockquote {
-          border-left: 4px solid #3b82f6 !important;
-          padding-left: 16px !important;
-          margin: 16px 0 !important;
-          font-style: italic !important;
-          color: #4b5563 !important;
-        }
-
-        .rich-content-display div {
-          margin: 8px 0 !important;
-        }
-
-        /* Ensure nested content displays properly */
-        .rich-content-display > *:first-child {
-          margin-top: 0 !important;
-        }
-
-        .rich-content-display > *:last-child {
-          margin-bottom: 0 !important;
-        }
-      `}</style>
     </>
   );
 }

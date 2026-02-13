@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [dataCount, setDataCount] = useState({
     inquiryCount: 0,
     categoryCount: 0,
@@ -53,7 +55,10 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Inquiries Card */}
-          <div className="bg-emerald-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden">
+          <div 
+            onClick={() => navigate('/inquiry-list')}
+            className="bg-emerald-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden cursor-pointer hover:bg-emerald-600 transition-colors"
+          >
             <div className="text-4xl font-bold mb-2">{dataCount.inquiryCount}</div>
             <div className="text-lg">Total Inquiries</div>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">
@@ -64,7 +69,10 @@ const Dashboard = () => {
           </div>
 
           {/* Total Categories Card */}
-          <div className="bg-amber-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden">
+          <div 
+            onClick={() => navigate('/chemical-category')}
+            className="bg-amber-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden cursor-pointer hover:bg-amber-600 transition-colors"
+          >
             <div className="text-4xl font-bold mb-2">{dataCount.categoryCount}</div>
             <div className="text-lg">Total Categories</div>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">
@@ -75,7 +83,10 @@ const Dashboard = () => {
           </div>
 
           {/* Total Products Card */}
-          <div className="bg-purple-600 text-white p-6 rounded-md shadow-lg relative overflow-hidden">
+          <div 
+            onClick={() => navigate('/products-table')}
+            className="bg-purple-600 text-white p-6 rounded-md shadow-lg relative overflow-hidden cursor-pointer hover:bg-purple-700 transition-colors"
+          >
             <div className="text-4xl font-bold mb-2">{dataCount.productCount}</div>
             <div className="text-lg">Total Products</div>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">
@@ -86,7 +97,10 @@ const Dashboard = () => {
           </div>
 
           {/* Total Brands Card */}
-          <div className="bg-blue-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden">
+          <div 
+            onClick={() => navigate('/brands-list')}
+            className="bg-blue-500 text-white p-6 rounded-md shadow-lg relative overflow-hidden cursor-pointer hover:bg-blue-600 transition-colors"
+          >
             <div className="text-4xl font-bold mb-2">{dataCount.brandCount}</div>
             <div className="text-lg">Total Brands</div>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">

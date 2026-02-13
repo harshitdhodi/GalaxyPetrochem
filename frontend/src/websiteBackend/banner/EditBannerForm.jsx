@@ -89,7 +89,7 @@ const EditBannerForm = () => {
           ? [{ name: banner.imgName, url: `/api/image/download/${banner.image}` }]
           : [],
         photo: banner.photo
-          ? [{ name: banner.photoName, url: `/api/photo/download/${banner.photo}` }]
+          ? [{ name: banner.photoName, url: `/api/image/download/${banner.photo}` }]
           : [],
       });
     }
