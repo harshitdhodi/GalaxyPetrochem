@@ -101,7 +101,7 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
 
       {/* Image Upload Section */}
       <div className="space-y-4">
-        <Label className="text-lg font-semibold">Upload Product Images</Label>
+        <Label className="text-lg font-semibold">Upload Single Product Image</Label>
         <Input
           type="file"
           id="imageUpload"
@@ -110,7 +110,7 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
           multiple
         />
         <p className="text-sm text-gray-500">
-          Max 1MB per image • You can select multiple images
+          Max 1MB per image 
         </p>
       </div>
 

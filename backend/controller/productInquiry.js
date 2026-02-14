@@ -39,88 +39,90 @@ exports.createInquiry = async (req, res) => {
     const newInquiry = new Inquiry(req.body); 
     await newInquiry.save();
 
-    // HTML Email Template
-    const emailHTML = `
+    // --- Send notification email to admin ---
+    const adminEmailHTML = `
        <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Inquiry</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 100%;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: 20px auto;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center; /* Center the heading */
-        }
-        p {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.6;
-        }
-        .field {
-            font-weight: bold;
-            color: #333;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #aaa;
-            text-align: center;
-        }
-        .centered-text {
-            text-align: center; /* Center text */
-            margin: 20px 0; /* Add margin above and below */
-            font-size: 20px; /* Adjust font size as needed */
-            color: #333; /* Text color */
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Galaxy Petrochemicals</h2>
-        <p class="centered-text">New Inquiry!!</p>
-        <p><span class="field">Name:</span> ${newInquiry.name}</p>
-        <p><span class="field">Email:</span> ${newInquiry.email}</p>
-        <p><span class="field">Phone:</span> ${newInquiry.phone}</p>
-        <p><span class="field">Message:</span> ${newInquiry.message}</p>
-        
-        <div class="footer">
-            <p>This is an automated email. Please do not reply.</p>
-        </div>
-    </div>
-</body> 
-</html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New Product Inquiry</title>
+            <style>
+                body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+                h2 { color: #333; text-align: center; }
+                p { font-size: 16px; color: #555; line-height: 1.6; }
+                .field { font-weight: bold; color: #333; }
+                .footer { margin-top: 20px; font-size: 12px; color: #aaa; text-align: center; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Galaxy Petrochemicals - New Product Inquiry</h2>
+                <p><span class="field">Name:</span> ${newInquiry.name}</p>
+                <p><span class="field">Email:</span> ${newInquiry.email}</p>
+                <p><span class="field">Phone:</span> ${newInquiry.phone}</p>
+                <p><span class="field">Message:</span> ${newInquiry.message}</p>
+                <div class="footer">
+                    <p>This is an automated email. Please do not reply.</p>
+                </div>
+            </div>
+        </body> 
+        </html>
         `;
 
-        const mailOptions = {
-          from: `"${newInquiry.name}"`, // User's name as display, your email for actual sending
-          to: process.env.EMAIL_FROM,
-          subject: 'New Inquiry',
-          html: emailHTML,
-          replyTo: newInquiry.email // Reply goes directly to the user's email
-        };
+    const adminMailOptions = {
+      from: `"${newInquiry.name}" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_FROM,
+      subject: 'New Product Inquiry Received',
+      html: adminEmailHTML,
+      replyTo: newInquiry.email
+    };
         
-        
+    await transporter.sendMail(adminMailOptions);
 
-    // Send email
-    await transporter.sendMail(mailOptions);
+    // --- Send "Thank You" email to the user ---
+    const userEmailHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+          .container { max-width: 600px; margin: 20px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+          .header { background-color: #0056b3; color: #ffffff; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .header h1 { margin: 0; font-size: 24px; }
+          .content { padding: 30px 0; }
+          .content p { margin: 0 0 15px; }
+          .footer { text-align: center; font-size: 12px; color: #777; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Galaxy Petrochem</h1>
+          </div>
+          <div class="content">
+            <p>Dear ${newInquiry.name},</p>
+            <p>Thank you for your inquiry about our products. We have successfully received your message and appreciate your interest in Galaxy Petrochem.</p>
+            <p>Our team will review your request and will be in touch with you shortly.</p>
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Galaxy Petrochem. All Rights Reserved.</p>
+            <p>This is an automated message. Please do not reply directly to this email.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const userMailOptions = {
+        from: `"Galaxy Petrochem" <${process.env.EMAIL_USER}>`,
+        to: newInquiry.email,
+        subject: 'Thank You for Your Inquiry',
+        html: userEmailHTML,
+    };
+    
+    await transporter.sendMail(userMailOptions);
 
     // Respond to the client
     res.status(201).json({ success: true, data: newInquiry });

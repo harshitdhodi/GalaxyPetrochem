@@ -77,7 +77,7 @@ const menuData = [
         children: [
           { title: "Blog Categories", icon: "List", url: "/blog-category-table" },
           { title: "Blog", icon: "FileText", url: "/blog-table" },
-          { title: "Blog Card", icon: "CreditCard", url: "/blogCard" },
+          // { title: "Blog Card", icon: "CreditCard", url: "/blogCard" },
         ]
       },
       {

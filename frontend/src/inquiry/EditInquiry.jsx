@@ -52,7 +52,7 @@ const inquirySchema = z.object({
 export default function EditInquiryForm({ onClose }) {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { data: inquiryData, isLoading: isFetching, error: fetchError } = useGetInquiryByIdQuery(id);
+    const { data: inquiryData, isLoading: isFetching, error: fetchError, refetch } = useGetInquiryByIdQuery(id);
     console.log("Fetched inquiry data:", inquiryData);
     const [updateInquiry, { isLoading }] = useUpdateInquiryMutation();
     const { data: statusesData, isLoading: isLoadingStatuses } = useGetAllStatusesQuery();
@@ -113,6 +113,9 @@ export default function EditInquiryForm({ onClose }) {
 
         try {
             await updateInquiry({ id, ...data }).unwrap();
+
+            // Manually refetch to ensure data is fresh
+            refetch();
 
             // Update loading toast to success
             toast.update(toastId, {

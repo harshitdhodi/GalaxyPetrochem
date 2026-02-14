@@ -13,9 +13,9 @@ const AddBannerForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [createBanner] = useCreateBannerMutation();
-  const [previewUrl, setPreviewUrl] = useState(null);
   const [menuList, setMenuList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   // File size limit in bytes (1MB = 1024 * 1024 bytes)
   const MAX_FILE_SIZE = 1024 * 1024; // 1MB
@@ -45,16 +45,9 @@ const AddBannerForm = () => {
       const formData = new FormData();
       if (values.image?.[0]?.originFileObj) {
         formData.append('image', values.image[0].originFileObj);
-        formData.append('imgName', values.imgName); // Use the manually entered imgName
+        formData.append('imgName', values.imgName);
       } else {
         message.error('Please select an image');
-        return;
-      }
-
-      if (values.photo?.[0]?.originFileObj) {
-        formData.append('photo', values.photo[0].originFileObj);
-      } else {
-        message.error('Please select a photo');
         return;
       }
 
@@ -63,12 +56,12 @@ const AddBannerForm = () => {
       formData.append('details', values.details);
       formData.append('pageSlug', values.pageSlug);
 
-      await createBanner(formData);
+      await createBanner(formData).unwrap();
       message.success('Banner created successfully');
       navigate('/banner-table');
     } catch (error) {
-      console.error(error);
-      message.error('Failed to create banner');
+      console.error('Error creating banner:', error);
+      message.error(error.data?.message || 'Failed to create banner');
     }
   };
 
@@ -76,24 +69,14 @@ const AddBannerForm = () => {
     const isLt1M = file.size <= MAX_FILE_SIZE;
     if (!isLt1M) {
       message.error('Image must be smaller than 1MB!');
-      return Upload.LIST_IGNORE; // Prevent upload
+      return Upload.LIST_IGNORE;
     }
-    return false; // Prevent auto upload
-  };
-
-  const beforeUploadPhoto = (file) => {
-    const isLt1M = file.size <= MAX_FILE_SIZE;
-    if (!isLt1M) {
-      message.error('Photo must be smaller than 1MB!');
-      return Upload.LIST_IGNORE; // Prevent upload
-    }
-    return false; // Prevent auto upload
+    return false;
   };
 
   const handleImageChange = (info) => {
     const file = info.fileList[0];
     if (file?.originFileObj) {
-      // Check file size again
       if (file.size > MAX_FILE_SIZE) {
         return;
       }
@@ -104,7 +87,6 @@ const AddBannerForm = () => {
       };
       reader.readAsDataURL(file.originFileObj);
 
-      // Only set the image field, not imgName
       form.setFieldsValue({
         image: info.fileList,
       });
@@ -113,62 +95,39 @@ const AddBannerForm = () => {
     }
   };
 
-  const handlePhotoChange = (info) => {
-    const file = info.fileList[0];
-    if (file?.originFileObj) {
-      // Check file size again
-      if (file.size > MAX_FILE_SIZE) {
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file.originFileObj);
-
-      // Only set the photo field
-      form.setFieldsValue({
-        photo: info.fileList,
-      });
-    } else {
-      setPreviewUrl(null);
-    }
-  };
-
-const renderMenuOptions = (menu) => {
-  return (
-    <React.Fragment key={menu._id}>
-      <Option 
-        key={`parent-${menu._id}`}  // ✅ Unique key
-        value={menu.parent.path} 
-        style={{ fontWeight: "bold" }}
-      >
-        {menu.parent.name}
-      </Option>
-      {menu.children.map((child) => (
-        <React.Fragment key={`child-fragment-${child._id}`}>
-          <Option 
-            key={`child-${child._id}`}  // ✅ Unique key
-            value={child.path} 
-            style={{ paddingLeft: 20 }}
-          >
-            <span> ├── </span>{child.name}
-          </Option>
-          {child.subChildren.map((subChild) => (
+  const renderMenuOptions = (menu) => {
+    return (
+      <React.Fragment key={menu._id}>
+        <Option 
+          key={`parent-${menu._id}`}
+          value={menu.parent.path} 
+          style={{ fontWeight: "bold" }}
+        >
+          {menu.parent.name}
+        </Option>
+        {menu.children.map((child) => (
+          <React.Fragment key={`child-fragment-${child._id}`}>
             <Option 
-              key={`subchild-${subChild._id}`}  // ✅ Unique key
-              value={subChild.path} 
-              style={{ paddingLeft: 40 }}
+              key={`child-${child._id}`}
+              value={child.path} 
+              style={{ paddingLeft: 20 }}
             >
-              <span>├────</span> {subChild.name}
+              <span> ├── </span>{child.name}
             </Option>
-          ))}
-        </React.Fragment>
-      ))}
-    </React.Fragment>
-  );
-};
+            {child.subChildren.map((subChild) => (
+              <Option 
+                key={`subchild-${subChild._id}`}
+                value={subChild.path} 
+                style={{ paddingLeft: 40 }}
+              >
+                <span>├────</span> {subChild.name}
+              </Option>
+            ))}
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    );
+  };
 
   return (
     <div>
@@ -206,22 +165,6 @@ const renderMenuOptions = (menu) => {
               onChange={handleImageChange}
             >
               <Button icon={<UploadOutlined />}>Upload Image (Max 1MB)</Button>
-            </Upload>
-          </Form.Item>
-
-          <Form.Item 
-            name="photo" 
-            label="Photo" 
-            rules={[{ required: true, message: 'Please upload a photo!' }]}
-            extra="Photo size must be 1MB or less"
-          >
-            <Upload 
-              maxCount={1} 
-              listType="picture" 
-              beforeUpload={beforeUploadPhoto} 
-              onChange={handlePhotoChange}
-            >
-              <Button icon={<UploadOutlined />}>Upload Photo (Max 1MB)</Button>
             </Upload>
           </Form.Item>
 

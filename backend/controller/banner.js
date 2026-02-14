@@ -3,6 +3,18 @@ const mongoose = require('mongoose');
 // Create new banner
 exports.createBanner = async (req, res) => {
     try {
+        const { pageSlug } = req.body;
+
+        // Allow multiple banners only for the home page slug '/'
+        if (pageSlug && pageSlug !== '/') {
+            const existingBanner = await Banner.findOne({ pageSlug: pageSlug });
+            if (existingBanner) {
+                return res.status(400).json({
+                    message: `A banner for page slug '${pageSlug}' already exists. Duplicates are not allowed for this slug.`
+                });
+            }
+        }
+
         const image = req.files['image'] ? req.files['image'][0].filename : null;
         const photo = req.files['photo'] ? req.files['photo'][0].filename : null;
         const banner = new Banner({
@@ -81,6 +93,20 @@ exports.getBannerByPageSlug = async (req, res) => {
 exports.updateBanner = async (req, res) => {
     try {
         const { id } = req.query;
+        const { pageSlug } = req.body;
+console.log("Updating Banner with ID:", id, "and pageSlug:", pageSlug);
+        if (pageSlug && pageSlug !== '/') {
+            const anotherBanner = await Banner.findOne({ 
+                pageSlug: pageSlug, 
+                _id: { $ne: id }
+            });
+            if (anotherBanner) {
+                return res.status(400).json({
+                    message: `A banner for page slug '${pageSlug}' already exists. Duplicates are not allowed.`
+                });
+            }
+        }
+
         const existingBanner = await Banner.findById(id);
 
         if (!existingBanner) {

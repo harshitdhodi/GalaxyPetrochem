@@ -89,23 +89,30 @@ const insertSubCategory = async (req, res) => {
   const { category, alt,imgtitle,details,
      slug, metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
 
+  let photo = null;
+  if (req.files && req.files.photo && req.files.photo[0]) {
+    photo = req.files.photo[0].filename;
+  }
+
   try {
     // Find the category by its ID
     const categoryDoc = await ProductCategory.findById(categoryId);
     if (!categoryDoc) {
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(404).json({ message: 'Category not found' });
     }
 
     // Check if the subcategory already exists
     const existingSubCategory = categoryDoc.subCategories.find((subCat) => subCat.category === category);
     if (existingSubCategory) {
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(400).json({ message: 'Subcategory already exists' });
-    }
-
-    // Handle the photo upload if there's a file in the request
-    let photo = null;
-    if (req.file) {
-      photo = req.file.filename; // Assuming you're using multer for handling file uploads2
     }
 
     // Push the new subcategory to the category document
@@ -117,6 +124,10 @@ const insertSubCategory = async (req, res) => {
 
     res.status(201).json(categoryDoc);
   } catch (error) {
+    if (photo) {
+      const filePath = path.join(__dirname, '../logos', photo);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     console.error('Error inserting subcategory:', error);
     res.status(500).json({ message: 'Server error', error });
   }
@@ -129,24 +140,36 @@ const insertSubSubCategory = async (req, res) => {
      metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
   
   let photo = null;
-  if (req.file) {
-    photo = req.file.filename;
+  if (req.files && req.files.photo && req.files.photo[0]) {
+    photo = req.files.photo[0].filename;
   }
   
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
 
     if (!categoryDoc) {
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(404).json({ message: 'Category not found' });
     }
 
     const subCategory = categoryDoc.subCategories.id(subCategoryId);
     if (!subCategory) {
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
     const existingSubSubCategory = subCategory.subSubCategory.find((subSubCat) => subSubCat.category === category);
     if (existingSubSubCategory) {
+      if (photo) {
+        const filePath = path.join(__dirname, '../logos', photo);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
       return res.status(400).json({ message: 'Sub-subcategory already exists' });
     }
 
@@ -156,25 +179,19 @@ const insertSubSubCategory = async (req, res) => {
 
     res.status(201).json(categoryDoc);
   } catch (error) {
+    if (photo) {
+      const filePath = path.join(__dirname, '../logos', photo);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
     res.status(500).json({ message: 'Server error', error });
   }
 };
 
 const updateCategory = async (req, res) => {
   const { categoryId } = req.query;
-
-  const { 
-    category, alt, imgtitle, slug, metatitle, metadescription, details,
-    metakeywords, metacanonical, metalanguage, metaschema, 
-    otherMeta, url, priority, changeFreq 
-  } = req.body;
-
-  let photo = req.body.photo;
-
-  // Handle uploaded photo from multer.fields
-  if (req.files && req.files.photo && req.files.photo[0]) {
-    photo = req.files.photo[0].filename;
-  }
+  const { category, alt, imgtitle, slug, metatitle, metadescription, details, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
+  
+  let newPhotoFilename = null;
 
   try {
     const existingCategory = await ProductCategory.findById(categoryId);
@@ -182,11 +199,38 @@ const updateCategory = async (req, res) => {
       return res.status(404).json({ message: 'Category not found' });
     }
 
-    // Delete old image if a new one was uploaded
-    if (req.files && req.files.photo && existingCategory.photo) {
-      const oldImagePath = path.join(__dirname, '../logos', existingCategory.photo);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
+    let photo = existingCategory.photo;
+
+    // Handle new photo upload
+    if (req.files?.photo?.[0]) {
+      const oldPhoto = existingCategory.photo;
+      const tempPath = req.files.photo[0].path;
+      newPhotoFilename = req.files.photo[0].filename;
+      const finalPath = path.join(__dirname, '../logos', newPhotoFilename);
+
+      try {
+        // Process and save the new photo
+        if (path.extname(req.files.photo[0].originalname).toLowerCase() === '.svg') {
+          await fs.promises.rename(tempPath, finalPath);
+        } else {
+          await sharp(tempPath)
+            .webp({ quality: 90 })
+            .resize({ width: 1024, withoutEnlargement: true })
+            .toFile(finalPath);
+          fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
+        }
+        photo = newPhotoFilename;
+
+        // If new photo is saved, delete the old one
+        if (oldPhoto) {
+          const oldImagePath = path.join(__dirname, '../logos', oldPhoto);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+      } catch (err) {
+        fs.unlink(tempPath, (unlinkErr) => unlinkErr && console.error('Error deleting temp file after processing error:', unlinkErr));
+        return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
       }
     }
 
@@ -203,6 +247,12 @@ const updateCategory = async (req, res) => {
 
     res.status(200).json(updatedCategory);
   } catch (error) {
+    if (newPhotoFilename) {
+      const newImagePath = path.join(__dirname, '../logos', newPhotoFilename);
+      if (fs.existsSync(newImagePath)) {
+        fs.unlinkSync(newImagePath);
+      }
+    }
     console.log('Error updating category:', error);
     res.status(500).json({ message: 'Server error', error });
   }
@@ -212,48 +262,9 @@ const sharp = require('sharp');
 const chemicalCategory = require("../model/chemicalCategory");
 const updateSubCategory = async (req, res) => {
   const { categoryId, subCategoryId } = req.query;
-
-  const {
-    category,
-    alt,
-    imgtitle,
-    slug,
-    metatitle,
-    details,
-    metadescription,
-    metakeywords,
-    metacanonical,
-    metalanguage,
-    metaschema,
-    otherMeta,
-    url,
-    priority,
-    changeFreq,
-  } = req.body;
-
-  let photo = req.body.photo;
-
-  // Handle uploaded photo via multer and processed earlier
-  if (req.files?.photo?.[0]) {
-    const tempPath = req.files.photo[0].path;
-    const finalFileName = req.files.photo[0].filename;
-    const finalPath = path.join(__dirname, '../logos', finalFileName);
-
-    try {
-      if (path.extname(tempPath).toLowerCase() === '.svg') {
-        await fs.promises.rename(tempPath, finalPath);
-      } else {
-        await sharp(tempPath)
-          .webp({ quality: 90 })
-          .resize({ width: 1024, withoutEnlargement: true })
-          .toFile(finalPath);
-        fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
-      }
-      photo = finalFileName;
-    } catch (err) {
-      return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
-    }
-  }
+  const { category, alt, imgtitle, slug, metatitle, details, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq } = req.body;
+  
+  let newPhotoFilename = null;
 
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
@@ -266,8 +277,40 @@ const updateSubCategory = async (req, res) => {
       return res.status(404).json({ message: 'Subcategory not found' });
     }
 
+    let photo = subCategory.photo;
+
+    if (req.files?.photo?.[0]) {
+      const oldPhoto = subCategory.photo;
+      const tempPath = req.files.photo[0].path;
+      newPhotoFilename = req.files.photo[0].filename;
+      const finalPath = path.join(__dirname, '../logos', newPhotoFilename);
+
+      try {
+        if (path.extname(req.files.photo[0].originalname).toLowerCase() === '.svg') {
+          await fs.promises.rename(tempPath, finalPath);
+        } else {
+          await sharp(tempPath)
+            .webp({ quality: 90 })
+            .resize({ width: 1024, withoutEnlargement: true })
+            .toFile(finalPath);
+          fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
+        }
+        photo = newPhotoFilename;
+
+        if (oldPhoto) {
+          const oldImagePath = path.join(__dirname, '../logos', oldPhoto);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+      } catch (err) {
+        fs.unlink(tempPath, (unlinkErr) => unlinkErr && console.error('Error deleting temp file after processing error:', unlinkErr));
+        return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
+      }
+    }
+
     subCategory.category = category || subCategory.category;
-    subCategory.photo = photo || subCategory.photo;
+    subCategory.photo = photo;
     subCategory.alt = alt || subCategory.alt;
     subCategory.imgtitle = imgtitle || subCategory.imgtitle;
     subCategory.slug = slug || subCategory.slug;
@@ -284,22 +327,26 @@ const updateSubCategory = async (req, res) => {
     subCategory.changeFreq = changeFreq || subCategory.changeFreq;
 
     await categoryDoc.save();
-
     res.status(200).json({ message: 'Subcategory updated successfully', data: categoryDoc });
   } catch (error) {
+    if (newPhotoFilename) {
+      const newImagePath = path.join(__dirname, '../logos', newPhotoFilename);
+      if (fs.existsSync(newImagePath)) {
+        fs.unlinkSync(newImagePath);
+      }
+    }
+    console.error("Error updating subcategory:", error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
 const updatesubsubcategory = async (req, res) => {
   const { categoryId, subCategoryId, subSubCategoryId } = req.query;
-  const {category,alt,imgtitle,slug,details,
+  const { category,alt,imgtitle,slug,details,
      metatitle, metadescription, metakeywords, metacanonical, metalanguage, metaschema, otherMeta, url, priority, changeFreq} = req.body;
-  let photo = req.body.photo; 
+  
+  let newPhotoFilename = null;
 
-  if (req.file) {
-    photo = req.file.filename; 
-  }
   try {
     const categoryDoc = await ProductCategory.findById(categoryId);
     if (!categoryDoc) {
@@ -316,8 +363,40 @@ const updatesubsubcategory = async (req, res) => {
       return res.status(404).json({ message: 'Sub-subcategory not found' });
     }
 
+    let photo = subSubCategory.photo;
+
+    if (req.files?.photo?.[0]) {
+      const oldPhoto = subSubCategory.photo;
+      const tempPath = req.files.photo[0].path;
+      newPhotoFilename = req.files.photo[0].filename;
+      const finalPath = path.join(__dirname, '../logos', newPhotoFilename);
+
+      try {
+        if (path.extname(req.files.photo[0].originalname).toLowerCase() === '.svg') {
+          await fs.promises.rename(tempPath, finalPath);
+        } else {
+          await sharp(tempPath)
+            .webp({ quality: 90 })
+            .resize({ width: 1024, withoutEnlargement: true })
+            .toFile(finalPath);
+          fs.unlink(tempPath, (err) => err && console.error('Error deleting temp file:', err));
+        }
+        photo = newPhotoFilename;
+
+        if (oldPhoto) {
+          const oldImagePath = path.join(__dirname, '../logos', oldPhoto);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+      } catch (err) {
+        fs.unlink(tempPath, (unlinkErr) => unlinkErr && console.error('Error deleting temp file after processing error:', unlinkErr));
+        return res.status(500).json({ message: 'Error processing uploaded photo', error: err.message });
+      }
+    }
+
     subSubCategory.category = category || subSubCategory.category;
-    subSubCategory.photo = photo || subSubCategory.photo;
+    subSubCategory.photo = photo;
     subSubCategory.alt = alt || subSubCategory.alt;
     subSubCategory.imgtitle = imgtitle || subSubCategory.imgtitle;
     subSubCategory.slug = slug || subSubCategory.slug;
@@ -336,7 +415,14 @@ const updatesubsubcategory = async (req, res) => {
     await categoryDoc.save();
     res.status(200).json(categoryDoc);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    if (newPhotoFilename) {
+      const newImagePath = path.join(__dirname, '../logos', newPhotoFilename);
+      if (fs.existsSync(newImagePath)) {
+        fs.unlinkSync(newImagePath);
+      }
+    }
+    console.error('Error updating sub-subcategory:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 }
 

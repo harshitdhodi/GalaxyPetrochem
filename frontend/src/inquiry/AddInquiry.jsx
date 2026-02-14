@@ -312,11 +312,10 @@ export default function AddInquiryForm({ onClose }) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {sources?.data?.map((source) => (
-                                                <SelectItem key={source._id} value={source.source}>
-                                                    {source.source}
-                                                </SelectItem>
-                                            ))}
+                                            <SelectItem value="website">Website</SelectItem>
+                                            <SelectItem value="facebook">Facebook</SelectItem>
+                                            <SelectItem value="instagram">Instagram</SelectItem>
+                                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,63 +16,83 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronLeft, ChevronRight, EllipsisVertical, MoreVertical, Plus } from "lucide-react";
-import FollowUpModal from "./FollowUpModel";
-import { useDeleteInquiryMutation } from "@/slice/inquiry/inquiry";
+import { ChevronLeft, ChevronRight, EllipsisVertical, Plus } from "lucide-react";
+import { useDeleteInquiryMutation as useDeleteGeneralInquiryMutation, useGetInquiriesQuery as useGetGeneralInquiriesQuery } from "@/slice/inquiry/inquiry";
+import { useGetInquiriesQuery as useGetProductInquiriesQuery, useDeleteInquiryMutation as useDeleteProductInquiryMutation } from "@/slice/inquiry/productInquiry";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useGetInquiriesQuery } from "@/slice/inquiry/inquiry";
-import { Link, Links } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useGetAllStatusesQuery } from "@/slice/status/status";
-import { Checkbox } from "@/components/ui/checkbox";
 import EmailForm from "@/email/emailForm/EmailForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Modal } from "antd";
 
-// Define all possible statuses
-const ALL_STATUSES = [
-    "Contact in Future",
-    "Pending",
-    "Completed",
-    "In Progress",
-    "New Inquiry",
-    "Rejected",
-    "On Hold"
-];
-
 export default function InquiryList() {
-    const { data: inquiryData = [], isLoading, isError } = useGetInquiriesQuery();
-    console.log(inquiryData)
+    // Fetch both general and product inquiries
+    const { data: generalInquiriesResponse, isLoading: isLoadingGeneral } = useGetGeneralInquiriesQuery();
+    const { data: productInquiriesResponse, isLoading: isLoadingProduct } = useGetProductInquiriesQuery();
+    
+    // Safely extract arrays from responses
+    const generalInquiriesData = Array.isArray(generalInquiriesResponse) 
+        ? generalInquiriesResponse 
+        : generalInquiriesResponse?.data || [];
+        
+    const productInquiriesData = Array.isArray(productInquiriesResponse) 
+        ? productInquiriesResponse 
+        : productInquiriesResponse?.inquiries || [];
+    
+    const [deleteGeneralInquiry] = useDeleteGeneralInquiryMutation();
+    const [deleteProductInquiry] = useDeleteProductInquiryMutation();
+    const { data: statuses } = useGetAllStatusesQuery();
+
+    // State for filters and pagination
     const [itemsPerPage, setItemsPerPage] = useState(15);
     const [currentPage, setCurrentPage] = useState(1);
-    const [data, setData] = useState(inquiryData);
-    const [deleteInquiry] = useDeleteInquiryMutation();
-    const { data: statuses, isLoading: statusesLoading } = useGetAllStatusesQuery();
-    console.log(statuses)
-    
-    // State for filters
     const [companyNameFilter, setCompanyNameFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState(null);
     const [sourceFilter, setSourceFilter] = useState(null);
     const [nameFilter, setNameFilter] = useState(null);
     const [emailFilter, setEmailFilter] = useState("");
     const [mobileFilter, setMobileFilter] = useState("");
-    const [cityFilter, setCityFilter] = useState("");
     const [selectedInquiries, setSelectedInquiries] = useState([]);
     const [showEmailModal, setShowEmailModal] = useState(false);
 
-    // Filtering function
-    const filteredData = inquiryData.filter(item => {
+    // Combine and normalize data from both sources
+    const combinedData = useMemo(() => {
+        const mappedGeneral = generalInquiriesData.map(item => ({
+            ...item,
+            type: 'General',
+            displayName: `${item.firstName} ${item.lastName}`,
+            isProductInquiry: false,
+        }));
+
+        const mappedProduct = productInquiriesData.map(item => ({
+            ...item,
+            type: 'Product',
+            displayName: item.name,
+            firstName: item.name, // For filtering consistency
+            lastName: '',
+            organisation: item.productName || 'N/A', // Use product name for organisation field
+            address: 'N/A',
+            status: 'Product Inquiry', // Assign a virtual status
+            isProductInquiry: true,
+        }));
+
+        return [...mappedGeneral, ...mappedProduct].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }, [generalInquiriesData, productInquiriesData]);
+
+    // Filtering function on combined data
+    const filteredData = combinedData.filter(item => {
         return (
             (companyNameFilter === "" ||
-                item.organisation.toLowerCase().includes(companyNameFilter.toLowerCase())) &&
+                (item.organisation && item.organisation.toLowerCase().includes(companyNameFilter.toLowerCase()))) &&
             (statusFilter === null || item.status === statusFilter) &&
             (sourceFilter === null || item.source === sourceFilter) &&
             (nameFilter === null || 
-                `${item.firstName} ${item.lastName}`.toLowerCase().includes(nameFilter.toLowerCase())) &&
+                (item.displayName && item.displayName.toLowerCase().includes(nameFilter.toLowerCase()))) &&
             (emailFilter === "" ||
-                item.email.toLowerCase().includes(emailFilter.toLowerCase())) &&
+                (item.email && item.email.toLowerCase().includes(emailFilter.toLowerCase()))) &&
             (mobileFilter === "" ||
-                item.phone.toLowerCase().includes(mobileFilter.toLowerCase()))
+                (item.phone && item.phone.toLowerCase().includes(mobileFilter.toLowerCase())))
         );
     });
 
@@ -82,19 +102,17 @@ export default function InquiryList() {
     const endIndex = startIndex + itemsPerPage;
     const paginatedData = filteredData.slice(startIndex, endIndex);
 
-    // Reset to page 1 when filters change
     const handleFilterChange = (setter) => (value) => {
         setter(value);
         setCurrentPage(1);
     };
 
-    // Get selected inquiry emails
     const selectedInquiryEmails = filteredData
         ?.filter((inquiry) => selectedInquiries.includes(inquiry._id))
         ?.map((inquiry) => inquiry.email)
         ?.join(", ");
 
-    const handleDelete = async (inquiryId) => {
+    const handleDelete = async (inquiryId, type) => {
         Modal.confirm({
             title: 'Are you sure you want to delete this inquiry?',
             content: 'This action cannot be undone.',
@@ -103,34 +121,16 @@ export default function InquiryList() {
             cancelText: 'No',
             onOk: async () => {
                 try {
-                    await deleteInquiry(inquiryId);
-                    setData(prevData => prevData.filter(item => item._id !== inquiryId));
+                    if (type === 'Product') {
+                        await deleteProductInquiry(inquiryId);
+                    } else {
+                        await deleteGeneralInquiry(inquiryId);
+                    }
                 } catch (error) {
                     console.error("Error deleting inquiry:", error);
                 }
             },
         });
-    };
-
-    // Handle status update for a specific inquiry
-    const handleStatusUpdate = (inquiry, newStatus) => {
-        setData(prevData =>
-            prevData.map(item =>
-                item.companyName === inquiry.companyName
-                    ? { ...item, status: newStatus }
-                    : item
-            )
-        );
-    };
-
-    const handleFollowUpAdded = (inquiry, newTotalTasks) => {
-        setData(prevData =>
-            prevData.map(item =>
-                item.companyName === inquiry.companyName
-                    ? { ...item, totalTasks: newTotalTasks }
-                    : item
-            )
-        );
     };
 
     const handleInquirySelect = (inquiryId) => {
@@ -141,17 +141,19 @@ export default function InquiryList() {
         );
     };
 
-    // Pagination handlers
     const goToFirstPage = () => setCurrentPage(1);
     const goToLastPage = () => setCurrentPage(totalPages);
     const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
     const goToPreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-    // Handle items per page change
     const handleItemsPerPageChange = (value) => {
         setItemsPerPage(Number(value));
-        setCurrentPage(1); // Reset to first page
+        setCurrentPage(1);
     };
+
+    if (isLoadingGeneral || isLoadingProduct) {
+        return <div>Loading inquiries...</div>;
+    }
 
     return (
         <div className="p-4">
@@ -213,8 +215,12 @@ export default function InquiryList() {
                                 value={statusFilter || "reset"}
                                 onValueChange={(value) => handleFilterChange(setStatusFilter)(value === "reset" ? null : value)}
                             >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by status" />
+                                </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="reset">All Statuses</SelectItem>
+                                    <SelectItem value="Product Inquiry">Product Inquiry</SelectItem>
                                     {statuses?.data?.map((status) => (
                                         <SelectItem key={status._id} value={status.status}>
                                             {status.status}
@@ -229,18 +235,19 @@ export default function InquiryList() {
                 </TableHeader>
                 <TableBody>
                     {paginatedData.map((item, index) => (
-                        <TableRow key={index} className="border-b">
+                        <TableRow key={item._id || index} className="border-b">
                             <TableCell className="sticky left-0 bg-background">{item.createdAt.slice(0, 10)}</TableCell>
                             <TableCell>
                                 <div className="space-y-1">
-                                    <div className="font-medium">{item.firstName} {item.lastName},</div>
-                                    {item.organisation} ,
+                                    <div className="font-medium">{item.displayName}</div>
+                                    <div>{item.organisation}</div>
                                     <div className="text-sm text-muted-foreground">
                                         {item.email}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
                                         {item.phone} • {item.address} 
                                     </div>
+                                    <div className="text-xs font-semibold uppercase text-blue-600">{item.type} Inquiry</div>
                                 </div>
                             </TableCell>
                             <TableCell>{item.message}</TableCell>
@@ -252,10 +259,14 @@ export default function InquiryList() {
                                         </button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-[160px]">
-                                        <Link to={`/edit-inquiry/${item._id}`}>
-                                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        </Link>
-                                        <DropdownMenuItem onClick={() => handleDelete(item._id)}>
+                                        {item.isProductInquiry ? (
+                                             <DropdownMenuItem disabled style={{ color: '#999' }}>Edit (N/A)</DropdownMenuItem>
+                                        ) : (
+                                            <Link to={`/edit-inquiry/${item._id}`}>
+                                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                            </Link>
+                                        )}
+                                        <DropdownMenuItem onClick={() => handleDelete(item._id, item.type)}>
                                             Delete
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -291,23 +302,10 @@ export default function InquiryList() {
                     </div>
                     
                     <div className="flex items-center gap-1">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={goToFirstPage}
-                            disabled={currentPage === 1}
-                            className="h-8 w-8 text-gray-800"
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            <ChevronLeft className="h-4 w-4 -ml-3" />
+                        <Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1} className="h-8 w-8 text-gray-800">
+                            <ChevronLeft className="h-4 w-4" /><ChevronLeft className="h-4 w-4 -ml-3" />
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={goToPreviousPage}
-                            disabled={currentPage === 1}
-                            className="h-8 w-8 text-gray-800"
-                        >
+                        <Button variant="outline" size="icon" onClick={goToPreviousPage} disabled={currentPage === 1} className="h-8 w-8 text-gray-800">
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
                         
@@ -317,24 +315,11 @@ export default function InquiryList() {
                             <span className="text-sm font-medium">{totalPages || 1}</span>
                         </div>
 
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={goToNextPage}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            className="h-8 w-8 text-gray-800"
-                        >
+                        <Button variant="outline" size="icon" onClick={goToNextPage} disabled={currentPage === totalPages || totalPages === 0} className="h-8 w-8 text-gray-800">
                             <ChevronRight className="h-4 w-4" />
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={goToLastPage}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            className="h-8 w-8"
-                        >
-                            <ChevronRight className="h-4 w-4 text-gray-800 " />
-                            <ChevronRight className="h-4 w-4 -ml-3 text-gray-800" />
+                        <Button variant="outline" size="icon" onClick={goToLastPage} disabled={currentPage === totalPages || totalPages === 0} className="h-8 w-8">
+                            <ChevronRight className="h-4 w-4 text-gray-800 " /><ChevronRight className="h-4 w-4 -ml-3 text-gray-800" />
                         </Button>
                     </div>
                 </div>

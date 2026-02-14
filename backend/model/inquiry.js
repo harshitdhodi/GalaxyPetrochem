@@ -9,10 +9,10 @@ const contactSchema = new mongoose.Schema({
     email: { type: String, required: true },
     message: { type: String, required: true },
     needCallback: { type: Boolean, default: false },
-    status: { type: String, default: '' },
+    status: { type: String, default: 'new' },
     organisation: { type: String, default: '' },
     department: { type: String, default: '' },
-    source: { type: String, default: '' }
+    source: { type: String, default: '', default: 'website' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('inquiry', contactSchema);

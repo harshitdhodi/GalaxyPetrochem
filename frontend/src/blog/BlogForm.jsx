@@ -9,8 +9,10 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useGetAllCategoriesQuery } from '@/slice/blog/blogCategory';
 import { ChevronRight } from 'lucide-react';
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 const generateSlug = (title) => {
   return title
@@ -40,7 +42,7 @@ export default function BlogForm() {
     title: '',
     date: '',
     details: '',
-    image: [],
+    image: null,
     alt: [],
     imageTitle: [],
     slug: '',
@@ -63,7 +65,7 @@ export default function BlogForm() {
     updatedAt: new Date(),
   });
 
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [imagePreview, setImagePreview] = useState('');
   const [formErrors, setFormErrors] = useState({});
 
   const { data: blog, isLoading: isFetching, error: fetchError } = useGetBlogByIdQuery(id, {
@@ -91,9 +93,19 @@ export default function BlogForm() {
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    setFormData((prev) => ({ ...prev, image: files }));
-    setImagePreviews(files.map((file) => URL.createObjectURL(file)));
+    const file = e.target.files?.[0];
+    setFormErrors((prev) => ({ ...prev, image: '' }));
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error('Image size must be 1MB or less.');
+        e.target.value = null; // Clear the file input
+        setFormData((prev) => ({ ...prev, image: null }));
+        setImagePreview('');
+        return;
+      }
+      setFormData((prev) => ({ ...prev, image: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   // ─── Validation ─────────────────────────────────────────────────────────────
@@ -105,8 +117,11 @@ export default function BlogForm() {
     if (!formData.date)            errors.date     = 'Date is required';
     if (!formData.details.trim() || formData.details === '<p><br></p>')
                                    errors.details  = 'Details are required';
-    if (!id && formData.image.length === 0)
-                                   errors.image    = 'At least one image is required';
+    if (!id && !formData.image) {
+      errors.image    = 'An image is required';
+    } else if (formData.image && formData.image.size > MAX_FILE_SIZE) {
+      errors.image = 'Image must be 1MB or less.';
+    }
     if (!formData.postedBy.trim()) errors.postedBy = 'Posted By is required';
     if (!formData.status)          errors.status   = 'Status is required';
     return errors;
@@ -127,7 +142,7 @@ export default function BlogForm() {
     const formDataToSubmit = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'image') {
-        value.forEach((file) => formDataToSubmit.append('image', file));
+        if (value) formDataToSubmit.append('image', value);
       } else if (Array.isArray(value)) {
         value.forEach((item) => formDataToSubmit.append(key, item));
       } else {
@@ -176,7 +191,7 @@ export default function BlogForm() {
         title:           blog.title           || '',
         date:            blog.date            || '',
         details:         blog.details         || '',
-        image:           [],
+        image:           null, // Always start with null for image file
         alt:             blog.alt             || [],
         imageTitle:      blog.imageTitle      || [],
         slug:            blog.slug            || '',
@@ -199,17 +214,20 @@ export default function BlogForm() {
         updatedAt:       blog.updatedAt       || new Date(),
       });
 
-      if (blog.image && Array.isArray(blog.image)) {
-        setImagePreviews(blog.image.map((img) => `/api/image/download/${img}`));
+      const firstImage = Array.isArray(blog.image) ? blog.image[0] : blog.image;
+      if (firstImage) {
+        setImagePreview(`/api/image/download/${firstImage}`);
       }
     }
   }, [blog]);
 
   useEffect(() => {
     return () => {
-      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
     };
-  }, [imagePreviews]);
+  }, [imagePreview]);
 
   // ─── Quill modules ──────────────────────────────────────────────────────────
 
@@ -342,32 +360,29 @@ export default function BlogForm() {
           )}
         </div>
 
-        {/* Images — required on create only */}
+        {/* Image — required on create only */}
         <div>
           <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Images{!id && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+            Image{!id && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
           </label>
           <Input
             id="image"
             type="file"
-            multiple
             onChange={handleFileChange}
             className={formErrors.image ? 'border-red-500' : ''}
             accept="image/*"
           />
+          <p className="text-xs text-gray-500 mt-1">Image should be 1MB or less.</p>
           {formErrors.image && (
             <p className="text-red-500 text-xs mt-1">{formErrors.image}</p>
           )}
-          {imagePreviews.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {imagePreviews.map((preview, index) => (
-                <img
-                  key={index}
-                  src={preview}
-                  alt={`Preview ${index + 1}`}
-                  className="h-16 w-16 object-cover rounded"
-                />
-              ))}
+          {imagePreview && (
+            <div className="mt-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="h-16 w-16 object-cover rounded"
+              />
             </div>
           )}
         </div>

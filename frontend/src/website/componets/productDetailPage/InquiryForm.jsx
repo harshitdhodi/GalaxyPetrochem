@@ -10,6 +10,50 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+// Input field component moved outside to prevent re-creation on render
+const InputField = ({ label, name, type = "text", maxLength, rows, value, onChange, onBlur, error, isTouched }) => {
+  const hasError = isTouched && error;
+  const InputComponent = rows ? 'textarea' : 'input';
+  
+  return (
+    <div className={rows ? 'md:col-span-2' : ''}>
+      <label className="block text-gray-700 text-sm font-semibold mb-2">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <InputComponent
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        maxLength={maxLength}
+        rows={rows}
+        className={`w-full border ${
+          hasError ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-400'
+        } p-2 rounded-lg focus:ring-2 focus:border-transparent transition duration-200 ${
+          rows ? 'resize-none' : ''
+        }`}
+        aria-invalid={hasError ? 'true' : 'false'}
+        aria-describedby={hasError ? `${name}-error` : undefined}
+      />
+      {hasError && (
+        <p id={`${name}-error`} className="text-red-500 text-sm mt-1 flex items-start">
+          <span className="mr-1">⚠️</span>
+          <span>{error}</span>
+        </p>
+      )}
+      {name === 'phone' && !hasError && (
+        <p className="text-gray-500 text-xs mt-1">Enter 10-12 digit phone number</p>
+      )}
+      {name === 'message' && (
+        <p className="text-gray-500 text-xs mt-1 text-right">
+          {value.length}/500 characters
+        </p>
+      )}
+    </div>
+  );
+};
+
 function InquiryForm({ productName, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -177,50 +221,6 @@ function InquiryForm({ productName, onClose }) {
     }
   };
 
-  // Input field component with error handling
-  const InputField = ({ label, name, type = "text", maxLength, rows }) => {
-    const hasError = touched[name] && errors[name];
-    const InputComponent = rows ? 'textarea' : 'input';
-    
-    return (
-      <div className={rows ? 'md:col-span-2' : ''}>
-        <label className="block text-gray-700 text-sm font-semibold mb-2">
-          {label} <span className="text-red-500">*</span>
-        </label>
-        <InputComponent
-          type={type}
-          name={name}
-          value={formData[name]}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          maxLength={maxLength}
-          rows={rows}
-          className={`w-full border ${
-            hasError ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-400'
-          } p-2 rounded-lg focus:ring-2 focus:border-transparent transition duration-200 ${
-            rows ? 'resize-none' : ''
-          }`}
-          aria-invalid={hasError ? 'true' : 'false'}
-          aria-describedby={hasError ? `${name}-error` : undefined}
-        />
-        {hasError && (
-          <p id={`${name}-error`} className="text-red-500 text-sm mt-1 flex items-start">
-            <span className="mr-1">⚠️</span>
-            <span>{errors[name]}</span>
-          </p>
-        )}
-        {name === 'phone' && !hasError && (
-          <p className="text-gray-500 text-xs mt-1">Enter 10-12 digit phone number</p>
-        )}
-        {name === 'message' && (
-          <p className="text-gray-500 text-xs mt-1 text-right">
-            {formData.message.length}/500 characters
-          </p>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="fixed inset-0 top-[16%] flex items-center justify-center bg-black bg-opacity-50 p-4 z-50">
       <div className="bg-white p-6 rounded-md shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -239,17 +239,17 @@ function InquiryForm({ productName, onClose }) {
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputField label="Name" name="name" maxLength={50} />
-            <InputField label="Email" name="email" type="email" />
-            <InputField label="Phone No" name="phone" type="tel" maxLength={12} />
-            <InputField label="Subject" name="subject" maxLength={100} />
-            <InputField label="Message" name="message" rows={4} maxLength={500} />
+            <InputField label="Name" name="name" maxLength={50} value={formData.name} onChange={handleChange} onBlur={handleBlur} error={errors.name} isTouched={touched.name} />
+            <InputField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} onBlur={handleBlur} error={errors.email} isTouched={touched.email} />
+            <InputField label="Phone No" name="phone" type="tel" maxLength={12} value={formData.phone} onChange={handleChange} onBlur={handleBlur} error={errors.phone} isTouched={touched.phone} />
+            <InputField label="Subject" name="subject" maxLength={100} value={formData.subject} onChange={handleChange} onBlur={handleBlur} error={errors.subject} isTouched={touched.subject} />
+            <InputField label="Message" name="message" rows={4} maxLength={500} value={formData.message} onChange={handleChange} onBlur={handleBlur} error={errors.message} isTouched={touched.message} />
           </div>
 
           <div className="flex flex-col space-y-4 pt-2">
             <div className="flex items-start">
               <ReCAPTCHA
-                sitekey={import.meta.env.VITE_SITE_KEY}
+                sitekey={import.meta.env.VITE_SITE_KEY ||"6LexMmssAAAAAFlDk9jBlFy1NxeJhaIlIs2OaiFm"}
                 onChange={(value) => {
                   setCaptchaValue(value);
                   if (value) setServerError('');

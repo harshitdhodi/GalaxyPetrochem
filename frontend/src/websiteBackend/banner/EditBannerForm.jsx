@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, message, Upload, Select, Breadcrumb } from 'antd';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useGetBannerByIdQuery, useUpdateBannerMutation, useGetAllBannersQuery } from '../../slice/banner/banner';
-import JoditEditor from 'jodit-react'; // Import JoditReact
+import JoditEditor from 'jodit-react';
 import { UploadOutlined, HomeOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -12,8 +12,8 @@ const EditBannerForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const pageSlug = Form.useWatch('pageSlug', form);
   const [imageChanged, setImageChanged] = useState(false);
-  const [photoChanged, setPhotoChanged] = useState(false);
   const [menuList, setMenuList] = useState([]);
   const { data: banner, isLoading, refetch } = useGetBannerByIdQuery(id);
   const [updateBanner] = useUpdateBannerMutation();
@@ -80,16 +80,13 @@ const EditBannerForm = () => {
   useEffect(() => {
     if (banner) {
       form.setFieldsValue({
-        title: banner.title,
+        title: banner.title === 'undefined' || !banner.title ? 'No Title' : banner.title,
         altName: banner.altName,
-        details: banner.details,
+        details: banner.details === 'undefined' || !banner.details ? '' : banner.details,
         imgName: banner.imgName,
         pageSlug: banner.pageSlug || '',
         image: banner.image
           ? [{ name: banner.imgName, url: `/api/image/download/${banner.image}` }]
-          : [],
-        photo: banner.photo
-          ? [{ name: banner.photoName, url: `/api/image/download/${banner.photo}` }]
           : [],
       });
     }
@@ -99,28 +96,12 @@ const EditBannerForm = () => {
     const isLt1M = file.size <= MAX_FILE_SIZE;
     if (!isLt1M) {
       message.error('Image must be smaller than 1MB!');
-      return Upload.LIST_IGNORE; // Prevent upload
+      return Upload.LIST_IGNORE;
     }
-    return false; // Prevent auto upload
-  };
-
-  const beforeUploadPhoto = (file) => {
-    const isLt1M = file.size <= MAX_FILE_SIZE;
-    if (!isLt1M) {
-      message.error('Photo must be smaller than 1MB!');
-      return Upload.LIST_IGNORE; // Prevent upload
-    }
-    return false; // Prevent auto upload
+    return false;
   };
 
   const handleImageChange = (info) => {
-    const file = info.fileList[0];
-    
-    // Check file size
-    if (file?.originFileObj && file.size > MAX_FILE_SIZE) {
-      return;
-    }
-
     setImageChanged(true);
     form.setFieldsValue({
       imgName: info.file?.name || '',
@@ -128,21 +109,13 @@ const EditBannerForm = () => {
     });
   };
 
-  const handlePhotoChange = (info) => {
-    const file = info.fileList[0];
-    
-    // Check file size
-    if (file?.originFileObj && file.size > MAX_FILE_SIZE) {
+  const onFinish = async (values) => {
+    // Final validation before submission
+    if (values.image?.[0]?.originFileObj && values.image[0].originFileObj.size > MAX_FILE_SIZE) {
+      message.error('Banner Image is too large! Must be 1MB or less.');
       return;
     }
 
-    setPhotoChanged(true);
-    form.setFieldsValue({
-      photo: info.fileList,
-    });
-  };
-
-  const onFinish = async (values) => {
     try {
       if (!values.title?.trim()) {
         message.error('Title is required');
@@ -166,12 +139,6 @@ const EditBannerForm = () => {
         formData.append('imgName', values.imgName || banner.imgName);
       }
 
-      if (photoChanged && values.photo?.[0]?.originFileObj) {
-        formData.append('photo', values.photo[0].originFileObj);
-      } else if (banner.photo) {
-        formData.append('photo', banner.photo);
-      }
-
       formData.append('title', values.title.trim());
       formData.append('altName', values.altName.trim());
       formData.append('details', values.details?.trim() || '');
@@ -180,15 +147,15 @@ const EditBannerForm = () => {
       await updateBanner({
         id,
         bannerData: formData,
-      });
+      }).unwrap();
 
       message.success('Banner updated successfully');
       refetch();
       refetchAllBanners();
       navigate('/banner-table');
     } catch (error) {
-      console.error(error);
-      message.error('Failed to update banner');
+      console.error('Error updating banner:', error);
+      message.error(error.data?.message || 'Failed to update banner');
     }
   };
 
@@ -222,9 +189,6 @@ const EditBannerForm = () => {
             pageSlug: banner?.pageSlug || '',
             image: banner?.image
               ? [{ name: banner.imgName, url: `/api/image/download/${banner.image}` }]
-              : [],
-            photo: banner?.photo
-              ? [{ name: banner.photoName, url: `/api/photo/download/${banner.photo}` }]
               : [],
           }}
         >
@@ -267,30 +231,6 @@ const EditBannerForm = () => {
           </Form.Item>
 
           <Form.Item
-            name="photo"
-            label="Photo"
-            valuePropName="fileList"
-            getValueFromEvent={(e) => e && e.fileList}
-            extra="Photo size must be 1MB or less"
-          >
-            <Upload
-              maxCount={1}
-              listType="picture"
-              beforeUpload={beforeUploadPhoto}
-              onChange={handlePhotoChange}
-              defaultFileList={
-                banner?.photo
-                  ? [{ name: banner.photoName, url: `/api/photo/download/${banner.photo}` }]
-                  : []
-              }
-            >
-              <Button icon={<UploadOutlined />}>
-                {photoChanged ? 'Change Photo (Max 1MB)' : 'Upload New Photo (Max 1MB)'}
-              </Button>
-            </Upload>
-          </Form.Item>
-
-          <Form.Item
             name="imgName"
             label="Image Name"
             rules={[{ required: true, message: 'Please input image name!' }]}
@@ -320,9 +260,9 @@ const EditBannerForm = () => {
             rules={[{ message: 'Please input details!' }]}
           >
             <JoditEditor
-              value={form.getFieldValue('details') || ''} // Set initial value
+              value={form.getFieldValue('details') || ''}
               config={editorConfig}
-              onBlur={(newContent) => form.setFieldsValue({ details: newContent })} // Update form on content change
+              onBlur={(newContent) => form.setFieldsValue({ details: newContent })}
             />
           </Form.Item>
 

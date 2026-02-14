@@ -36,6 +36,7 @@ const StatsTable = () => {
 
   return (
     <div className="overflow-x-auto mt-6">
+      <h2 className="text-2xl font-bold mb-4">Manage About Info</h2>
       <table className="min-w-full table-auto border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100 text-left">
@@ -57,14 +58,9 @@ const StatsTable = () => {
                   className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 flex items-center gap-1"
                 >
                   <Edit size={16} />
-                  Edit
+                 
                 </button>
-                <button
-                  onClick={() => handleDelete(stat._id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
+               
               </td>
             </tr>
           ))}

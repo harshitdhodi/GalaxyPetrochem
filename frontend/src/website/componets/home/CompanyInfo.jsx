@@ -8,7 +8,8 @@ import ReadMoreButton from "./slideshow/ReadMoreButton";
 
 export default function CompanyInfo() {
   const [aboutData, setAboutData] = useState(null);
-
+const url = location.pathname.replace(/^\//, '') || 'about-us';
+console.log("Current URL path:", url);
   useEffect(() => {
     axios.get("/api/aboutus/getAll")
       .then(res => {
@@ -88,7 +89,8 @@ export default function CompanyInfo() {
               >
                 Our Brands
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link> 
+              </Link>
+              {url !== 'about-us' && (
               <Link
                 to="/about-us"
                 className="inline-flex h-12 items-center justify-center border border-gray-200 rounded-lg bg-white px-8 text-base font-medium text-gray-700 shadow transition group hover:bg-[#e84c20] hover:text-white hover:translate-y-[-2px]"
@@ -96,6 +98,7 @@ export default function CompanyInfo() {
                 Read More
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Link> 
+              )}
             </div>
           </div>
         </div>

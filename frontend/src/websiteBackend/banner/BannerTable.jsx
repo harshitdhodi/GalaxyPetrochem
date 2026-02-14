@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, message, Breadcrumb, Input } from 'antd';
+import { Table, Button, Space, message, Breadcrumb, Input, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, HomeOutlined, SearchOutlined } from '@ant-design/icons';
 import { useGetAllBannersQuery, useDeleteBannerMutation } from '../../slice/banner/banner';
 import { useNavigate, Link } from 'react-router-dom';
@@ -12,17 +12,20 @@ const BannerTable = () => {
 
   const handleDelete = async (id) => {
     try {
-      await deleteBanner(id);
+      await deleteBanner(id).unwrap();
       message.success('Banner deleted successfully');
     } catch (error) {
-      message.error('Failed to delete banner');
+      message.error(error.data?.message || 'Failed to delete banner');
     }
   };
 
-  // Filter data based on search text (trimmed)
-  const filteredData = bannerData?.filter((banner) =>
-    banner.title?.toLowerCase().includes(searchText.trim().toLowerCase())
-  );
+  // Filter data based on search text (safely handling undefined titles)
+  const filteredData = bannerData?.filter((banner) => {
+    const title = banner.title && banner.title !== 'undefined' ? banner.title : '';
+    return title.toLowerCase().includes(searchText.trim().toLowerCase());
+  });
+console.log('Banner data:', bannerData);
+  console.log('Filtered data:', filteredData);
 
   const columns = [
     {
@@ -43,6 +46,7 @@ const BannerTable = () => {
       dataIndex: 'title',
       key: 'title',
       width: '20%',
+      render: (title) => (title && title !== 'undefined' ? title : 'No Title'),
     },
     {
       title: 'Page Slug',
@@ -61,11 +65,18 @@ const BannerTable = () => {
             icon={<EditOutlined />}
             onClick={() => navigate(`/edit-banner-form/${record._id}`)}
           />
-          <Button 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record._id)}
-          />
+          <Popconfirm
+            title="Delete the banner"
+            description="Are you sure you want to delete this banner?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button 
+              danger 
+              icon={<DeleteOutlined />}
+            />
+          </Popconfirm>
         </Space>
       ),
     },
