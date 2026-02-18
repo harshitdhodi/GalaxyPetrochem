@@ -94,13 +94,6 @@ const UpdatePetrochemicalProduct = () => {
         // Debug: Log formData.images
         console.log('formData.images after fetch:', JSON.stringify(images, null, 2));
 
-        // Fetch subcategories
-        if (categoryId) {
-          await fetchSubcategories(categoryId);
-        } else {
-          setSubcategories([]);
-        }
-
         setLoading(false);
         toast.success('Product data loaded successfully');
       } catch (err) {
@@ -126,6 +119,20 @@ const UpdatePetrochemicalProduct = () => {
     fetchBrands();
   }, [id]);
 
+  // Set subcategories when category or categories data changes
+  useEffect(() => {
+    if (formData.categoryId && categories) {
+      const parentCategory = categories.find((cat) => cat._id === formData.categoryId);
+      if (parentCategory && parentCategory.subCategories) {
+        setSubcategories(parentCategory.subCategories);
+      } else {
+        setSubcategories([]);
+      }
+    } else {
+      setSubcategories([]);
+    }
+  }, [formData.categoryId, categories]);
+
   // Handle file change
   const handleFileChange = (e, fieldName) => {
     const file = e.target.files[0];
@@ -138,25 +145,8 @@ const UpdatePetrochemicalProduct = () => {
     }
   };
 
-  // Fetch subcategories when category changes
-  const fetchSubcategories = async (categoryId) => {
-    if (!categoryId) {
-      setSubcategories([]);
-      return;
-    }
-    try {
-      const response = await axios.get(`/api/subcategories?categoryId=${categoryId}`);
-      const data = Array.isArray(response.data) ? response.data : [];
-      setSubcategories(data);
-    } catch (err) {
-      console.error('Error fetching subcategories:', err);
-      toast.error('Failed to load subcategories');
-      setSubcategories([]);
-    }
-  };
-
   // Handle category change
-  const handleCategoryChange = async (e) => {
+  const handleCategoryChange = (e) => {
     const categoryId = e.target.value || '';
     const selectedCategory = categories?.find((cat) => cat._id === categoryId);
     setFormData((prev) => ({
@@ -166,12 +156,6 @@ const UpdatePetrochemicalProduct = () => {
       subCategoryId: '',
       subCategorySlug: '',
     }));
-
-    if (categoryId) {
-      await fetchSubcategories(categoryId);
-    } else {
-      setSubcategories([]);
-    }
   };
 
   // Handle subcategory change
