@@ -107,7 +107,6 @@ const MediaFiles = ({ product, handleImageChange, handleFileChange }) => {
           id="imageUpload"
           accept="image/*"
           onChange={handleFileInputChange}
-          multiple
         />
         <p className="text-sm text-gray-500">
           Max 1MB per image 

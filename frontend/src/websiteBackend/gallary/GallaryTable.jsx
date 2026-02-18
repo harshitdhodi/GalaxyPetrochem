@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Trash2, Plus, Search, X, Upload } from 'lucide-react';
 
 // Table Component
-const GalleryTable = ({ galleries, filteredGalleries, loading, error, openModal, deleteGallery, formatDate, handleImageError }) => {
+// At the top of your GalleryTable component, destructure with a default:
+const GalleryTable = ({ galleries = [], loading, onEdit, onDelete, formatDate, handleImageError, openModal }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       {loading ? (
@@ -24,7 +25,7 @@ const GalleryTable = ({ galleries, filteredGalleries, loading, error, openModal,
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredGalleries.length === 0 ? (
+              {galleries.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
@@ -36,7 +37,7 @@ const GalleryTable = ({ galleries, filteredGalleries, loading, error, openModal,
                   </td>
                 </tr>
               ) : (
-                filteredGalleries.map((item) => (
+                galleries.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="relative">
@@ -78,7 +79,11 @@ const GalleryTable = ({ galleries, filteredGalleries, loading, error, openModal,
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => deleteGallery(item._id)}
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to delete this item?')) {
+                              onDelete(item._id);
+                            }
+                          }}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete Item"
                         >

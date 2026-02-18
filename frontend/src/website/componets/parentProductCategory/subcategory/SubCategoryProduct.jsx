@@ -5,8 +5,8 @@ import SubCategoryProductCard from "./SubCategoryProductCard";
 import SubCategoryProductListCard from "./SubCategoryProductListCard";
 import Breadcrumb from "../../SubCategoryPage/BreadCrumb";
 import { Banner } from "../../Banner";
-import banner from "../../../../assets/petrochemical.webp";
-
+// import banner from "../../../../../src/assets/petrochemical2.webp";
+import noImageAvailable from "../../../../../src/assets/no-image-available.svg";
 function SubCategoryProduct() {
     const { slug } = useParams();
     const location = useLocation();
@@ -193,8 +193,7 @@ function SubCategoryProduct() {
                 {banners && banners.length > 0 ? (
                     <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={categoryData?.category} />
                 ) : (
-                    <Banner imageUrl={banner} title={categoryData?.category || "Default Title"} />
-                )}
+               <Banner imageUrl={noImageAvailable} />  )}
 
                 {/* Breadcrumb below the banner */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 mt-5 z-10">

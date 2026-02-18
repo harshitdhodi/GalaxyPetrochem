@@ -1,5 +1,6 @@
 // controllers/userPhotoController.js
 const UserPhoto = require('../model/brands');
+const Product = require('../model/petrochemProduct');
 const fs = require('fs');
 const path = require('path');
 
@@ -92,9 +93,12 @@ exports.deleteUserPhoto = async (req, res) => {
       if (fs.existsSync(photoPath)) fs.unlinkSync(photoPath);
     }
 
+    // Delete all products associated with this brand
+    await Product.deleteMany({ brandId: req.params.id });
+
     await UserPhoto.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'User deleted' });
+    res.status(200).json({ message: 'Brand and associated products deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting user', error: error.message });
+    res.status(500).json({ message: 'Error deleting brand', error: error.message });
   }
 };

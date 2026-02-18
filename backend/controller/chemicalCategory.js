@@ -459,10 +459,13 @@ const deletecategory = async (req, res) => {
       });
     });
 
+    // Delete all products associated with this category
+    await Product.deleteMany({ categoryId: id });
+
     // Delete the whole category document (subcategories are embedded, so they go too)
     await ProductCategory.findByIdAndDelete(id);
 
-    res.status(200).json({ message: 'Category and all subcategories deleted successfully' });
+    res.status(200).json({ message: 'Category, all subcategories, and associated products deleted successfully' });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Server error', error });
@@ -515,14 +518,11 @@ const deletesubcategory = async (req, res) => {
 
     await categoryDoc.save();
 
-    // Clean up references in Product documents
-    await Product.updateMany(
-      { subcategories: subCategoryId },
-      { $pull: { subcategories: subCategoryId } }
-    );
+    // Delete all products associated with this subcategory
+    await Product.deleteMany({ subCategoryId: subCategoryId });
 
     return res.status(200).json({
-      message: 'Subcategory deleted successfully and references removed from products'
+      message: 'Subcategory and associated products deleted successfully'
     });
 
   } catch (error) {
@@ -573,13 +573,11 @@ const deletesubsubcategory = async (req, res) => {
 
     await categoryDoc.save();
 
-    await Product.updateMany(
-      { subSubcategories: subSubCategoryId },
-      { $pull: { subSubcategories: subSubCategoryId } }
-    );
+    // Delete all products associated with this sub-subcategory
+    await Product.deleteMany({ subSubcategoryId: subSubCategoryId });
 
     res.status(200).json({ 
-      message: 'SubSubcategory deleted successfully and references removed from products' 
+      message: 'Sub-subcategory and associated products deleted successfully' 
     });
 
   } catch (error) {

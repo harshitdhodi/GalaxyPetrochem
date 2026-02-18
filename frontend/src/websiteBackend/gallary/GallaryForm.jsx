@@ -1,20 +1,68 @@
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 
-const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, formData, formErrors, submitting, handleSubmit, handleInputChange, handleFileChange, formatDate }) => {
-  // Set image preview for edit mode
+const GalleryForm = ({
+  isModalOpen,
+  setIsModalOpen,
+  modalMode,
+  selectedItem,
+  formData,
+  formErrors,
+  submitting,
+  handleSubmit,
+  handleInputChange,
+  handleFileChange,
+  formatDate
+}) => {
+  const [localErrors, setLocalErrors] = useState({});
+  const prevSubmittingRef = useRef(false);
+
   useEffect(() => {
-    if (modalMode === 'edit' && selectedItem?.image) {
-      // Construct the image URL using the API endpoint
-      const imageUrl = `/api/logo/download/${encodeURIComponent(selectedItem.image)}`;
-      handleInputChange('imagePreview', imageUrl);
+    if (modalMode === 'edit' && selectedItem) {
+      handleInputChange('title', selectedItem.title || '');
+      handleInputChange('altName', selectedItem.altName || '');
+      handleInputChange('imgTitle', selectedItem.imgTitle || '');
+      if (selectedItem.image) {
+        const imageUrl = `/api/logo/download/${encodeURIComponent(selectedItem.image)}`;
+        handleInputChange('imagePreview', imageUrl);
+      }
     } else if (modalMode === 'create') {
-      // Clear image preview in create mode if no file is selected
       if (!formData.image) {
         handleInputChange('imagePreview', '');
       }
+      setLocalErrors({});
     }
-  }, [modalMode, selectedItem, handleInputChange, formData.image]);
+  }, [modalMode, selectedItem]);
+
+  const onLocalSubmit = () => {
+    const errors = {};
+
+    if (!formData.title || !formData.title.toString().trim()) {
+      errors.title = 'Title is required';
+    }
+    if (!formData.altName || !formData.altName.toString().trim()) {
+      errors.altName = 'Alt name is required';
+    }
+    if (!formData.imgTitle || !formData.imgTitle.toString().trim()) {
+      errors.imgTitle = 'Image title is required';
+    }
+
+    // ✅ Image only required in create mode
+    if (modalMode === 'create' && !formData.image) {
+      errors.image = 'Image file is required';
+    }
+
+    setLocalErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      handleSubmit({ preventDefault: () => {} });
+    }
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setLocalErrors({});
+  };
 
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 ${isModalOpen ? '' : 'hidden'}`}>
@@ -22,13 +70,10 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {modalMode === 'create' ? 'Add New Gallery Item' : 
+              {modalMode === 'create' ? 'Add New Gallery Item' :
                modalMode === 'edit' ? 'Edit Gallery Item' : 'Gallery Item Details'}
             </h2>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
+            <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -69,9 +114,9 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
           ) : (
             <div className="space-y-6">
               {formData.imagePreview ? (
-                <img 
-                  src={formData.imagePreview} 
-                  alt="Preview" 
+                <img
+                  src={formData.imagePreview}
+                  alt="Preview"
                   className="h-32 w-auto object-cover rounded"
                   loading="lazy"
                 />
@@ -80,6 +125,7 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                   <span className="text-gray-400">No image selected</span>
                 </div>
               )}
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -89,22 +135,24 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                     type="text"
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.title ? 'border-red-500' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${(formErrors.title || localErrors.title) ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Enter gallery item title"
                   />
-                  {formErrors.title && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>
+                  {(formErrors.title || localErrors.title) && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.title || localErrors.title}</p>
                   )}
                 </div>
+
                 <div>
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">Image</label>
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Image {modalMode === 'create' && <span className="text-red-500">*</span>}
+                    {modalMode === 'edit' && <span className="text-gray-400 text-xs font-normal ml-1">(leave empty to keep current)</span>}
+                  </label>
                   <div className="flex items-center">
                     <label className="cursor-pointer bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 transition-colors">
                       <span className="text-gray-700">{formData.image ? 'Change Image' : 'Choose Image'}</span>
                       <input
                         type="file"
-                        id="image"
-                        name="image"
                         accept="image/*"
                         className="hidden"
                         onChange={handleFileChange}
@@ -114,10 +162,11 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                       <span className="ml-2 text-sm text-gray-600">{formData.image.name || 'Selected'}</span>
                     )}
                   </div>
-                  {formErrors.image && (
-                    <p className="text-red-500 text-xs italic mt-1">{formErrors.image}</p>
+                  {(formErrors.image || localErrors.image) && (
+                    <p className="text-red-500 text-xs italic mt-1">{formErrors.image || localErrors.image}</p>
                   )}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Alt Name <span className="text-red-500">*</span>
@@ -126,13 +175,14 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                     type="text"
                     value={formData.altName}
                     onChange={(e) => handleInputChange('altName', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.altName ? 'border-red-500' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${(formErrors.altName || localErrors.altName) ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="alt-name-for-seo"
                   />
-                  {formErrors.altName && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.altName}</p>
+                  {(formErrors.altName || localErrors.altName) && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.altName || localErrors.altName}</p>
                   )}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Image Title <span className="text-red-500">*</span>
@@ -141,18 +191,19 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                     type="text"
                     value={formData.imgTitle}
                     onChange={(e) => handleInputChange('imgTitle', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.imgTitle ? 'border-red-500' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${(formErrors.imgTitle || localErrors.imgTitle) ? 'border-red-500' : 'border-gray-300'}`}
                     placeholder="Descriptive image title"
                   />
-                  {formErrors.imgTitle && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.imgTitle}</p>
+                  {(formErrors.imgTitle || localErrors.imgTitle) && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.imgTitle || localErrors.imgTitle}</p>
                   )}
                 </div>
               </div>
+
               <div className="flex gap-3 pt-6 border-t">
                 <button
                   type="button"
-                  onClick={handleSubmit}
+                  onClick={onLocalSubmit}
                   disabled={submitting}
                   className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
@@ -162,14 +213,12 @@ const GalleryForm = ({ isModalOpen, setIsModalOpen, modalMode, selectedItem, for
                       {modalMode === 'create' ? 'Creating...' : 'Updating...'}
                     </>
                   ) : (
-                    <>
-                      {modalMode === 'create' ? 'Create Item' : 'Update Item'}
-                    </>
+                    modalMode === 'create' ? 'Create Item' : 'Update Item'
                   )}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={handleClose}
                   disabled={submitting}
                   className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

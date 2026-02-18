@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { Breadcrumb } from "../../category_subcategory/BreadCrumb";
 import { Banner } from "../../Banner";
-import banner from "../../../../assets/banner.webp";
+import noImageAvailable from "../../../../assets/no-image-available.svg";
 import SubCategoryProductListCard from "./SubCategoryProductListCard";
 
 function SubCategoryProductList() {
@@ -102,7 +102,7 @@ function SubCategoryProductList() {
         {banners && banners.length > 0 ? (
           <Banner imageUrl={`/api/image/download/${banners[0].image}`} title={categoryData?.slug} />
         ) : (
-          <Banner imageUrl={banner} />
+          <Banner imageUrl={noImageAvailable} />
         )}
 
         {/* Breadcrumb - centered horizontally, below the title */}

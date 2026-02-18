@@ -160,8 +160,8 @@ export default function BlogPage() {
               const hasValidImage = isValidImageUrl(imageUrl);
 
               return (
-                <Link to={`/${blog.slug}`} key={blog._id}>
-                  <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4">
+                <Link to={`/${blog.slug}`} key={blog._id} className="h-full">
+                  <div className="bg-white border rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-300 p-4 h-full flex flex-col">
                     {hasValidImage ? (
                       <img
                         src={imageUrl}
@@ -193,7 +193,7 @@ export default function BlogPage() {
                         <p>{blog.visits}</p>
                       </div>
                     </div>
-                    <p className="text-gray-700 my-4 line-clamp-3">
+                    <p className="text-gray-700 my-4 line-clamp-3 flex-grow">
                       {blog.details.replace(/<[^>]*>/g, '').slice(0, 120)}...
                     </p>
 

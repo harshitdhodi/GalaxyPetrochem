@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
 import axios from "axios";
-import company from "../../../assets/petrochemical.webp";
 import { ArrowRight, Award, Clock, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReadMoreButton from "./slideshow/ReadMoreButton";

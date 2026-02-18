@@ -74,7 +74,7 @@ export default function SearchSections() {
     const formattedSearchTerm = searchTerm.toLowerCase().replace(/\s+/g, "-");
   
     // Redirect to the search page with query parameters
-    navigate(`/search?name=${encodeURIComponent(formattedSearchTerm)}`);
+    navigate(`/search?tab=${encodeURIComponent(formattedSearchTerm)}`);
   };
   
   

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { useAddCategoryMutation, useAddSubCategoryMutation, useAddSubSubCategoryMutation } from '@/slice/chemicalSlice/chemicalCategory';
+import { useAddCategoryMutation, useAddSubCategoryMutation } from '@/slice/chemicalSlice/chemicalCategory';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,7 +10,6 @@ const NewCategoryForm = () => {
     const [photo, setPhoto] = useState(null);
     const [altText, setAltText] = useState("");
     const [parentCategoryId, setParentCategoryId] = useState("");
-    const [subCategoryId, setSubCategoryId] = useState("");
     const [categories, setCategories] = useState([]);
     const [priority, setPriority] = useState("");
     const [status, setStatus] = useState("active");
@@ -30,7 +29,6 @@ const NewCategoryForm = () => {
 
     const [addCategory] = useAddCategoryMutation();
     const [addSubCategory] = useAddSubCategoryMutation();
-    const [addSubSubCategory] = useAddSubSubCategoryMutation();
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
@@ -68,17 +66,12 @@ const NewCategoryForm = () => {
 
     const generateUrl = () => {
         let baseUrl = "https://www.galaxypetro.in";
-        if (parentCategoryId && !subCategoryId) {
-            return `${baseUrl}/${slug}`;
-        } else if (parentCategoryId && subCategoryId) {
-            return `${baseUrl}/${slug}`;
-        }
         return `${baseUrl}/${slug}`;
     };
 
     useEffect(() => {
         setUrl(generateUrl());
-    }, [slug, parentCategoryId, subCategoryId]);
+    }, [slug, parentCategoryId]);
     
     useEffect(() => {
         setSlug(category.replace(/\s+/g, '-')
@@ -122,15 +115,9 @@ const NewCategoryForm = () => {
             formData.append('changeFreq', changeFreq);
             formData.append('status', status);
 
-            if (parentCategoryId && !subCategoryId) {
+            if (parentCategoryId) {
                 await addSubCategory({ 
                     categoryId: parentCategoryId, 
-                    formData 
-                }).unwrap();
-            } else if (parentCategoryId && subCategoryId) {
-                await addSubSubCategory({ 
-                    categoryId: parentCategoryId, 
-                    subCategoryId,
                     formData 
                 }).unwrap();
             } else {
@@ -142,7 +129,6 @@ const NewCategoryForm = () => {
             setPhoto(null);
             setAltText("");
             setParentCategoryId("");
-            setSubCategoryId("");
             setSlug("");
             setStatus("active");
             setMetatitle("");
@@ -186,31 +172,7 @@ const NewCategoryForm = () => {
     const handleParentCategoryChange = (e) => {
         const selectedCategoryId = e.target.value;
         setParentCategoryId(selectedCategoryId);
-        setSubCategoryId("");
     };
-
-    const handleSubCategoryChange = (e) => {
-        const selectedSubCategoryId = e.target.value;
-        setSubCategoryId(selectedSubCategoryId);
-    };
-
-    const findCategoryById = (categories, id) => {
-        for (const category of categories) {
-            if (category._id === id) return category;
-            if (category.subCategories) {
-                const subCategory = findCategoryById(category.subCategories, id);
-                if (subCategory) return subCategory;
-            }
-        }
-        return null;
-    };
-
-    const findSubCategories = (categories, parentCategoryId) => {
-        const parentCategory = findCategoryById(categories, parentCategoryId);
-        return parentCategory ? parentCategory.subCategories : [];
-    };
-
-    const subCategories = findSubCategories(categories, parentCategoryId);
 
     return (
         <>
@@ -244,27 +206,6 @@ const NewCategoryForm = () => {
                         {categories.map(renderCategoryOptions)}
                     </select>
                 </div>
-                
-                {subCategories.length > 0 && (
-                    <div className="mb-4">
-                        <label htmlFor="subCategory" className="block font-semibold mb-2">
-                            Subcategory (optional)
-                        </label>
-                        <select
-                            id="subCategory"
-                            value={subCategoryId}
-                            onChange={handleSubCategoryChange}
-                            className="w-full p-2 border rounded focus:outline-none"
-                        >
-                            <option value="">Select Subcategory</option>
-                            {subCategories.map((subCategory) => (
-                                <option key={subCategory._id} value={subCategory._id}>
-                                    {subCategory.category}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                )}
                 
                 <div className="mb-4">
                     <label htmlFor="title" className="block font-semibold mb-2">

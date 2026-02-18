@@ -36,6 +36,7 @@ const menuData = [
       { title: "Add New", icon: "Plus", url: "/add-inquiry" },
     ]
   },
+
   {
     title: "Website",
     icon: "Globe",
@@ -120,7 +121,7 @@ const menuData = [
         title: "WhatsUp Info",
         icon: "Info",
         children: [
-          { title: "Add New", icon: "Plus", url: "/whatsUpInfo-form" }
+          { title: "Update Info", icon: "Plus", url: "/whatsUpInfo-form" }
         ]
       },
       {

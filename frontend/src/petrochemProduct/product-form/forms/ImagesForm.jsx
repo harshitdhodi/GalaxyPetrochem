@@ -92,13 +92,13 @@ const ImagesForm = ({ formData, setFormData }) => {
     <div className="bg-gray-50 p-4 rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Images</h2>
-        <button
+        {/* <button
           type="button"
           onClick={addImage}
           className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
         >
           Add Image
-        </button>
+        </button> */}
       </div>
 
       {formData.images.length === 0 ? (
