@@ -34,6 +34,25 @@ const GalleryForm = ({
     }
   }, [modalMode, selectedItem]);
 
+  const onFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+
+    if (file.size > MAX_SIZE) {
+      setLocalErrors(prev => ({ ...prev, image: `File size must not exceed 1MB. Your file is ${(file.size / (1024*1024)).toFixed(2)}MB.` }));
+      e.target.value = null; // Reset file input
+      handleInputChange('image', null);
+      handleInputChange('imagePreview', '');
+    } else {
+      const newErrors = { ...localErrors };
+      delete newErrors.image;
+      setLocalErrors(newErrors);
+      handleFileChange(e); // Pass valid file to parent handler
+    }
+  };
+
   const onLocalSubmit = () => {
     const errors = {};
 
@@ -155,7 +174,7 @@ const GalleryForm = ({
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={handleFileChange}
+                        onChange={onFileChange}
                       />
                     </label>
                     {formData.image && (

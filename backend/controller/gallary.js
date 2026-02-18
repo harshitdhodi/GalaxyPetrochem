@@ -85,7 +85,7 @@ exports.updateItem = async (req, res) => {
     // Handle image if uploaded
     if (req.files && req.files.image) {
       const image = req.files.image[0].filename;
-      updateData.image = `/logos/${image}`; // Store relative path to the image
+      updateData.image = `${image}`; // Store relative path to the image
 
       // Optionally delete the old image
       const existingItem = await Gallary.findById(id);
@@ -93,7 +93,7 @@ exports.updateItem = async (req, res) => {
         return res.status(404).json({ message: 'Item not found' });
       }
       if (existingItem.image) {
-        const oldImagePath = path.join(__dirname, '..', existingItem.image);
+        const oldImagePath = path.join(__dirname, '..', 'logos', existingItem.image);
         try {
           await fs.unlink(oldImagePath);
         } catch (err) {

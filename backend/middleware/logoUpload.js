@@ -105,6 +105,14 @@ const uploadLogo = async (req, res, next) => {
           fs.unlink(favIconTemp, (err) => err && console.error('Error deleting temp favIcon:', err));
         }
 
+        if (req.files?.image) {
+          const imageTemp = req.files.image[0].path;
+          const imageFinal = path.join(uploadDir, req.files.image[0].filename);
+          await processLogoImage(imageTemp, imageFinal, false);
+          req.body.image = req.files.image[0].filename;
+          fs.unlink(imageTemp, (err) => err && console.error('Error deleting temp image:', err));
+        }
+
         next();
       } catch (processError) {
         console.error('Processing Error Details:', processError);

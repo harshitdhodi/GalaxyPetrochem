@@ -1,0 +1,1 @@
+import{j as t}from"./index-vNQmX2Xt-1771413625883.js";import o from"./MainContent-5ZlIh1jX-1771413625883.js";import"./dropdown-menu-C812xSLe-1771413625883.js";import"./index-BOB52uau-1771413625883.js";import"./AboutUs-DV4FkyZR-1771413625883.js";function e(){return t.jsx("div",{className:"",children:t.jsx(o,{})})}export{e as default};
