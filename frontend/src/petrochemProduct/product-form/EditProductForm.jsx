@@ -8,7 +8,7 @@ import BasicInfoForm from './forms/BasicInfoForm';
 import CategoryBrandForm from './forms/CategoryBrandForm';
 import ProductDetailsForm from './forms/ProductDetailsForm';
 import DocumentsForm from './forms/DocumentsForm';
-import ImagesForm from './forms/ImagesForm';
+import ImagesForm from './forms/ImagesForm'; 
 import SeoForm from './forms/SeoForm';
 
 const UpdatePetrochemicalProduct = () => {
