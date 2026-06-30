@@ -26,7 +26,7 @@ export default function Separator() {
         const [productRes, subRes, categoryRes] = await Promise.all([
           axios.get('/api/petrochemProduct/getAllSlugs'),
           axios.get('/api/chemicalCategory/getAllSubcategories'),
-          axios.get('/api/chemicalCategory/getAllCategories')
+          axios.get('/api/chemicalCategory/getAll')
         ]);
 
         console.log('Fetched Data:', {
@@ -119,12 +119,12 @@ console.log('isBaseCategoryPath:', isBaseCategoryPath);
     subCategorySlugFromUrl &&
     subcategorySlugs.includes(subCategorySlugFromUrl);
 console.log('isSubCategoryPath:', isSubCategoryPath);
-  // Check if it's a product detail page (e.g., /product-slug)
+  // Check if it's a product detail page (e.g., /subcategory-slug/product-slug)
   const isProductDetailPage = 
     validProductSlugs.length > 0 &&
     slug && 
     validProductSlugs.includes(slug.toLowerCase()) &&
-    pathSegments.length === 1; // Only match single-segment paths
+    pathSegments.length === 2; // Product paths have 2 segments
 
   // Additional logging for route matching
   useEffect(() => {

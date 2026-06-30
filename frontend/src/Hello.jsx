@@ -17,7 +17,7 @@ export default function Hello() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/chemicalCategory/getAllCategories');
+        const response = await fetch('/api/chemicalCategory/getAll');
         const data = await response.json();
         
         console.log('API Response:', data); // Debug: Check the structure
