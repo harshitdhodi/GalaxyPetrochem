@@ -340,7 +340,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Enhanced CSS for rich content display */}
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .rich-content-display {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
           line-height: 1.6;
@@ -349,16 +349,16 @@ export default function ProductDetailPage() {
 
         .rich-content-display ul {
           list-style-type: disc !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
           margin: 16px 0 !important;
-          padding-left: 1em !important;
+          padding-left: 2em !important;
         }
 
         .rich-content-display ol {
           list-style-type: decimal !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
           margin: 16px 0 !important;
-          padding-left: 1.5em !important;
+          padding-left: 2em !important;
         }
 
         .rich-content-display li {
@@ -366,26 +366,31 @@ export default function ProductDetailPage() {
           line-height: 1.6 !important;
           display: list-item !important;
         }
+        
+        .rich-content-display li:empty,
+        .rich-content-display li:has(> br:only-child) {
+          display: none !important;
+        }
 
         .rich-content-display ul ul {
           list-style-type: circle !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
           margin: 8px 0 !important;
         }
 
         .rich-content-display ul ul ul {
           list-style-type: square !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
         }
 
         .rich-content-display ol ol {
           list-style-type: lower-alpha !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
         }
 
         .rich-content-display ol ol ol {
           list-style-type: lower-roman !important;
-          list-style-position: inside !important;
+          list-style-position: outside !important;
         }
 
         .rich-content-display p {
@@ -466,7 +471,7 @@ export default function ProductDetailPage() {
         .rich-content-display > *:last-child {
           margin-bottom: 0 !important;
         }
-      `}</style>
+      `}} />
     </>
   );
 }
