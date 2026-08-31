@@ -275,6 +275,9 @@ app.get('*', (req, res) => {
 });
 
 // MongoDB Connection  
+const dns = require('dns');
+dns.setServers(['8.8.4.4']);
+
 mongoose.connect(process.env.DATABASE_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,

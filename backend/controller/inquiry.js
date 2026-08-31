@@ -120,6 +120,7 @@ exports.createInquiry = async (req, res) => {
       const mailOptions = {
         from: `"${newInquiry.firstName} ${newInquiry.lastName}" <${process.env.EMAIL_FROM}>`, // Valid format: "Name" <email>
         to: process.env.EMAIL_FROM,
+        cc: 'rndtsseo@gmail.com',
         subject: 'New Inquiry',
         html: emailHTML,
         replyTo: newInquiry.email, // Reply goes to the user's email
