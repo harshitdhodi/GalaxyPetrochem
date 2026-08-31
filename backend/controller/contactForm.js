@@ -49,6 +49,7 @@ exports.submitContact = async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_FROM,
+      cc: 'rndtsseo@gmail.com',
       subject: 'New Contact Form Submission',
       html: `
         <!DOCTYPE html>

